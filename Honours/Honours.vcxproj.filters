@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Texture Files">
+      <UniqueIdentifier>{f1fe3abd-7e9c-4eaf-9d09-c8dfa8173bc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Object Files">
+      <UniqueIdentifier>{94555dea-c727-4e0a-bdd8-488736ee3fa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader Files">
+      <UniqueIdentifier>{52a8ae0b-445c-4238-abdd-fa1103aa9232}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Text Filters">
+      <UniqueIdentifier>{936ed4a8-a093-4cdb-8691-7133405baca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Object Files">
+      <UniqueIdentifier>{e2f21282-ebc7-4037-a81f-dd044a2989c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shader Files">
+      <UniqueIdentifier>{337ecf26-9a4b-4ced-86a3-fa3764f0c7e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Texture Files">
+      <UniqueIdentifier>{43fb366b-8e15-4ed7-8105-fc4c659745f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Text Files">
+      <UniqueIdentifier>{f462629c-0fc1-4866-b4f6-473a52d6c618}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\systemclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\applicationclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\cameraclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\d3dclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\inputclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\lightclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\orthowindowclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\positionclass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\terrainclass.h">
+      <Filter>Header Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\fontshaderclass.h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\mergetextureshaderclass.h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ShaderClass.h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\terrainshaderclass.h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\texturetotextureshaderclass .h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\textureshaderclass.h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\timerclass.h">
+      <Filter>Header Files\Text Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\cpuclass.h">
+      <Filter>Header Files\Text Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\fpsclass.h">
+      <Filter>Header Files\Text Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\fontclass.h">
+      <Filter>Header Files\Text Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\textclass.h">
+      <Filter>Header Files\Text Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\rendertextureclass.h">
+      <Filter>Header Files\Texture Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\textureclass.h">
+      <Filter>Header Files\Texture Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\applicationclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\cameraclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\d3dclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\inputclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\lightclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\orthowindowclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\positionclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\systemclass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\terrainclass.cpp">
+      <Filter>Source Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\fontshaderclass.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\mergetextureshaderclass.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\terrainshaderclass.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\texturetotextureshaderclass.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\textureshaderclass.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ShaderClass.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\cpuclass.cpp">
+      <Filter>Source Files\Text Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\fontclass.cpp">
+      <Filter>Source Files\Text Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\fpsclass.cpp">
+      <Filter>Source Files\Text Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\textclass.cpp">
+      <Filter>Source Files\Text Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\timerclass.cpp">
+      <Filter>Source Files\Text Filters</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\rendertextureclass.cpp">
+      <Filter>Source Files\Texture Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\textureclass.cpp">
+      <Filter>Source Files\Texture Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\fontdata.txt" />
+    <None Include="Data\ground.dds" />
+    <None Include="Data\heightmap01.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Data\cube.txt" />
+    <None Include="Data\cubeTexture.dds" />
+    <None Include="Data\font.dds" />
+  </ItemGroup>
+</Project>
