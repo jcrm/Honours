@@ -108,6 +108,9 @@
     <ClInclude Include="Source\cudad3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\SimpleShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\applicationclass.cpp">
@@ -180,6 +183,9 @@
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\cudad3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\SimpleShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

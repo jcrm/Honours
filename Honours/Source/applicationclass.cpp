@@ -94,6 +94,44 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 	//Generate a random height map for the terrain
 	m_Terrain->GenerateHeightMap(m_Direct3D->GetDevice());
+	bool isShader = mSimpleShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+	// Initialize Direct3D
+    if (isShader && SUCCEEDED(InitTextures()))
+    {
+        // 2D
+        // register the Direct3D resources that we'll use
+        // we'll read to and write from g_texture_2d, so don't set any special map flags for it
+        cudaGraphicsD3D11RegisterResource(&g_texture_2d.cudaResource, g_texture_2d.pTexture, cudaGraphicsRegisterFlagsNone);
+        getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
+        // cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
+        // Create a buffer so that cuda can write into it
+        // pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
+        cudaMallocPitch(&g_texture_2d.cudaLinearMemory, &g_texture_2d.pitch, g_texture_2d.width * sizeof(float) * 4, g_texture_2d.height);
+        getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
+        cudaMemset(g_texture_2d.cudaLinearMemory, 1, g_texture_2d.pitch * g_texture_2d.height);
+
+        // CUBE
+        cudaGraphicsD3D11RegisterResource(&g_texture_cube.cudaResource, g_texture_cube.pTexture, cudaGraphicsRegisterFlagsNone);
+        getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cube) failed");
+        // create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+        cudaMallocPitch(&g_texture_cube.cudaLinearMemory, &g_texture_cube.pitch, g_texture_cube.size * 4, g_texture_cube.size);
+        getLastCudaError("cudaMallocPitch (g_texture_cube) failed");
+        cudaMemset(g_texture_cube.cudaLinearMemory, 1, g_texture_cube.pitch * g_texture_cube.size);
+        getLastCudaError("cudaMemset (g_texture_cube) failed");
+
+        // 3D
+        cudaGraphicsD3D11RegisterResource(&g_texture_3d.cudaResource, g_texture_3d.pTexture, cudaGraphicsRegisterFlagsNone);
+        getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_3d) failed");
+        // create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+        //cudaMallocPitch(&g_texture_3d.cudaLinearMemory, &g_texture_3d.pitch, g_texture_3d.width * 4, g_texture_3d.height * g_texture_3d.depth);
+        cudaMalloc(&g_texture_3d.cudaLinearMemory, g_texture_3d.width * 4 * g_texture_3d.height * g_texture_3d.depth);
+        g_texture_3d.pitch = g_texture_3d.width * 4;
+        getLastCudaError("cudaMallocPitch (g_texture_3d) failed");
+        cudaMemset(g_texture_3d.cudaLinearMemory, 1, g_texture_3d.pitch * g_texture_3d.height * g_texture_3d.depth);
+        getLastCudaError("cudaMemset (g_texture_3d) failed");
+    }
+
+
 	return true;
 }
 void ApplicationClass::Shutdown(){
@@ -616,6 +654,10 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the convolution shader object.", L"Error", MB_OK);
 		return false;
 	}
+	mSimpleShader = new SimpleShader;
+	if (!mSimpleShader){
+		return false;
+	}
 	return true;
 }
 void ApplicationClass::ShutdownText(){
@@ -726,4 +768,111 @@ void ApplicationClass::ShutdownShaders(){
 		delete mMergerShader;
 		mMergerShader = 0;
 	}
+}
+
+
+//-----------------------------------------------------------------------------
+// Name: InitTextures()
+// Desc: Initializes Direct3D Textures (allocation and initialization)
+//-----------------------------------------------------------------------------
+HRESULT ApplicationClass::InitTextures(){
+	int offsetInShader = 0;
+	ID3D11Device* g_pd3dDevice = m_Direct3D->GetDevice();
+	ID3D11DeviceContext* g_pd3dDeviceContext = m_Direct3D->GetDeviceContext();
+    //
+    // create the D3D resources we'll be using
+    //
+    // 2D texture
+    {
+        g_texture_2d.width  = 256;
+        g_texture_2d.height = 256;
+
+        D3D11_TEXTURE2D_DESC desc;
+        ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
+        desc.Width = g_texture_2d.width;
+        desc.Height = g_texture_2d.height;
+        desc.MipLevels = 1;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		
+
+        if (FAILED(g_pd3dDevice->CreateTexture2D(&desc, NULL, &g_texture_2d.pTexture))){
+            return E_FAIL;
+        }
+
+        if (FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_2d.pTexture, NULL, &g_texture_2d.pSRView))){
+            return E_FAIL;
+        }
+
+        offsetInShader = 0; // to be clean we should look for the offset from the shader code
+        g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_2d.pSRView);
+    }
+	
+    // 3D texture
+    {
+        g_texture_3d.width  = 64;
+        g_texture_3d.height = 64;
+        g_texture_3d.depth  = 64;
+
+        D3D11_TEXTURE3D_DESC desc;
+        ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
+        desc.Width = g_texture_3d.width;
+        desc.Height = g_texture_3d.height;
+        desc.Depth = g_texture_3d.depth;
+        desc.MipLevels = 1;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+        if (FAILED(g_pd3dDevice->CreateTexture3D(&desc, NULL, &g_texture_3d.pTexture))){
+            return E_FAIL;
+        }
+
+        if (FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_3d.pTexture, NULL, &g_texture_3d.pSRView))){
+            return E_FAIL;
+        }
+
+        offsetInShader = 1; // to be clean we should look for the offset from the shader code
+        g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_3d.pSRView);
+    }
+
+    // cube texture
+    {
+        g_texture_cube.size = 64;
+
+        D3D11_TEXTURE2D_DESC desc;
+        ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
+        desc.Width = g_texture_cube.size;
+        desc.Height = g_texture_cube.size;
+        desc.MipLevels = 1;
+        desc.ArraySize = 6;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE ;
+
+        if (FAILED(g_pd3dDevice->CreateTexture2D(&desc, NULL, &g_texture_cube.pTexture))){
+            return E_FAIL;
+        }
+
+        D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+        ZeroMemory(&SRVDesc, sizeof(SRVDesc));
+        SRVDesc.Format = desc.Format;
+        SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+        SRVDesc.TextureCube.MipLevels = desc.MipLevels;
+        SRVDesc.TextureCube.MostDetailedMip = 0;
+
+        if (FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_cube.pTexture, &SRVDesc, &g_texture_cube.pSRView))){
+            return E_FAIL;
+        }
+
+        offsetInShader = 2; // to be clean we should look for the offset from the shader code
+        g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_cube.pSRView);
+    }
+
+    return S_OK;
 }

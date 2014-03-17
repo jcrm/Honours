@@ -26,6 +26,7 @@
     <ClInclude Include="Source\positionclass.h" />
     <ClInclude Include="Source\rendertextureclass.h" />
     <ClInclude Include="Source\ShaderClass.h" />
+    <ClInclude Include="Source\SimpleShader.h" />
     <ClInclude Include="Source\systemclass.h" />
     <ClInclude Include="Source\terrainclass.h" />
     <ClInclude Include="Source\terrainshaderclass.h" />
@@ -52,6 +53,7 @@
     <ClCompile Include="Source\positionclass.cpp" />
     <ClCompile Include="Source\rendertextureclass.cpp" />
     <ClCompile Include="Source\ShaderClass.cpp" />
+    <ClCompile Include="Source\SimpleShader.cpp" />
     <ClCompile Include="Source\systemclass.cpp" />
     <ClCompile Include="Source\terrainclass.cpp" />
     <ClCompile Include="Source\terrainshaderclass.cpp" />

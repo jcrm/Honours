@@ -34,6 +34,7 @@ const float SCREEN_NEAR = 0.1f;
 #include "texturetotextureshaderclass .h"
 #include "mergetextureshaderclass.h"
 #include "ShaderClass.h"
+#include "SimpleShader.h"
 #include "cudad3d.h"
 
 #include <windows.h>
@@ -179,8 +180,9 @@ private:
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
 	MergeTextureShaderClass* mMergerShader;
+	SimpleShader* mSimpleShader;
 
-
+	HRESULT InitTextures();
 };
 
 #endif
