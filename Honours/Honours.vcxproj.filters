@@ -105,6 +105,9 @@
     <ClInclude Include="Source\textureclass.h">
       <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\cudad3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\applicationclass.cpp">
@@ -176,6 +179,9 @@
     <ClCompile Include="Source\textureclass.cpp">
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\cudad3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\fontdata.txt" />
@@ -186,5 +192,12 @@
     <None Include="Data\cube.txt" />
     <None Include="Data\cubeTexture.dds" />
     <None Include="Data\font.dds" />
+    <None Include="Shader\simple.ps" />
+    <None Include="Shader\simple.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="Shader\texture_3d.cu" />
+    <CudaCompile Include="Shader\texture_cube.cu" />
+    <CudaCompile Include="Shader\texture_2d.cu" />
   </ItemGroup>
 </Project>

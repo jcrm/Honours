@@ -3,13 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "applicationclass.h"
 
-
+#define NAME_LEN	512
 ApplicationClass::ApplicationClass(): m_Input(0), m_Direct3D(0), m_Camera(0), m_Terrain(0),
 	m_Timer(0), m_Position(0), m_Fps(0), m_Cpu(0), m_FontShader(0), m_Text(0),
 	m_TerrainShader(0), m_Light(0), m_TextureShader(0), m_TextureToTextureShader(0),
 	m_RenderFullSizeTexture(0), m_DownSampleHalfSizeTexure(0), m_FullSizeTexure(0), m_FullScreenWindow(0),
 	m_HalfSizeTexture(0), mMergerShader(0),	m_MergeFullSizeTexture(0)
 {
+	g_pInputLayout = NULL;
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other): m_Input(0), m_Direct3D(0), m_Camera(0), m_Terrain(0),
@@ -18,12 +19,20 @@ ApplicationClass::ApplicationClass(const ApplicationClass& other): m_Input(0), m
 	m_RenderFullSizeTexture(0), m_DownSampleHalfSizeTexure(0), m_FullSizeTexure(0), m_FullScreenWindow(0),
 	m_HalfSizeTexture(0), mMergerShader(0), m_MergeFullSizeTexture(0)
 {
+	g_bDone   = false;
+	g_bPassed = true;
+
+	pArgc = NULL;
+	pArgv = NULL;
+	g_WindowWidth = 720;
+	g_WindowHeight = 720;
 }
 ApplicationClass::~ApplicationClass(){
 }
 bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight){
 	bool result;
 	int downSampleWidth, downSampleHeight;
+    char *ref_file = NULL;
 
 	// Set the size to sample down to.
 	downSampleWidth = screenWidth / 2;
@@ -41,7 +50,8 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		return false;
 	}
 	// Create the Direct3D object.
-	m_Direct3D = new D3DClass;
+	//m_Direct3D = new D3DClass;
+	m_Direct3D = new CUDAD3D;
 	if(!m_Direct3D){
 		return false;
 	}

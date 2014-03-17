@@ -14,6 +14,7 @@
     <ClInclude Include="Source\applicationclass.h" />
     <ClInclude Include="Source\cameraclass.h" />
     <ClInclude Include="Source\cpuclass.h" />
+    <ClInclude Include="Source\cudad3d.h" />
     <ClInclude Include="Source\d3dclass.h" />
     <ClInclude Include="Source\fontclass.h" />
     <ClInclude Include="Source\fontshaderclass.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="Source\applicationclass.cpp" />
     <ClCompile Include="Source\cameraclass.cpp" />
     <ClCompile Include="Source\cpuclass.cpp" />
+    <ClCompile Include="Source\cudad3d.cpp" />
     <ClCompile Include="Source\d3dclass.cpp" />
     <ClCompile Include="Source\fontclass.cpp" />
     <ClCompile Include="Source\fontshaderclass.cpp" />
@@ -66,6 +68,13 @@
     <None Include="Data\fontdata.txt" />
     <None Include="Data\ground.dds" />
     <None Include="Data\heightmap01.bmp" />
+    <None Include="Shader\simple.ps" />
+    <None Include="Shader\simple.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="Shader\texture_2d.cu" />
+    <CudaCompile Include="Shader\texture_3d.cu" />
+    <CudaCompile Include="Shader\texture_cube.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61EE65B2-FEAE-4295-8161-DC8AB44098E0}</ProjectGuid>
@@ -110,13 +119,18 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);common/inc;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>cudart_static.lib;d3d10.lib;d3dx10d.lib;dxerr.lib;dxguid.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>/common/lib/$(PlatformName);%(AdditionalLibraryDirectories);$(CudaToolkitLibDir)</AdditionalLibraryDirectories>
     </Link>
+    <CudaCompile>
+      <Include>common/inc;%(Include)</Include>
+      <CodeGeneration>compute_10,sm_10;compute_20,sm_20;compute_30,sm_30;compute_35,sm_35;%(CodeGeneration)</CodeGeneration>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -33,7 +33,7 @@ public:
 	D3DClass(const D3DClass&);
 	~D3DClass();
 
-	bool Initialize(int, int, bool, HWND, bool, float, float);
+	virtual bool Initialize(int, int, bool, HWND, bool, float, float);
 	void Shutdown();
 	
 	void BeginScene(float, float, float, float);
@@ -54,7 +54,7 @@ public:
 	void TurnOffAlphaBlending();
 	void SetBackBufferRenderTarget();
 	void ResetViewport();
-private:
+protected:
 	bool m_vsync_enabled;
 	int m_videoCardMemory;
 	char m_videoCardDescription[128];

@@ -34,9 +34,37 @@ const float SCREEN_NEAR = 0.1f;
 #include "texturetotextureshaderclass .h"
 #include "mergetextureshaderclass.h"
 #include "ShaderClass.h"
+#include "cudad3d.h"
+
+#include <windows.h>
+#include <mmsystem.h>
+
+// This header inclues all the necessary D3D11 and CUDA includes
+#include <dynlink_d3d11.h>
+#include <cuda_runtime_api.h>
+#include <cuda_d3d11_interop.h>
+
+// includes, project
+#include <rendercheck_d3d11.h>
+#include <helper_cuda.h>
+#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
 
 #define MODEL_NUMBER 20
-
+// testing/tracing function used pervasively in tests.  if the condition is unsatisfied
+// then spew and fail the function immediately (doing no cleanup)
+#define AssertOrQuit(x) \
+    if (!(x)) \
+    { \
+        fprintf(stdout, "Assert unsatisfied in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \
+        return 1; \
+    }
+// The CUDA kernel launchers that get called
+extern "C"
+{
+    bool cuda_texture_2d(void *surface, size_t width, size_t height, size_t pitch, float t);
+    bool cuda_texture_3d(void *surface, int width, int height, int depth, size_t pitch, size_t pitchslice, float t);
+    bool cuda_texture_cube(void *surface, int width, int height, size_t pitch, int face, float t);
+}
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +78,65 @@ public:
 	bool Initialize(HINSTANCE, HWND, int, int);
 	void Shutdown();
 	bool Frame();
+	//-----------------------------------------------------------------------------
+	// Global variables
+	//-----------------------------------------------------------------------------
 
+	ID3D11InputLayout      *g_pInputLayout;
+	struct ConstantBuffer
+	{
+		float   vQuadRect[4];
+		int     UseCase;
+	};
+
+	ID3D11VertexShader  *g_pVertexShader;
+	ID3D11PixelShader   *g_pPixelShader;
+	ID3D11Buffer        *g_pConstantBuffer;
+	ID3D11SamplerState  *g_pSamplerState;
+	bool g_bDone;
+	bool g_bPassed;
+
+	int *pArgc;
+	char **pArgv;
+
+	unsigned int g_WindowWidth;
+	unsigned int g_WindowHeight;
+
+	int g_iFrameToCompare;
+
+	// Data structure for 2D texture shared between DX10 and CUDA
+	struct{
+		ID3D11Texture2D         *pTexture;
+		ID3D11ShaderResourceView *pSRView;
+		cudaGraphicsResource    *cudaResource;
+		void                    *cudaLinearMemory;
+		size_t                  pitch;
+		int                     width;
+		int                     height;
+	} g_texture_2d;
+
+	// Data structure for volume textures shared between DX10 and CUDA
+	struct{
+		ID3D11Texture3D         *pTexture;
+		ID3D11ShaderResourceView *pSRView;
+		cudaGraphicsResource    *cudaResource;
+		void                    *cudaLinearMemory;
+		size_t                  pitch;
+		int                     width;
+		int                     height;
+		int                     depth;
+	}g_texture_3d;
+
+	// Data structure for cube texture shared between DX10 and CUDA
+	struct{
+		ID3D11Texture2D         *pTexture;
+		ID3D11ShaderResourceView *pSRView;
+		cudaGraphicsResource    *cudaResource;
+		void                    *cudaLinearMemory;
+		size_t                  pitch;
+		int                     size;
+	} g_texture_cube;
+	
 private:
 	bool HandleInput(float);
 	//Render Functions
@@ -73,7 +159,7 @@ private:
 	void ShutdownShaders();
 private:
 	InputClass* m_Input;
-	D3DClass* m_Direct3D;
+	CUDAD3D* m_Direct3D;
 	CameraClass* m_Camera;
 	
 	TimerClass* m_Timer;
@@ -93,6 +179,8 @@ private:
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
 	MergeTextureShaderClass* mMergerShader;
+
+
 };
 
 #endif
