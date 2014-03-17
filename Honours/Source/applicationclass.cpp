@@ -11,6 +11,7 @@ ApplicationClass::ApplicationClass(): m_Input(0), m_Direct3D(0), m_Camera(0), m_
 	m_HalfSizeTexture(0), mMergerShader(0),	m_MergeFullSizeTexture(0)
 {
 	g_pInputLayout = NULL;
+	//g_pConstantBuffer = NULL;
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other): m_Input(0), m_Direct3D(0), m_Camera(0), m_Terrain(0),
@@ -37,7 +38,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	// Set the size to sample down to.
 	downSampleWidth = screenWidth / 2;
 	downSampleHeight = screenHeight / 2;
-
+	
 	// Create the input object.  The input object will be used to handle reading the keyboard and mouse input from the user.
 	m_Input = new InputClass;
 	if(!m_Input){
@@ -167,16 +168,18 @@ void ApplicationClass::Shutdown(){
 }
 bool ApplicationClass::Frame(){
 	bool result;
-	// Read the user input.
-	result = m_Input->Frame();
-	if(!result){
-		return false;
+	if(m_Input){
+		// Read the user input.
+		result = m_Input->Frame();
+		if(!result){
+			return false;
+		}
+	
+		// Check if the user pressed escape and wants to exit the application.
+		if(m_Input->IsEscapePressed() == true){
+			return false;
+		}
 	}
-	// Check if the user pressed escape and wants to exit the application.
-	if(m_Input->IsEscapePressed() == true){
-		return false;
-	}
-
 	// Update the system stats.
 	m_Timer->Frame();
 	m_Fps->Frame();
@@ -193,11 +196,12 @@ bool ApplicationClass::Frame(){
 	if(!result){
 		return false;
 	}
-
-	// Do the frame input processing.
-	result = HandleInput(m_Timer->GetTime());
-	if(!result){
-		return false;
+	if(m_Input){
+		// Do the frame input processing.
+		result = HandleInput(m_Timer->GetTime());
+		if(!result){
+			return false;
+		}
 	}
 	// Render the graphics scene.
 	result = Render();
@@ -259,7 +263,7 @@ bool ApplicationClass::HandleInput(float frameTime){
 }
 bool ApplicationClass::Render(){
 	bool result;
-
+	CudaRender();
 	// First render the scene to a render texture.
 	result = RenderSceneToTexture(m_RenderFullSizeTexture);
 	if(!result){
@@ -267,6 +271,7 @@ bool ApplicationClass::Render(){
 	}
 	//render the texture to the scene
 	result = Render2DTextureScene(m_RenderFullSizeTexture);
+
 	if(!result){
 		return false;
 	}
@@ -419,7 +424,8 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 	// Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
-	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
+	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
+	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
 	if(!result){
 		return false;
 	}
@@ -875,4 +881,194 @@ HRESULT ApplicationClass::InitTextures(){
     }
 
     return S_OK;
+}
+//-----------------------------------------------------------------------------
+// Name: Render()
+// Desc: Launches the CUDA kernels to fill in the texture data
+//-----------------------------------------------------------------------------
+void ApplicationClass::CudaRender()
+{
+    //
+    // map the resources we've registered so we can access them in Cuda
+    // - it is most efficient to map and unmap all resources in a single call,
+    //   and to have the map/unmap calls be the boundary between using the GPU
+    //   for Direct3D and Cuda
+    //
+    static bool doit = true;
+
+    if (doit)
+    {
+        doit = true;
+        cudaStream_t    stream = 0;
+        const int nbResources = 3;
+        cudaGraphicsResource *ppResources[nbResources] =
+        {
+            g_texture_2d.cudaResource,
+            g_texture_3d.cudaResource,
+            g_texture_cube.cudaResource,
+        };
+        cudaGraphicsMapResources(nbResources, ppResources, stream);
+        getLastCudaError("cudaGraphicsMapResources(3) failed");
+
+        //
+        // run kernels which will populate the contents of those textures
+        //
+        RunKernels();
+
+        //
+        // unmap the resources
+        //
+        cudaGraphicsUnmapResources(nbResources, ppResources, stream);
+        getLastCudaError("cudaGraphicsUnmapResources(3) failed");
+    }
+
+    //
+    // draw the scene using them
+    //
+   // CudaDrawScene();
+}
+////////////////////////////////////////////////////////////////////////////////
+//! Run the Cuda part of the computation
+////////////////////////////////////////////////////////////////////////////////
+void ApplicationClass::RunKernels()
+{
+    static float t = 0.0f;
+
+    // populate the 2d texture
+    {
+        cudaArray *cuArray;
+        cudaGraphicsSubResourceGetMappedArray(&cuArray, g_texture_2d.cudaResource, 0, 0);
+        getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_2d) failed");
+
+        // kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+        cuda_texture_2d(g_texture_2d.cudaLinearMemory, g_texture_2d.width, g_texture_2d.height, g_texture_2d.pitch, t);
+        getLastCudaError("cuda_texture_2d failed");
+
+        // then we want to copy cudaLinearMemory to the D3D texture, via its mapped form : cudaArray
+        cudaMemcpy2DToArray(
+            cuArray, // dst array
+            0, 0,    // offset
+            g_texture_2d.cudaLinearMemory, g_texture_2d.pitch,       // src
+            g_texture_2d.width*4*sizeof(float), g_texture_2d.height, // extent
+            cudaMemcpyDeviceToDevice); // kind
+        getLastCudaError("cudaMemcpy2DToArray failed");
+    }
+    // populate the volume texture
+    {
+        size_t pitchSlice = g_texture_3d.pitch * g_texture_3d.height;
+        cudaArray *cuArray;
+        cudaGraphicsSubResourceGetMappedArray(&cuArray, g_texture_3d.cudaResource, 0, 0);
+        getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
+
+        // kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+        cuda_texture_3d(g_texture_3d.cudaLinearMemory, g_texture_3d.width, g_texture_3d.height, g_texture_3d.depth, g_texture_3d.pitch, pitchSlice, t);
+        getLastCudaError("cuda_texture_3d failed");
+
+        // then we want to copy cudaLinearMemory to the D3D texture, via its mapped form : cudaArray
+        struct cudaMemcpy3DParms memcpyParams = {0};
+        memcpyParams.dstArray = cuArray;
+        memcpyParams.srcPtr.ptr = g_texture_3d.cudaLinearMemory;
+        memcpyParams.srcPtr.pitch = g_texture_3d.pitch;
+        memcpyParams.srcPtr.xsize = g_texture_3d.width;
+        memcpyParams.srcPtr.ysize = g_texture_3d.height;
+        memcpyParams.extent.width = g_texture_3d.width;
+        memcpyParams.extent.height = g_texture_3d.height;
+        memcpyParams.extent.depth = g_texture_3d.depth;
+        memcpyParams.kind = cudaMemcpyDeviceToDevice;
+        cudaMemcpy3D(&memcpyParams);
+        getLastCudaError("cudaMemcpy3D failed");
+    }
+
+    // populate the faces of the cube map
+    for (int face = 0; face < 6; ++face)
+    {
+        cudaArray *cuArray;
+        cudaGraphicsSubResourceGetMappedArray(&cuArray, g_texture_cube.cudaResource, face, 0);
+        getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_cube) failed");
+
+        // kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+        cuda_texture_cube(g_texture_cube.cudaLinearMemory, g_texture_cube.size, g_texture_cube.size, g_texture_cube.pitch, face, t);
+        getLastCudaError("cuda_texture_cube failed");
+
+        // then we want to copy cudaLinearMemory to the D3D texture, via its mapped form : cudaArray
+        cudaMemcpy2DToArray(
+            cuArray, // dst array
+            0, 0,    // offset
+            g_texture_cube.cudaLinearMemory, g_texture_cube.pitch, // src
+            g_texture_cube.size*4, g_texture_cube.size,            // extent
+            cudaMemcpyDeviceToDevice); // kind
+        getLastCudaError("cudaMemcpy2DToArray failed");
+    }
+
+    t += 0.1f;
+}
+////////////////////////////////////////////////////////////////////////////////
+//! Draw the final result on the screen
+////////////////////////////////////////////////////////////////////////////////
+bool ApplicationClass::CudaDrawScene()
+{
+    // Clear the backbuffer to a black color
+    float ClearColor[4] = {0.5f, 0.5f, 0.6f, 1.0f};
+	
+	ID3D11DeviceContext* g_pd3dDeviceContext = m_Direct3D->GetDeviceContext();
+	/********
+    g_pd3dDeviceContext->ClearRenderTargetView(g_pSwapChainRTV, ClearColor);
+	*********/
+    float quadRect[4] = { -0.9f, -0.9f, 0.7f , 0.7f };
+    //
+    // draw the 2d texture
+    //
+    HRESULT hr;
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    ConstantBuffer *pcb;
+    hr = g_pd3dDeviceContext->Map(mSimpleShader->GetBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    AssertOrQuit(SUCCEEDED(hr));
+    pcb = (ConstantBuffer *) mappedResource.pData;
+    {
+        memcpy(pcb->vQuadRect, quadRect, sizeof(float)*4);
+        pcb->UseCase = 0;
+    }
+    g_pd3dDeviceContext->Unmap(mSimpleShader->GetBuffer(), 0);
+    g_pd3dDeviceContext->Draw(4, 0);
+
+    //
+    // draw a slice the 3d texture
+    //
+    quadRect[1] = 0.1f;
+    hr = g_pd3dDeviceContext->Map(mSimpleShader->GetBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    AssertOrQuit(SUCCEEDED(hr));
+    pcb = (ConstantBuffer *) mappedResource.pData;
+    {
+        memcpy(pcb->vQuadRect, quadRect, sizeof(float)*4);
+        pcb->UseCase = 1;
+    }
+    g_pd3dDeviceContext->Unmap(mSimpleShader->GetBuffer(), 0);
+    g_pd3dDeviceContext->Draw(4, 0);
+
+    //
+    // draw the 6 faces of the cube texture
+    //
+    float faceRect[4] = { -0.1f, -0.9f, 0.5f, 0.5f };
+
+    for (int f = 0; f < 6; f++)
+    {
+        if (f == 3)
+        {
+            faceRect[0] += 0.55f ;
+            faceRect[1] = -0.9f ;
+        }
+
+        hr = g_pd3dDeviceContext->Map(mSimpleShader->GetBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+        AssertOrQuit(SUCCEEDED(hr));
+        pcb = (ConstantBuffer *) mappedResource.pData;
+        {
+            memcpy(pcb->vQuadRect, faceRect, sizeof(float)*4);
+            pcb->UseCase = 2 + f;
+        }
+        g_pd3dDeviceContext->Unmap(mSimpleShader->GetBuffer(), 0);
+        g_pd3dDeviceContext->Draw(4, 0);
+        faceRect[1] += 0.6f ;
+
+    }
+    return true;
 }

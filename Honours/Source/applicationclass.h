@@ -92,7 +92,6 @@ public:
 
 	ID3D11VertexShader  *g_pVertexShader;
 	ID3D11PixelShader   *g_pPixelShader;
-	ID3D11Buffer        *g_pConstantBuffer;
 	ID3D11SamplerState  *g_pSamplerState;
 	bool g_bDone;
 	bool g_bPassed;
@@ -183,6 +182,9 @@ private:
 	SimpleShader* mSimpleShader;
 
 	HRESULT InitTextures();
+	void CudaRender();
+	void RunKernels();
+	bool CudaDrawScene();
 };
 
 #endif

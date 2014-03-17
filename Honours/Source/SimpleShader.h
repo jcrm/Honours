@@ -9,6 +9,7 @@ public:
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);
+	ID3D11Buffer* GetBuffer(){return m_matrixBuffer;}
 protected:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
