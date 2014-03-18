@@ -37,6 +37,7 @@ __global__ void cuda_kernel_texture_3d(unsigned char *surface, int width, int he
         pixel[1] = (unsigned char)(255.f * (0.5f + 0.5f*sin(t + (x*x + y*y + z*z)*0.0001f *3.14f)));   // green
         pixel[2] = (unsigned char) 0;  // blue
         pixel[3] = 255; // alpha
+		
     }
 }
 

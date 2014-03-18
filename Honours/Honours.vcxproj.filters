@@ -205,5 +205,6 @@
     <CudaCompile Include="Shader\texture_3d.cu" />
     <CudaCompile Include="Shader\texture_cube.cu" />
     <CudaCompile Include="Shader\texture_2d.cu" />
+    <CudaCompile Include="Shader\cloud.cu" />
   </ItemGroup>
 </Project>
