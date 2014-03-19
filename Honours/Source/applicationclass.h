@@ -49,6 +49,8 @@ const float SCREEN_NEAR = 0.1f;
 #include <rendercheck_d3d11.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
+#include "cuda_structs.h"
+#include "cuda_kernals.h"
 
 #define MODEL_NUMBER 20
 // testing/tracing function used pervasively in tests.  if the condition is unsatisfied
@@ -59,13 +61,7 @@ const float SCREEN_NEAR = 0.1f;
         fprintf(stdout, "Assert unsatisfied in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \
         return 1; \
     }
-// The CUDA kernel launchers that get called
-extern "C"
-{
-    bool cuda_texture_2d(void *surface, size_t width, size_t height, size_t pitch, float t);
-    bool cuda_texture_3d(void *surface, int width, int height, int depth, size_t pitch, size_t pitchslice, float t);
-    bool cuda_texture_cube(void *surface, int width, int height, size_t pitch, int face, float t);
-}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,10 +78,8 @@ public:
 	//-----------------------------------------------------------------------------
 	// Global variables
 	//-----------------------------------------------------------------------------
-
 	ID3D11InputLayout      *g_pInputLayout;
-	struct ConstantBuffer
-	{
+	struct ConstantBuffer{
 		float   vQuadRect[4];
 		int     UseCase;
 	};
@@ -104,38 +98,6 @@ public:
 
 	int g_iFrameToCompare;
 
-	// Data structure for 2D texture shared between DX10 and CUDA
-	struct{
-		ID3D11Texture2D         *pTexture;
-		ID3D11ShaderResourceView *pSRView;
-		cudaGraphicsResource    *cudaResource;
-		void                    *cudaLinearMemory;
-		size_t                  pitch;
-		int                     width;
-		int                     height;
-	} g_texture_2d;
-
-	// Data structure for volume textures shared between DX10 and CUDA
-	struct{
-		ID3D11Texture3D         *pTexture;
-		ID3D11ShaderResourceView *pSRView;
-		cudaGraphicsResource    *cudaResource;
-		void                    *cudaLinearMemory;
-		size_t                  pitch;
-		int                     width;
-		int                     height;
-		int                     depth;
-	}g_texture_3d;
-
-	// Data structure for cube texture shared between DX10 and CUDA
-	struct{
-		ID3D11Texture2D         *pTexture;
-		ID3D11ShaderResourceView *pSRView;
-		cudaGraphicsResource    *cudaResource;
-		void                    *cudaLinearMemory;
-		size_t                  pitch;
-		int                     size;
-	} g_texture_cube;
 	
 private:
 	bool HandleInput(float);
@@ -157,6 +119,11 @@ private:
 	void ShutdownTextures();
 	void ShutdownCamera();
 	void ShutdownShaders();
+
+	HRESULT InitTextures();
+	void CudaRender();
+	void RunKernels();
+	bool CudaDrawScene();
 private:
 	InputClass* m_Input;
 	CUDAD3D* m_Direct3D;
@@ -181,10 +148,9 @@ private:
 	MergeTextureShaderClass* mMergerShader;
 	SimpleShader* mSimpleShader;
 
-	HRESULT InitTextures();
-	void CudaRender();
-	void RunKernels();
-	bool CudaDrawScene();
+	texture_2d g_texture_2d;
+	texture_3d g_texture_3d;
+	texture_cube g_texture_cube;
 };
 
 #endif
