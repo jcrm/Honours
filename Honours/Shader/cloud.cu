@@ -85,7 +85,7 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 	float3 vOld = velocity.Sample(samPointClamp, in.texcoords);  
 	float3 vNew = vOld - gradP;  
 	return float4(vNew, 0);  
-} */
+} */  
 
 extern "C"
 void cuda_fluid_advect(void *output, void *velocityinput, float3 sizeWHD, size_t pitch, size_t pitchSlice){
