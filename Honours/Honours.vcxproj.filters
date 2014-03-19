@@ -37,30 +37,39 @@
     <Filter Include="Header Files\Text Files">
       <UniqueIdentifier>{f462629c-0fc1-4866-b4f6-473a52d6c618}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Texture Files">
+      <UniqueIdentifier>{06783bdf-4807-4f4f-a69c-75a6b6df52c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\CUDA Files">
+      <UniqueIdentifier>{2fc8b4d0-4a38-47df-ac3b-ff211083d59e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Other Files">
+      <UniqueIdentifier>{879ada38-8b03-4dff-989e-1764d24c896a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files">
+      <UniqueIdentifier>{2ddd9954-1aca-4324-b857-ef7cd8b3f14c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectX Files">
+      <UniqueIdentifier>{ae9d778d-4482-4c62-b28b-f406a05b5c7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Manager Files">
+      <UniqueIdentifier>{9bb4590f-4c00-4a43-969b-4b80d8206fb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\DirectX Files">
+      <UniqueIdentifier>{114717e5-14f8-4a51-8148-2685165ae8d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Manager Files">
+      <UniqueIdentifier>{6611ef7a-f986-4ffb-baf6-10afb10a5f68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Other Files">
+      <UniqueIdentifier>{3ef853f3-1bca-4219-ad7f-012b9272442f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Other Files">
+      <UniqueIdentifier>{fa38e1ff-67e3-4275-8e41-a5fc42d67752}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\systemclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\applicationclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\cameraclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\d3dclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\inputclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\lightclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\orthowindowclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\positionclass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\terrainclass.h">
@@ -106,38 +115,38 @@
       <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\cudad3d.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\DirectX Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\d3dclass.h">
+      <Filter>Header Files\DirectX Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\SimpleShader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\lightclass.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\inputclass.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\cameraclass.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\systemclass.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\positionclass.h">
+      <Filter>Header Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\orthowindowclass.h">
+      <Filter>Header Files\Other Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\applicationclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\cameraclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\d3dclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\inputclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\lightclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\orthowindowclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\positionclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\systemclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\terrainclass.cpp">
@@ -182,29 +191,81 @@
     <ClCompile Include="Source\textureclass.cpp">
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\cudad3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\SimpleShader.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\cudad3d.cpp">
+      <Filter>Source Files\DirectX Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\d3dclass.cpp">
+      <Filter>Source Files\DirectX Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\systemclass.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\lightclass.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\inputclass.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\cameraclass.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\positionclass.cpp">
+      <Filter>Source Files\Other Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\orthowindowclass.cpp">
+      <Filter>Source Files\Other Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data\fontdata.txt" />
-    <None Include="Data\ground.dds" />
-    <None Include="Data\heightmap01.bmp">
-      <Filter>Resource Files</Filter>
+    <None Include="Shader\simple.ps">
+      <Filter>Resource Files\Shader Files</Filter>
     </None>
-    <None Include="Data\cube.txt" />
-    <None Include="Data\cubeTexture.dds" />
-    <None Include="Data\font.dds" />
-    <None Include="Shader\simple.ps" />
-    <None Include="Shader\simple.vs" />
+    <None Include="Shader\simple.vs">
+      <Filter>Resource Files\Shader Files</Filter>
+    </None>
+    <None Include="Data\ground.dds">
+      <Filter>Resource Files\Texture Files</Filter>
+    </None>
+    <None Include="Data\font.dds">
+      <Filter>Resource Files\Texture Files</Filter>
+    </None>
+    <None Include="Data\cubeTexture.dds">
+      <Filter>Resource Files\Texture Files</Filter>
+    </None>
+    <None Include="Data\cube.txt">
+      <Filter>Resource Files\Other Files</Filter>
+    </None>
+    <None Include="Data\heightmap01.bmp">
+      <Filter>Resource Files\Other Files</Filter>
+    </None>
+    <None Include="Data\fontdata.txt">
+      <Filter>Resource Files\Other Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Shader\texture_3d.cu" />
-    <CudaCompile Include="Shader\texture_cube.cu" />
-    <CudaCompile Include="Shader\texture_2d.cu" />
-    <CudaCompile Include="Shader\cloud.cu" />
+    <CudaCompile Include="Shader\texture_2d.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Shader\texture_cube.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="Shader\texture_3d.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\cloud.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\divergence.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\advect.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="jacobi.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

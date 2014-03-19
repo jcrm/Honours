@@ -74,7 +74,10 @@
     <None Include="Shader\simple.vs" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Shader\cloud.cu" />
+    <CudaCompile Include="CUDA\advect.cu" />
+    <CudaCompile Include="CUDA\cloud.cu" />
+    <CudaCompile Include="CUDA\divergence.cu" />
+    <CudaCompile Include="jacobi.cu" />
     <CudaCompile Include="Shader\texture_2d.cu" />
     <CudaCompile Include="Shader\texture_3d.cu" />
     <CudaCompile Include="Shader\texture_cube.cu" />
