@@ -16,12 +16,12 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 
 	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
 		// Get pressure values from neighboring cells. 
-		unsigned char *pLeft;
-		unsigned char *pRight;
-		unsigned char *pDown;
-		unsigned char *pUp;
-		unsigned char *pBottom;
-		unsigned char *pTop;
+		unsigned char *pLeft = NULL;
+		unsigned char *pRight = NULL;
+		unsigned char *pDown = NULL;
+		unsigned char *pUp = NULL;
+		unsigned char *pBottom = NULL;
+		unsigned char *pTop = NULL;
 
 		if(xIter - 1 < 0){
 			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);

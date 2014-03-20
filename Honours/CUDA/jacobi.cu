@@ -19,12 +19,12 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressure, unsigned char *diver
 		// Get the divergence at the current cell.  
 		float dCentre = cellDivergence[0];
 		// Get pressure values from neighboring cells. 
-		unsigned char *pLeft;
-		unsigned char *pRight;
-		unsigned char *pDown;
-		unsigned char *pUp;
-		unsigned char *pBottom;
-		unsigned char *pTop;
+		unsigned char *pLeft = NULL;
+		unsigned char *pRight = NULL;
+		unsigned char *pDown = NULL;
+		unsigned char *pUp = NULL;
+		unsigned char *pBottom = NULL;
+		unsigned char *pTop = NULL;
 
 		if(xIter - 1 < 0){
 			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
