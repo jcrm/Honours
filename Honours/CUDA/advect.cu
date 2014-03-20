@@ -8,29 +8,37 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocit
 	int xIter = blockIdx.x*blockDim.x + threadIdx.x;
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
-	float timeStep = 1;
-	//location is z slide + y position + variable size time x position
-	int location =(zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
-	unsigned char* cellVelocity = velocityInput + location;
-	float3 pos;
-	pos.x = xIter;
-	pos.y = yIter;
-	pos.z = zIter;
+	float timeStep = 0.011;
 
-	pos.x -= timeStep * cellVelocity[0];  
-	pos.y -= timeStep * cellVelocity[1];  
-	pos.z -= timeStep * cellVelocity[2];  
+	 // in the case where, due to quantization into grids, we have
+    // more threads than pixels, skip the threads which don't
+    // correspond to valid pixels
+    if (xIter >= sizeWHD.x || yIter >= sizeWHD.y) return;
 
-	pos.x /= sizeWHD.x;
-	pos.y /= sizeWHD.y;
-	pos.z += 0.5;
-	pos.z /= sizeWHD.z;
+	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
+		//location is z slide + y position + variable size time x position
+		int location =(zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		unsigned char* cellVelocity = velocityInput + location;
+		float3 pos;
+		pos.x = xIter;
+		pos.y = yIter;
+		pos.z = zIter;
 
-	unsigned char* outputPixel = output + location;
-	outputPixel[0] = pos.x;
-	outputPixel[1] = pos.y;
-	outputPixel[2] = pos.z;
-	outputPixel[3] = 255; 
+		pos.x -= timeStep * cellVelocity[0];  
+		pos.y -= timeStep * cellVelocity[1];  
+		pos.z -= timeStep * cellVelocity[2];  
+
+		pos.x /= sizeWHD.x;
+		pos.y /= sizeWHD.y;
+		pos.z += 0.5;
+		pos.z /= sizeWHD.z;
+
+		unsigned char* outputPixel = output + location;
+		outputPixel[0] = pos.x;
+		outputPixel[1] = pos.y;
+		outputPixel[2] = pos.z;
+		outputPixel[3] = 255; 
+	}
 }
 extern "C"
 void cuda_fluid_advect(void *output, void *velocityinput, float3 sizeWHD, size_t pitch, size_t pitchSlice){
@@ -43,6 +51,6 @@ void cuda_fluid_advect(void *output, void *velocityinput, float3 sizeWHD, size_t
 
     error = cudaGetLastError();
     if (error != cudaSuccess){
-        printf("cuda_kernel_texture_3d() failed to launch error = %d\n", error);
+        printf("cuda_kernel_advect() failed to launch error = %d\n", error);
     }
 }

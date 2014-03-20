@@ -124,6 +124,8 @@ private:
 	void CudaRender();
 	void RunKernels();
 	bool CudaDrawScene();
+	void InitClouds();
+	void RunCloudKernals();
 private:
 	InputClass* m_Input;
 	CUDAD3D* m_Direct3D;
@@ -151,6 +153,7 @@ private:
 	texture_2d g_texture_2d;
 	texture_3d g_texture_3d;
 	texture_cube g_texture_cube;
+	fluid_texture_3d g_texture_cloud;
 };
 
 #endif
