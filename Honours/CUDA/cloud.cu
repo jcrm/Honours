@@ -83,6 +83,6 @@ void cuda_fluid_project(void *pressure, void *velocityInput, float3 sizeWHD, siz
 
     error = cudaGetLastError();
     if (error != cudaSuccess){
-        printf("cuda_kernel_project() failed to launch error = %d\n", error);
+        printf("cuda_fluid_project() failed to launch error = %d\n", error);
     }
 }
