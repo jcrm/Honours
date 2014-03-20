@@ -17,15 +17,48 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressure, unsigned char *diver
 	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
 		unsigned char* cellDivergence = divergence + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
 		// Get the divergence at the current cell.  
-		float dCentre = cellDivergence[0];  
-		// Get pressure values from neighboring cells.  
-		unsigned char *pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter-1));
-		unsigned char *pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter+1));
-		unsigned char *pBottom = pressure + ((zIter+1)*pitchSlice) + (yIter*pitch) + (4*xIter);
-		unsigned char *pTop = pressure + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);
-		unsigned char *pDown = pressure + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter);  
-		unsigned char *pUp = pressure + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter); 
+		float dCentre = cellDivergence[0];
+		// Get pressure values from neighboring cells. 
+		unsigned char *pLeft;
+		unsigned char *pRight;
+		unsigned char *pDown;
+		unsigned char *pUp;
+		unsigned char *pBottom;
+		unsigned char *pTop;
 
+		if(xIter - 1 < 0){
+			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter-1));
+		}
+		if(xIter + 1 ==sizeWHD.x){
+			pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter+1));
+		}
+
+		if(yIter - 1 < 0){
+			pDown = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter); 
+		}else{
+			pDown = pressure + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter); 
+		}
+		if(yIter + 1 ==sizeWHD.y){
+			pUp = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter); 
+		}else{
+			pUp = pressure + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter); 
+		}
+
+		if(zIter - 1 < 0){
+			pTop = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pTop = pressure + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}
+		if(zIter + 1 ==sizeWHD.y){
+			pBottom = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pBottom = pressure + ((zIter+1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}
+		
 		// Compute the new pressure value for the center cell.
 		unsigned char* cellPressure = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
 		float newValue = pLeft[0] + pRight[0] + pBottom[0] + pTop[0] + pUp[0] + pDown[0] - dCentre;

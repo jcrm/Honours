@@ -15,14 +15,46 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
     if (xIter >= sizeWHD.x || yIter >= sizeWHD.y) return;
 
 	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
-		// Compute the gradient of pressure at the current cell by  
-		// taking central differences of neighboring pressure values.  
-		unsigned char *pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter-1));
-		unsigned char *pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter+1));
-		unsigned char *pBottom = pressure + ((zIter+1)*pitchSlice) + (yIter*pitch) + (4*xIter);
-		unsigned char *pTop = pressure + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);
-		unsigned char *pDown = pressure + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter);  
-		unsigned char *pUp = pressure + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter);
+		// Get pressure values from neighboring cells. 
+		unsigned char *pLeft;
+		unsigned char *pRight;
+		unsigned char *pDown;
+		unsigned char *pUp;
+		unsigned char *pBottom;
+		unsigned char *pTop;
+
+		if(xIter - 1 < 0){
+			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter-1));
+		}
+		if(xIter + 1 ==sizeWHD.x){
+			pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter+1));
+		}
+
+		if(yIter - 1 < 0){
+			pDown = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter); 
+		}else{
+			pDown = pressure + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter); 
+		}
+		if(yIter + 1 ==sizeWHD.y){
+			pUp = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter); 
+		}else{
+			pUp = pressure + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter); 
+		}
+
+		if(zIter - 1 < 0){
+			pTop = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pTop = pressure + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}
+		if(zIter + 1 ==sizeWHD.y){
+			pBottom = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}else{
+			pBottom = pressure + ((zIter+1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+		}
 		float3 gradP;
 		gradP.x = 0.5 *(pRight[0] - pLeft[0]);
 		gradP.y = 0.5 *(pTop[0] - pBottom[0]);
