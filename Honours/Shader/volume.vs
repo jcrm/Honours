@@ -1,41 +1,73 @@
-cbuffer cbuf
+SamplerState FrontS
 {
-  float4 g_vQuadRect;
-  int g_UseCase;
-}
-Texture2D g_Texture2D;
-Texture3D g_Texture3D;
-TextureCube g_TextureCube;
+	Texture = Front;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = LINEAR;
+	
+	AddressU = Border;				// border sampling in U
+    AddressV = Border;				// border sampling in V
+    BorderColor = float4(0,0,0,0);	// outside of border should be black
+};
 
-SamplerState samLinear{
-    Filter = MIN_MAG_LINEAR_MIP_POINT;
-};
-struct VertexInputType
+SamplerState BackS
 {
-    uint SV_VertexID : POSITION;
+	Texture = Back;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = LINEAR;
+	
+	AddressU = Border;				// border sampling in U
+	AddressV = Border;				// border sampling in V
+	BorderColor = float4(0,0,0,0);	// outside of border should be black
 };
-struct PixelInputType{  
-    float4 Pos : SV_POSITION; 
-    float3 Tex : TEXCOORD0;
-}; 
- 
-PixelInputType SimpleVertexShader(VertexInputType vertexId) 
-{ 
-    PixelInputType output; 
-    output.Tex = float3( 0.f, 0.f, 0.f);  
-    if (vertexId.SV_VertexID == 1) output.Tex.x = 1.f;  
-    else if (vertexId.SV_VertexID == 2) output.Tex.y = 1.f;  
-    else if (vertexId.SV_VertexID == 3) output.Tex.xy = float2(1.f, 1.f);  
-     
-    output.Pos = float4( g_vQuadRect.xy + output.Tex * g_vQuadRect.zw, 0, 1); 
-     
-    if (g_UseCase == 1) {  
-        if (vertexId.SV_VertexID == 1) output.Tex.z = 0.5f;  
-        else if (vertexId.SV_VertexID == 2) output.Tex.z = 0.5f;  
-        else if (vertexId.SV_VertexID == 3) output.Tex.z = 1.f;  
-    }  
-    else if (g_UseCase >= 2) {
-        output.Tex.xy = output.Tex.xy * 2.f - 1.f;
-    }
-    return output;
+
+SamplerState VolumeS
+{
+	Texture = Volume;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+	MipFilter = LINEAR;
+	
+	AddressU = Border;				// border sampling in U
+	AddressV = Border;				// border sampling in V
+	AddressW = Border;
+	BorderColor = float4(0,0,0,0);	// outside of border should be black
+};
+
+cbuffer MatrixBuffer
+{
+float4x4 World;
+float4x4 WorldViewProj;
+float4x4 WorldInvTrans;
+};
+
+float4 ScaleFactor;
+
+Texture2D Front;
+Texture2D Back;
+Texture2D Volume;
+
+struct VertexShaderInput
+{
+    float4 Position : POSITION0;
+    float2 texC		: TEXCOORD0;
+};
+
+struct VertexShaderOutput
+{
+	float4 Position		: POSITION0;
+	float3 texC			: TEXCOORD0;
+	float4 pos			: TEXCOORD1;
+};
+
+VertexShaderOutput PositionVS(VertexShaderInput input){
+	VertexShaderOutput output;
+	
+	output.Position = mul(input.Position * ScaleFactor, WorldViewProj);
+
+	output.texC = input.Position;
+	output.pos = output.Position;
+
+	return output;
 }

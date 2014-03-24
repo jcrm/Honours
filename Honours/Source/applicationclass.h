@@ -121,7 +121,7 @@ private:
 	TextureToTextureShaderClass* m_TextureToTextureShader;
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
-	VolumeShader* mVolumeShader;
+	//VolumeShader* mVolumeShader;
 
 	texture_2d g_texture_2d;
 	fluid_texture_3d g_texture_cloud;
