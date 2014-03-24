@@ -4,44 +4,34 @@
 #include <helper_functions.h>
 #include <rendercheck_d3d11.h>
 #include <dynlink_d3d11.h>
-#include "SimpleShader.h"
+#include "VolumeShader.h"
 
-
-SimpleShader::SimpleShader(void)
-{
+VolumeShader::VolumeShader(void){
 }
 
-
-SimpleShader::~SimpleShader(void)
-{
+VolumeShader::~VolumeShader(void){
 }
 
-
-bool SimpleShader::Initialize(ID3D11Device* device, HWND hwnd)
-{
+bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 	bool result;
-
-
+	
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/simple.vs", L"Shader/simple.ps");
-	if(!result)
-	{
+	result = InitializeShader(device, hwnd, L"Shader/volume.vs", L"Shader/volume.ps");
+	if(!result){
 		return false;
 	}
 
 	return true;
 }
-void SimpleShader::Shutdown()
-{
+void VolumeShader::Shutdown(){
 	// Shutdown the vertex and pixel shaders as well as the related objects.
 	ShutdownShader();
 
 	return;
 }
 
-bool SimpleShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-								D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
-{
+bool VolumeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+								D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
 	bool result;
 
 
@@ -57,8 +47,7 @@ bool SimpleShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3
 
 	return true;
 }
-bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
-{
+bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
 	HRESULT result;
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
@@ -77,16 +66,11 @@ bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
     // Compile the vertex shader code.
 	result = D3DX11CompileFromFile(vsFilename, NULL, NULL, "SimpleVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 								   &vertexShaderBuffer, &errorMessage, NULL);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		// If the shader failed to compile it should have writen something to the error message.
-		if(errorMessage)
-		{
+		if(errorMessage){
 			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-		}
-		// If there was nothing in the error message then it simply could not find the shader file itself.
-		else
-		{
+		}else{		// If there was nothing in the error message then it simply could not find the shader file itself.
 			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
 		}
 
@@ -96,16 +80,12 @@ bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
     // Compile the pixel shader code.
 	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "SimplePixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 								   &pixelShaderBuffer, &errorMessage, NULL);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		// If the shader failed to compile it should have writen something to the error message.
-		if(errorMessage)
-		{
+		if(errorMessage){
 			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-		}
+		}else{
 		// If there was  nothing in the error message then it simply could not find the file itself.
-		else
-		{
 			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
 		}
 
@@ -114,15 +94,13 @@ bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		return false;
 	}
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -164,8 +142,7 @@ bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -186,8 +163,7 @@ bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 
 	// Create the texture sampler state.
     result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -196,40 +172,33 @@ bool SimpleShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
     getLastCudaError("cudaD3D11SetDirect3DDevice failed");
 }
 
-
-void SimpleShader::ShutdownShader()
-{
+void VolumeShader::ShutdownShader(){
 	// Release the sampler state.
-	if(m_sampleState)
-	{
+	if(m_sampleState){
 		m_sampleState->Release();
 		m_sampleState = 0;
 	}
 
 	// Release the matrix constant buffer.
-	if(m_matrixBuffer)
-	{
+	if(m_matrixBuffer){
 		m_matrixBuffer->Release();
 		m_matrixBuffer = 0;
 	}
 
 	// Release the layout.
-	if(m_layout)
-	{
+	if(m_layout){
 		m_layout->Release();
 		m_layout = 0;
 	}
 
 	// Release the pixel shader.
-	if(m_pixelShader)
-	{
+	if(m_pixelShader){
 		m_pixelShader->Release();
 		m_pixelShader = 0;
 	}
 
 	// Release the vertex shader.
-	if(m_vertexShader)
-	{
+	if(m_vertexShader){
 		m_vertexShader->Release();
 		m_vertexShader = 0;
 	}
@@ -237,9 +206,8 @@ void SimpleShader::ShutdownShader()
 	return;
 }
 
-bool SimpleShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-											 D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
-{
+bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+											 D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -282,9 +250,7 @@ bool SimpleShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXM
 	return true;
 }
 
-
-void SimpleShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
-{
+void VolumeShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount){
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(m_layout);
 

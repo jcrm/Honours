@@ -33,7 +33,7 @@ const float SCREEN_NEAR = 0.1f;
 #include "orthowindowclass.h"
 #include "texturetotextureshaderclass .h"
 #include "ShaderClass.h"
-#include "SimpleShader.h"
+#include "VolumeShader.h"
 #include "cudad3d.h"
 
 #include <windows.h>
@@ -121,7 +121,7 @@ private:
 	TextureToTextureShaderClass* m_TextureToTextureShader;
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
-	SimpleShader* mSimpleShader;
+	VolumeShader* mVolumeShader;
 
 	texture_2d g_texture_2d;
 	fluid_texture_3d g_texture_cloud;

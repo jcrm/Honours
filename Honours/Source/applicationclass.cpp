@@ -86,7 +86,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 	//Generate a random height map for the terrain
 	m_Terrain->GenerateHeightMap(m_Direct3D->GetDevice());
-	bool isShader = mSimpleShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+	bool isShader = mVolumeShader->Initialize(m_Direct3D->GetDevice(),hwnd);
 	// Initialize Direct3D
     if (isShader && SUCCEEDED(InitTextures()))
     {
@@ -605,8 +605,8 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
-	mSimpleShader = new SimpleShader;
-	if (!mSimpleShader){
+	mVolumeShader = new VolumeShader;
+	if (!mVolumeShader){
 		return false;
 	}
 	return true;

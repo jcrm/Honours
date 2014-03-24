@@ -1,11 +1,10 @@
 #pragma once
 #include "shaderclass.h"
-class SimpleShader :
-	public ShaderClass
+class VolumeShader : public ShaderClass
 {
 public:
-	SimpleShader(void);
-	~SimpleShader(void);
+	VolumeShader(void);
+	~VolumeShader(void);
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);

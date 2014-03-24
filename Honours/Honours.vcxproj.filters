@@ -67,6 +67,21 @@
     <Filter Include="Header Files\Other Files">
       <UniqueIdentifier>{fa38e1ff-67e3-4275-8e41-a5fc42d67752}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shader Files\Font Files">
+      <UniqueIdentifier>{890a9dbd-9828-47bf-b8cf-fa3a3614b75a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Texture Files">
+      <UniqueIdentifier>{a01dfa2a-8898-440b-9db8-5b9bfb2e506c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Terrain Files">
+      <UniqueIdentifier>{2eb04101-9820-4746-825f-5522cdd84a6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Texture To Texture Files">
+      <UniqueIdentifier>{1e244dd8-cd02-44fd-8905-bac464e9cbff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Volume Files">
+      <UniqueIdentifier>{20a29f43-5e08-432a-8924-0c804e6493ed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\applicationclass.h">
@@ -117,9 +132,6 @@
     <ClInclude Include="Source\d3dclass.h">
       <Filter>Header Files\DirectX Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\SimpleShader.h">
-      <Filter>Header Files\Shader Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\lightclass.h">
       <Filter>Header Files\Manager Files</Filter>
     </ClInclude>
@@ -143,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="Source\cuda_kernals.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\VolumeShader.h">
+      <Filter>Header Files\Shader Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -191,9 +206,6 @@
     <ClCompile Include="Source\textureclass.cpp">
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\SimpleShader.cpp">
-      <Filter>Source Files\Shader Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\cudad3d.cpp">
       <Filter>Source Files\DirectX Files</Filter>
     </ClCompile>
@@ -218,14 +230,11 @@
     <ClCompile Include="Source\orthowindowclass.cpp">
       <Filter>Source Files\Other Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\VolumeShader.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shader\simple.ps">
-      <Filter>Resource Files\Shader Files</Filter>
-    </None>
-    <None Include="Shader\simple.vs">
-      <Filter>Resource Files\Shader Files</Filter>
-    </None>
     <None Include="Data\ground.dds">
       <Filter>Resource Files\Texture Files</Filter>
     </None>
@@ -244,11 +253,38 @@
     <None Include="Data\fontdata.txt">
       <Filter>Resource Files\Other Files</Filter>
     </None>
+    <None Include="Shader\font.ps">
+      <Filter>Resource Files\Shader Files\Font Files</Filter>
+    </None>
+    <None Include="Shader\font.vs">
+      <Filter>Resource Files\Shader Files\Font Files</Filter>
+    </None>
+    <None Include="Shader\texture.ps">
+      <Filter>Resource Files\Shader Files\Texture Files</Filter>
+    </None>
+    <None Include="Shader\texture.vs">
+      <Filter>Resource Files\Shader Files\Texture Files</Filter>
+    </None>
+    <None Include="Shader\terrain.vs">
+      <Filter>Resource Files\Shader Files\Terrain Files</Filter>
+    </None>
+    <None Include="Shader\terrain.ps">
+      <Filter>Resource Files\Shader Files\Terrain Files</Filter>
+    </None>
+    <None Include="Shader\texturetotexture.ps">
+      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
+    </None>
+    <None Include="Shader\texturetotexture.vs">
+      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
+    </None>
+    <None Include="Shader\volume.ps">
+      <Filter>Resource Files\Shader Files\Volume Files</Filter>
+    </None>
+    <None Include="Shader\volume.vs">
+      <Filter>Resource Files\Shader Files\Volume Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="Shader\texture_2d.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\cloud.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
@@ -259,6 +295,9 @@
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
     <CudaCompile Include="CUDA\jacobi.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\texture_2d.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
   </ItemGroup>

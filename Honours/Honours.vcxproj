@@ -27,7 +27,7 @@
     <ClInclude Include="Source\positionclass.h" />
     <ClInclude Include="Source\rendertextureclass.h" />
     <ClInclude Include="Source\ShaderClass.h" />
-    <ClInclude Include="Source\SimpleShader.h" />
+    <ClInclude Include="Source\VolumeShader.h" />
     <ClInclude Include="Source\systemclass.h" />
     <ClInclude Include="Source\terrainclass.h" />
     <ClInclude Include="Source\terrainshaderclass.h" />
@@ -53,7 +53,7 @@
     <ClCompile Include="Source\positionclass.cpp" />
     <ClCompile Include="Source\rendertextureclass.cpp" />
     <ClCompile Include="Source\ShaderClass.cpp" />
-    <ClCompile Include="Source\SimpleShader.cpp" />
+    <ClCompile Include="Source\VolumeShader.cpp" />
     <ClCompile Include="Source\systemclass.cpp" />
     <ClCompile Include="Source\terrainclass.cpp" />
     <ClCompile Include="Source\terrainshaderclass.cpp" />
@@ -70,15 +70,23 @@
     <None Include="Data\fontdata.txt" />
     <None Include="Data\ground.dds" />
     <None Include="Data\heightmap01.bmp" />
-    <None Include="Shader\simple.ps" />
-    <None Include="Shader\simple.vs" />
+    <None Include="Shader\font.ps" />
+    <None Include="Shader\font.vs" />
+    <None Include="Shader\volume.ps" />
+    <None Include="Shader\volume.vs" />
+    <None Include="Shader\terrain.ps" />
+    <None Include="Shader\terrain.vs" />
+    <None Include="Shader\texture.ps" />
+    <None Include="Shader\texture.vs" />
+    <None Include="Shader\texturetotexture.ps" />
+    <None Include="Shader\texturetotexture.vs" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CUDA\advect.cu" />
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
-    <CudaCompile Include="Shader\texture_2d.cu" />
+    <CudaCompile Include="CUDA\texture_2d.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61EE65B2-FEAE-4295-8161-DC8AB44098E0}</ProjectGuid>
