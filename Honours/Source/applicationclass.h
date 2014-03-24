@@ -123,7 +123,6 @@ private:
 	HRESULT InitTextures();
 	void CudaRender();
 	void RunKernels();
-	bool CudaDrawScene();
 	void InitClouds();
 	void RunCloudKernals();
 private:
@@ -151,8 +150,6 @@ private:
 	SimpleShader* mSimpleShader;
 
 	texture_2d g_texture_2d;
-	texture_3d g_texture_3d;
-	texture_cube g_texture_cube;
 	fluid_texture_3d g_texture_cloud;
 };
 
