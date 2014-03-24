@@ -81,8 +81,6 @@
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
     <CudaCompile Include="Shader\texture_2d.cu" />
-    <CudaCompile Include="Shader\texture_3d.cu" />
-    <CudaCompile Include="Shader\texture_cube.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61EE65B2-FEAE-4295-8161-DC8AB44098E0}</ProjectGuid>

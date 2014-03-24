@@ -255,12 +255,6 @@
     <CudaCompile Include="Shader\texture_2d.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="Shader\texture_cube.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="Shader\texture_3d.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\cloud.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
