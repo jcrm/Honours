@@ -4,19 +4,19 @@
 #include <helper_functions.h>
 #include <rendercheck_d3d11.h>
 #include <dynlink_d3d11.h>
-#include "VolumeShader.h"
+#include "FaceShader.h"
 
-VolumeShader::VolumeShader(void){
+FaceShader::FaceShader(void){
 }
 
-VolumeShader::~VolumeShader(void){
+FaceShader::~FaceShader(void){
 }
 
-bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
+bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
 	bool result;
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/volume.vs", L"Shader/volume.ps");
+	result = InitializeShader(device, hwnd, L"Shader/face.vs", L"Shader/face.ps");
 	if(!result){
 		return false;
 	}
@@ -24,24 +24,36 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 	return true;
 }
 
-bool VolumeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-						  D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+bool FaceShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+						  D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* fronttexture, ID3D11ShaderResourceView* backtexture, ID3D11ShaderResourceView* texture3D){
 	bool result;
 
-
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
-	if(!result)
-	{
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, fronttexture);
+	if(!result){
+		return false;
+	}
+	// Now render the prepared buffers with the shader.
+	RenderShader(deviceContext, indexCount, m_pixelShaderPosition);
+	// Set the shader parameters that it will use for rendering.
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, backtexture);
+	if(!result){
+		return false;
+	}
+	// Now render the prepared buffers with the shader.
+	RenderShader(deviceContext, indexCount, m_pixelShaderPosition);
+	// Set the shader parameters that it will use for rendering.
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix,fronttexture, backtexture, texture3D);
+	if(!result){
 		return false;
 	}
 
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(deviceContext, indexCount, m_pixelShader);
 
 	return true;
 }
-bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
+bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
 	HRESULT result;
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
@@ -72,7 +84,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	}
 
 	// Compile the pixel shader code.
-	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "RayCastSimplePS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
+	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "FacePS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 		&pixelShaderBuffer, &errorMessage, NULL);
 	if(FAILED(result)){
 		// If the shader failed to compile it should have writen something to the error message.
@@ -173,7 +185,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	getLastCudaError("cudaD3D11SetDirect3DDevice failed");
 }
 
-bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 									   D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -215,14 +227,58 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXM
 
 	return true;
 }
+bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+									   D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* fronttexture, ID3D11ShaderResourceView* backtexture, ID3D11ShaderResourceView* texture3d){
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType* dataPtr;
+	unsigned int bufferNumber;
 
-void VolumeShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount){
+	// Transpose the matrices to prepare them for the shader.
+	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
+	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
+	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+
+	// Lock the constant buffer so it can be written to.
+	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if(FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (MatrixBufferType*)mappedResource.pData;
+
+	// Copy the matrices into the constant buffer.
+	dataPtr->world = worldMatrix;
+	dataPtr->view = viewMatrix;
+	dataPtr->projection = projectionMatrix;
+
+	// Unlock the constant buffer.
+	deviceContext->Unmap(m_matrixBuffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Now set the constant buffer in the vertex shader with the updated values.
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+
+	// Set shader texture resource in the pixel shader.
+	deviceContext->PSSetShaderResources(0, 1, &fronttexture);
+	deviceContext->PSSetShaderResources(1, 1, &backtexture);
+	deviceContext->PSSetShaderResources(2, 1, &texture3d);
+
+
+	return true;
+}
+
+void FaceShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, ID3D11PixelShader* m_pixShader){
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(m_layout);
 
 	// Set the vertex and pixel shaders that will be used to render this triangle.
 	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+	deviceContext->PSSetShader(m_pixShader, NULL, 0);
 
 	// Set the sampler state in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);

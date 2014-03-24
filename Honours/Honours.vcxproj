@@ -13,11 +13,13 @@
   <ItemGroup>
     <ClInclude Include="Source\applicationclass.h" />
     <ClInclude Include="Source\cameraclass.h" />
+    <ClInclude Include="Source\CloudBox.h" />
     <ClInclude Include="Source\cpuclass.h" />
     <ClInclude Include="Source\cudad3d.h" />
     <ClInclude Include="Source\cuda_kernals.h" />
     <ClInclude Include="Source\cuda_structs.h" />
     <ClInclude Include="Source\d3dclass.h" />
+    <ClInclude Include="Source\FaceShader.h" />
     <ClInclude Include="Source\fontclass.h" />
     <ClInclude Include="Source\fontshaderclass.h" />
     <ClInclude Include="Source\fpsclass.h" />
@@ -40,9 +42,11 @@
   <ItemGroup>
     <ClCompile Include="Source\applicationclass.cpp" />
     <ClCompile Include="Source\cameraclass.cpp" />
+    <ClCompile Include="Source\CloudBox.cpp" />
     <ClCompile Include="Source\cpuclass.cpp" />
     <ClCompile Include="Source\cudad3d.cpp" />
     <ClCompile Include="Source\d3dclass.cpp" />
+    <ClCompile Include="Source\FaceShader.cpp" />
     <ClCompile Include="Source\fontclass.cpp" />
     <ClCompile Include="Source\fontshaderclass.cpp" />
     <ClCompile Include="Source\fpsclass.cpp" />
@@ -70,6 +74,8 @@
     <None Include="Data\fontdata.txt" />
     <None Include="Data\ground.dds" />
     <None Include="Data\heightmap01.bmp" />
+    <None Include="Shader\face.ps" />
+    <None Include="Shader\face.vs" />
     <None Include="Shader\font.ps" />
     <None Include="Shader\font.vs" />
     <None Include="Shader\volume.ps" />

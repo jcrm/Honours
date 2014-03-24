@@ -1,0 +1,23 @@
+struct PixelInputType
+{
+	float4 Position		: POSITION0;
+	float3 texC			: TEXCOORD0;
+	float4 pos			: TEXCOORD1;
+};
+
+Texture2D Face;
+SamplerState SampleType;
+
+float4 PositionPS(PixelInputType input) : SV_TARGET
+{
+	return float4(input.texC, 1.0f);
+}
+float4 FacePS(PixelInputType input) : SV_TARGET
+{
+	float2 texC = input.pos.xy /= input.pos.w;
+	texC.x =  0.5f*texC.x + 0.5f; 
+	texC.y = -0.5f*texC.y + 0.5f;
+
+    float3 colour= Face.Sample(SampleType, texC);
+	return float4(colour, 1.0f);
+}

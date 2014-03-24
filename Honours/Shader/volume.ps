@@ -1,94 +1,27 @@
-SamplerState FrontS
-{
-	Texture = Front;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	
-	AddressU = Border;				// border sampling in U
-    AddressV = Border;				// border sampling in V
-    BorderColor = float4(0,0,0,0);	// outside of border should be black
-};
-
-SamplerState BackS
-{
-	Texture = Back;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	
-	AddressU = Border;				// border sampling in U
-	AddressV = Border;				// border sampling in V
-	BorderColor = float4(0,0,0,0);	// outside of border should be black
-};
-
-SamplerState VolumeS
-{
-	Texture = Volume;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	
-	AddressU = Border;				// border sampling in U
-	AddressV = Border;				// border sampling in V
-	AddressW = Border;
-	BorderColor = float4(0,0,0,0);	// outside of border should be black
-};
-
-struct VertexShaderOutput
+struct PixelInputType
 {
 	float4 Position		: POSITION0;
 	float3 texC			: TEXCOORD0;
 	float4 pos			: TEXCOORD1;
 };
 
-int Side = 2;
-float3 StepSize;
-int Iterations;
 Texture2D Front;
 Texture2D Back;
-Texture2D Volume;
+Texture3D Volume;
+SamplerState SampleType;
 
-float4 PositionPS(VertexShaderOutput input) : SV_TARGET
-{
-	return float4(input.texC, 1.0f);
-}
-
-float4 WireFramePS(VertexShaderOutput input) : SV_TARGET
-{
-	return float4(1.0f, .5f, 0.0f, .85f);
-}
-
-//draws the front or back positions, or the ray direction through the volume
-float4 DirectionPS(VertexShaderOutput input) : SV_TARGET
-{
-	float2 texC = input.pos.xy /= input.pos.w;
-	texC.x =  0.5f*texC.x + 0.5f; 
-	texC.y = -0.5f*texC.y + 0.5f;
-
-	float3 front = tex2D(FrontS, texC).rgb;
-	float3 back = tex2D(BackS, texC).rgb;
-
-	if(Side == 0){
-		return float4(front, .9f);
-	}
-	if(Side == 1){
-		return float4(back, .9f);
-	}
-
-	return float4(back - front, .9f);
-}
-
-float4 RayCastSimplePS(VertexShaderOutput input) : SV_TARGET
+float4 RayCastSimplePS(PixelInputType input) : SV_TARGET
 { 
+	float3 StepSize = float3(0.01f,0.01f,0.01f);
+	int Iterations = 100;
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
 	float2 texC = input.pos.xy /= input.pos.w;
 	texC.x =  0.5f*texC.x + 0.5f; 
 	texC.y = -0.5f*texC.y + 0.5f;  
 
-	float3 front = Front.Sample(FrontS, texC);
-	float3 back = Back.Sample(BackS, texC);
+	float3 front = Front.Sample(SampleType, texC);
+	float3 back = Back.Sample(SampleType, texC);
 	
 	float3 dir = normalize(back - front);
 	float4 pos = float4(front, 0);
@@ -101,12 +34,13 @@ float4 RayCastSimplePS(VertexShaderOutput input) : SV_TARGET
 
 	for(int i = 0; i < Iterations; i++){
 		pos.w = 0;
-		value = Volume.SampleLevel(VolumeS, pos, 0).r;
+		value = Volume.SampleLevel(SampleType, pos, 0).r;
 
 		src = (float4)value;
-		src.a *= .1f; //reduce the alpha to have a more transparent result
-					  //this needs to be adjusted based on the step size
-					  //i.e. the more steps we take, the faster the alpha will grow	
+		src.a *= .1f;
+		//reduce the alpha to have a more transparent result
+		//this needs to be adjusted based on the step size
+		//i.e. the more steps we take, the faster the alpha will grow
 
 		//Front to back blending
 		// dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb
@@ -115,8 +49,9 @@ float4 RayCastSimplePS(VertexShaderOutput input) : SV_TARGET
 		dst = (1.0f - dst.a)*src + dst;		
 		
 		//break from the loop when alpha gets high enough
-		if(dst.a >= .95f)
-			break;	
+		if(dst.a >= .95f){
+			break;
+		}
 
 		//advance the current position
 		pos.xyz += Step;

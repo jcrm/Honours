@@ -58,7 +58,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	D3D11_RASTERIZER_DESC rasterDesc;
+	
 	D3D11_VIEWPORT viewport;
 	float fieldOfView, screenAspect;
 	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
@@ -342,29 +342,8 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
 	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
 
-	// Setup the raster description which will determine how and what polygons will be drawn.
-	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_BACK;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
+	CreateRaster();
 
-	// Create the rasterizer state from the description we just filled out.
-	result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error16",NULL,NULL);
-		return false;
-	}
-
-	// Now set the rasterizer state.
-	m_deviceContext->RSSetState(m_rasterState);
-	
 	// Setup the viewport for rendering.
     viewport.Width = (float)screenWidth;
     viewport.Height = (float)screenHeight;
@@ -451,6 +430,58 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
     return true;
 }
+bool CUDAD3D::CreateRaster(){
+	D3D11_RASTERIZER_DESC rasterDesc;
+	// Setup the raster description which will determine how and what polygons will be drawn.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the rasterizer state from the description we just filled out.
+	bool result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+	if(FAILED(result))
+	{
+		MessageBox(NULL,L"error16",NULL,NULL);
+		return false;
+	}
+
+	// Now set the rasterizer state.
+	m_deviceContext->RSSetState(m_rasterState);
+	return true;
+}
+bool CUDAD3D::CreateBackFaceRaster(){
+	D3D11_RASTERIZER_DESC rasterDesc;
+	// Setup the raster description which will determine how and what polygons will be drawn.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = true;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the rasterizer state from the description we just filled out.
+	bool result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+	if(FAILED(result)){
+		MessageBox(NULL,L"error16",NULL,NULL);
+		return false;
+	}
+
+	// Now set the rasterizer state.
+	m_deviceContext->RSSetState(m_rasterState);
+	 return true;
+}
+
 
 bool CUDAD3D::findCUDADevice()
 {

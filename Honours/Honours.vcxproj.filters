@@ -82,6 +82,12 @@
     <Filter Include="Resource Files\Shader Files\Volume Files">
       <UniqueIdentifier>{20a29f43-5e08-432a-8924-0c804e6493ed}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\CUDA">
+      <UniqueIdentifier>{87d14c9e-7a5c-44f5-bd26-273f95bf1594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Face Files">
+      <UniqueIdentifier>{fe7755d0-cc8e-49c8-be66-0a682422374e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\applicationclass.h">
@@ -150,14 +156,20 @@
     <ClInclude Include="Source\orthowindowclass.h">
       <Filter>Header Files\Other Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\cuda_structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\cuda_kernals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\VolumeShader.h">
       <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\cuda_structs.h">
+      <Filter>Header Files\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\cuda_kernals.h">
+      <Filter>Header Files\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\FaceShader.h">
+      <Filter>Header Files\Shader Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CloudBox.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +245,12 @@
     <ClCompile Include="Source\VolumeShader.cpp">
       <Filter>Source Files\Shader Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\FaceShader.cpp">
+      <Filter>Source Files\Shader Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\CloudBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\ground.dds">
@@ -282,6 +300,12 @@
     </None>
     <None Include="Shader\volume.vs">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
+    </None>
+    <None Include="Shader\face.vs">
+      <Filter>Resource Files\Shader Files\Face Files</Filter>
+    </None>
+    <None Include="Shader\face.ps">
+      <Filter>Resource Files\Shader Files\Face Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

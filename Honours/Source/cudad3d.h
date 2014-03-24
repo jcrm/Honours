@@ -10,7 +10,8 @@ public:
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 	bool findCUDADevice();
 	bool findDXDevice( char* dev_name );
-
+	bool CreateRaster();
+	bool CreateBackFaceRaster();
 	IDXGIAdapter *g_pCudaCapableAdapter;  // Adapter to use
 };
 

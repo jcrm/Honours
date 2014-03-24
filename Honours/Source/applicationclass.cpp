@@ -84,11 +84,12 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 		return false;
 	}
+
 	//Generate a random height map for the terrain
 	m_Terrain->GenerateHeightMap(m_Direct3D->GetDevice());
-	//bool isShader = mVolumeShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+
 	// Initialize Direct3D
-	if (/*isShader &&*/ SUCCEEDED(InitTextures()))
+	if (SUCCEEDED(InitCudaTextures()))
 	{
 		// 2D
 		// register the Direct3D resources that we'll use
@@ -243,6 +244,14 @@ bool ApplicationClass::HandleInput(float frameTime){
 	//if page down or x was pressed look down
 	keyDown = (m_Input->IsPgDownPressed() || m_Input->IsXPressed());
 	m_Position->LookDownward(keyDown);
+	keyDown = (m_Input->IsHPressed());
+	if(keyDown){
+		m_Direct3D->CreateBackFaceRaster();
+	}
+	keyDown = (m_Input->IsRPressed());
+	if(keyDown){
+		m_Direct3D->CreateRaster();
+	}
 
 	// Get the view point position/rotation.
 	m_Position->GetPosition(posX, posY, posZ);
@@ -591,7 +600,7 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 	// Initialize the texture to texture shader object.
 	result = m_TextureToTextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if(!result){
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the texture to texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 	//create the texture shader object
@@ -599,7 +608,7 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 	if(!m_TextureShader){
 		return false;
 	}
-	/*
+	
 	// Initialize the texture shader object.
 	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if(!result){
@@ -610,7 +619,20 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 	if (!mVolumeShader){
 		return false;
 	}
-	*/
+	result = mVolumeShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the volume shader object.", L"Error", MB_OK);
+		return false;
+	}
+	mFaceShader = new FaceShader;
+	if (!mFaceShader){
+		return false;
+	}
+	result = mFaceShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the face shader object.", L"Error", MB_OK);
+		return false;
+	}
 	return true;
 }
 void ApplicationClass::ShutdownText(){
@@ -711,12 +733,11 @@ void ApplicationClass::ShutdownShaders(){
 	}
 }
 
-
 //-----------------------------------------------------------------------------
 // Name: InitTextures()
 // Desc: Initializes Direct3D Textures (allocation and initialization)
 //-----------------------------------------------------------------------------
-HRESULT ApplicationClass::InitTextures(){
+HRESULT ApplicationClass::InitCudaTextures(){
 	int offsetInShader = 0;
 	ID3D11Device* g_pd3dDevice = m_Direct3D->GetDevice();
 	ID3D11DeviceContext* g_pd3dDeviceContext = m_Direct3D->GetDeviceContext();

@@ -28,7 +28,6 @@ public:
 	~TextureToTextureShaderClass();
 
 	bool Initialize(ID3D11Device* device, HWND hwnd);
-	void Shutdown();
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, ID3D11ShaderResourceView*, float, float);
 	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture);
 protected:
@@ -37,7 +36,6 @@ protected:
 		D3DXMATRIX projection;
 	};
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
-	void ShutdownShader();
 
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight, float screenWidth);

@@ -34,6 +34,7 @@ const float SCREEN_NEAR = 0.1f;
 #include "texturetotextureshaderclass .h"
 #include "ShaderClass.h"
 #include "VolumeShader.h"
+#include "FaceShader.h"
 #include "cudad3d.h"
 
 #include <windows.h>
@@ -95,7 +96,7 @@ private:
 	void ShutdownCamera();
 	void ShutdownShaders();
 
-	HRESULT InitTextures();
+	HRESULT InitCudaTextures();
 	void CudaRender();
 	void RunKernels();
 	void InitClouds();
@@ -116,12 +117,14 @@ private:
 	TerrainClass* m_Terrain;
 	//textures to render to
 	RenderTextureClass *m_RenderFullSizeTexture, *m_FullSizeTexure, *m_DownSampleHalfSizeTexure, *m_HalfSizeTexture;
+	RenderTextureClass *m_FrontTexture, *m_BackTexure;
 	//the different shaders used
 	TextureShaderClass* m_TextureShader;
 	TextureToTextureShaderClass* m_TextureToTextureShader;
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
-	//VolumeShader* mVolumeShader;
+	VolumeShader* mVolumeShader;
+	FaceShader* mFaceShader;
 
 	texture_2d g_texture_2d;
 	fluid_texture_3d g_texture_cloud;
