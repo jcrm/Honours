@@ -32,7 +32,6 @@ const float SCREEN_NEAR = 0.1f;
 #include "rendertextureclass.h"
 #include "orthowindowclass.h"
 #include "texturetotextureshaderclass .h"
-#include "mergetextureshaderclass.h"
 #include "ShaderClass.h"
 #include "SimpleShader.h"
 #include "cudad3d.h"
@@ -75,30 +74,6 @@ public:
 	bool Initialize(HINSTANCE, HWND, int, int);
 	void Shutdown();
 	bool Frame();
-	//-----------------------------------------------------------------------------
-	// Global variables
-	//-----------------------------------------------------------------------------
-	ID3D11InputLayout      *g_pInputLayout;
-	struct ConstantBuffer{
-		float   vQuadRect[4];
-		int     UseCase;
-	};
-
-	ID3D11VertexShader  *g_pVertexShader;
-	ID3D11PixelShader   *g_pPixelShader;
-	ID3D11SamplerState  *g_pSamplerState;
-	bool g_bDone;
-	bool g_bPassed;
-
-	int *pArgc;
-	char **pArgv;
-
-	unsigned int g_WindowWidth;
-	unsigned int g_WindowHeight;
-
-	int g_iFrameToCompare;
-
-	
 private:
 	bool HandleInput(float);
 	//Render Functions
@@ -140,13 +115,12 @@ private:
 	//the points for the different objects
 	TerrainClass* m_Terrain;
 	//textures to render to
-	RenderTextureClass *m_RenderFullSizeTexture, *m_FullSizeTexure, *m_DownSampleHalfSizeTexure, *m_HalfSizeTexture, *m_MergeFullSizeTexture;
+	RenderTextureClass *m_RenderFullSizeTexture, *m_FullSizeTexure, *m_DownSampleHalfSizeTexure, *m_HalfSizeTexture;
 	//the different shaders used
 	TextureShaderClass* m_TextureShader;
 	TextureToTextureShaderClass* m_TextureToTextureShader;
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
-	MergeTextureShaderClass* mMergerShader;
 	SimpleShader* mSimpleShader;
 
 	texture_2d g_texture_2d;

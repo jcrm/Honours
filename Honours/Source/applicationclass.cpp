@@ -8,25 +8,16 @@ ApplicationClass::ApplicationClass(): m_Input(0), m_Direct3D(0), m_Camera(0), m_
 	m_Timer(0), m_Position(0), m_Fps(0), m_Cpu(0), m_FontShader(0), m_Text(0),
 	m_TerrainShader(0), m_Light(0), m_TextureShader(0), m_TextureToTextureShader(0),
 	m_RenderFullSizeTexture(0), m_DownSampleHalfSizeTexure(0), m_FullSizeTexure(0), m_FullScreenWindow(0),
-	m_HalfSizeTexture(0), mMergerShader(0),	m_MergeFullSizeTexture(0)
+	m_HalfSizeTexture(0)
 {
-	g_pInputLayout = NULL;
-	//g_pConstantBuffer = NULL;
 }
 
 ApplicationClass::ApplicationClass(const ApplicationClass& other): m_Input(0), m_Direct3D(0), m_Camera(0), m_Terrain(0),
 	m_Timer(0), m_Position(0), m_Fps(0), m_Cpu(0), m_FontShader(0), m_Text(0),
 	m_TerrainShader(0), m_Light(0), m_TextureShader(0), m_TextureToTextureShader(0),
 	m_RenderFullSizeTexture(0), m_DownSampleHalfSizeTexure(0), m_FullSizeTexure(0), m_FullScreenWindow(0),
-	m_HalfSizeTexture(0), mMergerShader(0), m_MergeFullSizeTexture(0)
+	m_HalfSizeTexture(0)
 {
-	g_bDone   = false;
-	g_bPassed = true;
-
-	pArgc = NULL;
-	pArgv = NULL;
-	g_WindowWidth = 720;
-	g_WindowHeight = 720;
 }
 ApplicationClass::~ApplicationClass(){
 }
@@ -375,44 +366,6 @@ bool ApplicationClass::RenderTexture(ShaderClass *shader, RenderTextureClass *re
 	return true;
 }
 /*
-*	Takes two textures and combines them to make a third texture;
-*/
-bool ApplicationClass::RenderMergeTexture(RenderTextureClass *readTexture, RenderTextureClass *readTexture2, RenderTextureClass *writeTexture, OrthoWindowClass *window){
-	bool result;
-
-	// Set the render target to be the render to texture.
-	writeTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-
-	// Clear the render to texture.
-	writeTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-
-	// Generate the view matrix based on the camera's position.
-	m_Camera->Render();
-
-	// Turn off the Z buffer to begin all 2D rendering.
-	m_Direct3D->TurnZBufferOff();
-
-	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	window->Render(m_Direct3D->GetDeviceContext());
-
-	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
-	result = mMergerShader->Render(m_Direct3D->GetDeviceContext(), window->GetIndexCount(), readTexture->GetShaderResourceView(), 
-		readTexture2->GetShaderResourceView());
-	if(!result){
-		return false;
-	}
-
-	// Turn the Z buffer back on now that all 2D rendering has completed.
-	m_Direct3D->TurnZBufferOn();
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	m_Direct3D->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
-	m_Direct3D->ResetViewport();
-	return true;
-}
-/*
 * Renders a texture to the screen.
 */
 bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
@@ -558,16 +511,6 @@ bool ApplicationClass::InitTextures(HWND hwnd, int screenWidth, int screenHeight
 		MessageBox(hwnd, L"Could not initialize the full size render to texture object.", L"Error", MB_OK);
 		return false;
 	}
-	//create a third full size texture for merging
-	m_MergeFullSizeTexture = new RenderTextureClass;
-	if (!m_MergeFullSizeTexture){
-		return false;
-	}
-	result = m_MergeFullSizeTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_DEPTH, SCREEN_NEAR);
-	if (!result){
-		MessageBox(hwnd, L"Could not initialize the merge full size to texture object.", L"Error", MB_OK);		
-		return false;
-	}
 	// Create the down sample render to texture object.
 	m_DownSampleHalfSizeTexure = new RenderTextureClass;
 	if(!m_DownSampleHalfSizeTexure){
@@ -662,16 +605,6 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
-	//create the merge shader object
-	mMergerShader = new MergeTextureShaderClass;
-	if (!mMergerShader){
-		return false;
-	}
-	result= mMergerShader->Initialize(m_Direct3D->GetDevice(),hwnd);
-	if (!result){
-		MessageBox(hwnd, L"Could not initialize the convolution shader object.", L"Error", MB_OK);
-		return false;
-	}
 	mSimpleShader = new SimpleShader;
 	if (!mSimpleShader){
 		return false;
@@ -735,12 +668,6 @@ void ApplicationClass::ShutdownTextures(){
 		delete m_HalfSizeTexture;
 		m_HalfSizeTexture = 0;
 	}
-	//release merge full size texture
-	if (m_MergeFullSizeTexture){
-		m_MergeFullSizeTexture->Shutdown();
-		delete m_MergeFullSizeTexture;
-		m_MergeFullSizeTexture = 0;
-	}
 }
 void ApplicationClass::ShutdownCamera(){
 	//relase position object
@@ -779,12 +706,6 @@ void ApplicationClass::ShutdownShaders(){
 		m_TerrainShader->Shutdown();
 		delete m_TerrainShader;
 		m_TerrainShader = 0;
-	}
-	//Release merge shader
-	if (mMergerShader){
-		mMergerShader->Shutdown();
-		delete mMergerShader;
-		mMergerShader = 0;
 	}
 }
 

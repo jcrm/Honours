@@ -78,9 +78,6 @@
     <ClInclude Include="Source\fontshaderclass.h">
       <Filter>Header Files\Shader Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\mergetextureshaderclass.h">
-      <Filter>Header Files\Shader Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\ShaderClass.h">
       <Filter>Header Files\Shader Files</Filter>
     </ClInclude>
@@ -159,9 +156,6 @@
       <Filter>Source Files\Object Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\fontshaderclass.cpp">
-      <Filter>Source Files\Shader Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\mergetextureshaderclass.cpp">
       <Filter>Source Files\Shader Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\terrainshaderclass.cpp">
