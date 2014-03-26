@@ -16,27 +16,6 @@ const float SCREEN_NEAR = 0.1f;
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
-#include "inputclass.h"
-#include "d3dclass.h"
-#include "cameraclass.h"
-#include "terrainclass.h"
-#include "timerclass.h"
-#include "positionclass.h"
-#include "fpsclass.h"
-#include "cpuclass.h"
-#include "fontshaderclass.h"
-#include "textclass.h"
-#include "terrainshaderclass.h"
-#include "lightclass.h"
-#include "textureshaderclass.h"
-#include "rendertextureclass.h"
-#include "orthowindowclass.h"
-#include "texturetotextureshaderclass .h"
-#include "ShaderClass.h"
-#include "VolumeShader.h"
-#include "FaceShader.h"
-#include "cudad3d.h"
-
 #include <windows.h>
 #include <mmsystem.h>
 
@@ -49,10 +28,36 @@ const float SCREEN_NEAR = 0.1f;
 #include <rendercheck_d3d11.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
-#include "cuda_structs.h"
-#include "cuda_kernals.h"
 
-#define MODEL_NUMBER 20
+#include "Managers/inputclass.h"
+#include "Managers/cameraclass.h"
+#include "Managers/positionclass.h"
+#include "Managers/lightclass.h"
+#include "Managers/orthowindowclass.h"
+
+#include "DirectX/d3dclass.h"
+#include "DirectX/cudad3d.h"
+
+#include "Objects/terrainclass.h"
+
+#include "Text/timerclass.h"
+#include "Text/fpsclass.h"
+#include "Text/cpuclass.h"
+#include "Text/textclass.h"
+
+#include "Shaders/fontshaderclass.h"
+#include "Shaders/terrainshaderclass.h"
+#include "Shaders/textureshaderclass.h"
+#include "Shaders/texturetotextureshaderclass .h"
+#include "Shaders/ShaderClass.h"
+#include "Shaders/VolumeShader.h"
+#include "Shaders/FaceShader.h"
+
+#include "Textures/rendertextureclass.h"
+
+#include "CUDA/cuda_structs.h"
+#include "CUDA/cuda_kernals.h"
+
 // testing/tracing function used pervasively in tests.  if the condition is unsatisfied
 // then spew and fail the function immediately (doing no cleanup)
 #define AssertOrQuit(x) \

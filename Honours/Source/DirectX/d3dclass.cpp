@@ -59,8 +59,7 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 	// Create a DirectX graphics interface factory.
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		MessageBox(NULL,L"error1",NULL,NULL);
 		return false;
 	}

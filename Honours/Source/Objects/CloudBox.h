@@ -10,7 +10,7 @@
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include <stdio.h>
-#include "rendertextureclass.h"
+#include "../Textures/rendertextureclass.h"
 
 #define TEXTURE_REPEAT 8
 ////////////////////////////////////////////////////////////////////////////////

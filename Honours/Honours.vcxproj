@@ -11,63 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\applicationclass.h" />
-    <ClInclude Include="Source\cameraclass.h" />
-    <ClInclude Include="Source\CloudBox.h" />
-    <ClInclude Include="Source\cpuclass.h" />
-    <ClInclude Include="Source\cudad3d.h" />
-    <ClInclude Include="Source\cuda_kernals.h" />
-    <ClInclude Include="Source\cuda_structs.h" />
-    <ClInclude Include="Source\d3dclass.h" />
-    <ClInclude Include="Source\FaceShader.h" />
-    <ClInclude Include="Source\fontclass.h" />
-    <ClInclude Include="Source\fontshaderclass.h" />
-    <ClInclude Include="Source\fpsclass.h" />
-    <ClInclude Include="Source\inputclass.h" />
-    <ClInclude Include="Source\lightclass.h" />
-    <ClInclude Include="Source\orthowindowclass.h" />
-    <ClInclude Include="Source\positionclass.h" />
-    <ClInclude Include="Source\rendertextureclass.h" />
-    <ClInclude Include="Source\ShaderClass.h" />
-    <ClInclude Include="Source\VolumeShader.h" />
-    <ClInclude Include="Source\systemclass.h" />
-    <ClInclude Include="Source\terrainclass.h" />
-    <ClInclude Include="Source\terrainshaderclass.h" />
-    <ClInclude Include="Source\textclass.h" />
-    <ClInclude Include="Source\textureclass.h" />
-    <ClInclude Include="Source\textureshaderclass.h" />
-    <ClInclude Include="Source\texturetotextureshaderclass .h" />
-    <ClInclude Include="Source\timerclass.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\applicationclass.cpp" />
-    <ClCompile Include="Source\cameraclass.cpp" />
-    <ClCompile Include="Source\CloudBox.cpp" />
-    <ClCompile Include="Source\cpuclass.cpp" />
-    <ClCompile Include="Source\cudad3d.cpp" />
-    <ClCompile Include="Source\d3dclass.cpp" />
-    <ClCompile Include="Source\FaceShader.cpp" />
-    <ClCompile Include="Source\fontclass.cpp" />
-    <ClCompile Include="Source\fontshaderclass.cpp" />
-    <ClCompile Include="Source\fpsclass.cpp" />
-    <ClCompile Include="Source\inputclass.cpp" />
-    <ClCompile Include="Source\lightclass.cpp" />
-    <ClCompile Include="Source\main.cpp" />
-    <ClCompile Include="Source\orthowindowclass.cpp" />
-    <ClCompile Include="Source\positionclass.cpp" />
-    <ClCompile Include="Source\rendertextureclass.cpp" />
-    <ClCompile Include="Source\ShaderClass.cpp" />
-    <ClCompile Include="Source\VolumeShader.cpp" />
-    <ClCompile Include="Source\systemclass.cpp" />
-    <ClCompile Include="Source\terrainclass.cpp" />
-    <ClCompile Include="Source\terrainshaderclass.cpp" />
-    <ClCompile Include="Source\textclass.cpp" />
-    <ClCompile Include="Source\textureclass.cpp" />
-    <ClCompile Include="Source\textureshaderclass.cpp" />
-    <ClCompile Include="Source\texturetotextureshaderclass.cpp" />
-    <ClCompile Include="Source\timerclass.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Data\cube.txt" />
     <None Include="Data\cubeTexture.dds" />
     <None Include="Data\font.dds" />
@@ -93,6 +36,63 @@
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
     <CudaCompile Include="CUDA\texture_2d.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\applicationclass.h" />
+    <ClInclude Include="Source\CUDA\cuda_kernals.h" />
+    <ClInclude Include="Source\CUDA\cuda_structs.h" />
+    <ClInclude Include="Source\DirectX\cudad3d.h" />
+    <ClInclude Include="Source\DirectX\d3dclass.h" />
+    <ClInclude Include="Source\Managers\cameraclass.h" />
+    <ClInclude Include="Source\Managers\inputclass.h" />
+    <ClInclude Include="Source\Managers\lightclass.h" />
+    <ClInclude Include="Source\Managers\orthowindowclass.h" />
+    <ClInclude Include="Source\Managers\positionclass.h" />
+    <ClInclude Include="Source\Managers\systemclass.h" />
+    <ClInclude Include="Source\Objects\CloudBox.h" />
+    <ClInclude Include="Source\Objects\terrainclass.h" />
+    <ClInclude Include="Source\Shaders\FaceShader.h" />
+    <ClInclude Include="Source\Shaders\fontshaderclass.h" />
+    <ClInclude Include="Source\Shaders\ShaderClass.h" />
+    <ClInclude Include="Source\Shaders\terrainshaderclass.h" />
+    <ClInclude Include="Source\Shaders\textureshaderclass.h" />
+    <ClInclude Include="Source\Shaders\texturetotextureshaderclass .h" />
+    <ClInclude Include="Source\Shaders\VolumeShader.h" />
+    <ClInclude Include="Source\Textures\rendertextureclass.h" />
+    <ClInclude Include="Source\Textures\textureclass.h" />
+    <ClInclude Include="Source\Text\cpuclass.h" />
+    <ClInclude Include="Source\Text\fontclass.h" />
+    <ClInclude Include="Source\Text\fpsclass.h" />
+    <ClInclude Include="Source\Text\textclass.h" />
+    <ClInclude Include="Source\Text\timerclass.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\applicationclass.cpp" />
+    <ClCompile Include="Source\DirectX\cudad3d.cpp" />
+    <ClCompile Include="Source\DirectX\d3dclass.cpp" />
+    <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Managers\cameraclass.cpp" />
+    <ClCompile Include="Source\Managers\inputclass.cpp" />
+    <ClCompile Include="Source\Managers\lightclass.cpp" />
+    <ClCompile Include="Source\Managers\orthowindowclass.cpp" />
+    <ClCompile Include="Source\Managers\positionclass.cpp" />
+    <ClCompile Include="Source\Managers\systemclass.cpp" />
+    <ClCompile Include="Source\Objects\CloudBox.cpp" />
+    <ClCompile Include="Source\Objects\terrainclass.cpp" />
+    <ClCompile Include="Source\Shaders\FaceShader.cpp" />
+    <ClCompile Include="Source\Shaders\fontshaderclass.cpp" />
+    <ClCompile Include="Source\Shaders\ShaderClass.cpp" />
+    <ClCompile Include="Source\Shaders\terrainshaderclass.cpp" />
+    <ClCompile Include="Source\Shaders\textureshaderclass.cpp" />
+    <ClCompile Include="Source\Shaders\texturetotextureshaderclass.cpp" />
+    <ClCompile Include="Source\Shaders\VolumeShader.cpp" />
+    <ClCompile Include="Source\Textures\rendertextureclass.cpp" />
+    <ClCompile Include="Source\Textures\textureclass.cpp" />
+    <ClCompile Include="Source\Text\cpuclass.cpp" />
+    <ClCompile Include="Source\Text\fontclass.cpp" />
+    <ClCompile Include="Source\Text\fpsclass.cpp" />
+    <ClCompile Include="Source\Text\textclass.cpp" />
+    <ClCompile Include="Source\Text\timerclass.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{61EE65B2-FEAE-4295-8161-DC8AB44098E0}</ProjectGuid>

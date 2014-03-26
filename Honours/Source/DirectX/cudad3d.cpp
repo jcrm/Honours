@@ -5,14 +5,13 @@
 #include <cuda_d3d11_interop.h>
 
 // includes, project
-#include <rendercheck_d3d11.h>
-#include <helper_cuda.h>
+//#include <rendercheck_d3d11.h>
+//#include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
 
 #define NAME_LEN	512
 
-CUDAD3D::CUDAD3D(void):D3DClass(), g_pCudaCapableAdapter(0)
-{
+CUDAD3D::CUDAD3D(void):D3DClass(), g_pCudaCapableAdapter(0){
 	m_swapChain = 0;
 	m_device = 0;
 	m_deviceContext = 0;
@@ -25,8 +24,7 @@ CUDAD3D::CUDAD3D(void):D3DClass(), g_pCudaCapableAdapter(0)
 	m_alphaEnableBlendingState = 0;
 	m_alphaDisableBlendingState = 0;
 }
-CUDAD3D::CUDAD3D(const D3DClass& other):D3DClass(other)
-{
+CUDAD3D::CUDAD3D(const D3DClass& other):D3DClass(other){
 	m_swapChain = 0;
 	m_device = 0;
 	m_deviceContext = 0;
@@ -40,16 +38,14 @@ CUDAD3D::CUDAD3D(const D3DClass& other):D3DClass(other)
 	m_alphaDisableBlendingState = 0;
 }
 
-CUDAD3D::~CUDAD3D(void)
-{
+CUDAD3D::~CUDAD3D(void){
 }
 
 bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, 
-						  float screenDepth, float screenNear)
-{
+						  float screenDepth, float screenNear){
 	HRESULT result;
 	IDXGIOutput* adapterOutput;
-	unsigned int numModes, i, numerator, denominator, stringLength;
+	unsigned int numModes, numerator, denominator, stringLength;
 	DXGI_MODE_DESC* displayModeList;
 	DXGI_ADAPTER_DESC adapterDesc;
 	int error;
@@ -68,12 +64,11 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Store the vsync setting.
 	m_vsync_enabled = vsync;
-	if ( !findCUDADevice() ){					// Search for CUDA GPU 
+	if ( !findCUDADevice() ){				// Search for CUDA GPU 
 		//printf("> CUDA Device NOT found on \"%s\".. Exiting.\n", device_name );        
         exit(EXIT_SUCCESS);
     }
-	if ( !dynlinkLoadD3D11API() )				// Search for D3D API (locate drivers, does not mean device is found)
-    {
+	if (!dynlinkLoadD3D11API()){			// Search for D3D API (locate drivers, does not mean device is found)
 		//printf("> D3D11 API libraries NOT found on.. Exiting.\n" );		
         dynlinkUnloadD3D11API();
         exit(EXIT_SUCCESS);
@@ -86,46 +81,36 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 	// Enumerate the primary adapter output (monitor).
 	result = g_pCudaCapableAdapter->EnumOutputs(0, &adapterOutput);
 	if(FAILED(result)){
-		MessageBox(NULL,L"error3",NULL,NULL);
 		return false;
 	}
-
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
 	if(FAILED(result)){
-		MessageBox(NULL,L"error4",NULL,NULL);
 		return false;
 	}
 
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
 	displayModeList = new DXGI_MODE_DESC[numModes];
 	if(!displayModeList){
-		MessageBox(NULL,L"error5",NULL,NULL);
 		return false;
 	}
 
 	// Now fill the display mode list structures.
 	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error6",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for(i=0; i<numModes; i++)
-	{
-		if(displayModeList[i].Width == (unsigned int)screenWidth)
-		{
-			if(displayModeList[i].Height == (unsigned int)screenHeight)
-			{
+	for(int i=0; i<numModes; i++){
+		if(displayModeList[i].Width == (unsigned int)screenWidth){
+			if(displayModeList[i].Height == (unsigned int)screenHeight){
 				numerator = displayModeList[i].RefreshRate.Numerator;
 				denominator = displayModeList[i].RefreshRate.Denominator;
 			}
 		}
 	}
-
 
 	// Release the display mode list.
 	delete [] displayModeList;
@@ -191,26 +176,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0
     };
-	//
-	//
-	//
-	//added below code to select driver type 
-	//
-	///
-	//
-	//
-	//
-	D3D_DRIVER_TYPE driverTypes[] ={
-        D3D_DRIVER_TYPE_HARDWARE,
-        D3D_DRIVER_TYPE_WARP,
-        D3D_DRIVER_TYPE_REFERENCE,
-    };
-	/*
-		Added the below code because my laptop couldn't initializes DirectX 11 with driver type hardware.
-		This piece of code loops through the other driver types until it finds one that can be used.
-	*/
-	if ( !g_pCudaCapableAdapter ) 
-    {
+	if ( !g_pCudaCapableAdapter ){
         MessageBox(NULL,L"errorcuda",NULL,NULL);
         return false;
     }
@@ -218,26 +184,18 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
     result = D3D11CreateDeviceAndSwapChain(
 				g_pCudaCapableAdapter,
 				D3D_DRIVER_TYPE_UNKNOWN,
-				NULL,
-				0,
-				featureLevel,
-				3, 
-				D3D11_SDK_VERSION,
+				NULL, 0, featureLevel,
+				3, D3D11_SDK_VERSION,
 				&swapChainDesc,
-				&m_swapChain,
-				&m_device,
-				&flRes,
-				&m_deviceContext
-			);
+				&m_swapChain, &m_device,
+				&flRes, &m_deviceContext);
     if(FAILED(result)){
         return false;
 	}
 	/*// Create the swap chain, Direct3D device, and Direct3D device context.
 	result = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &featureLevel, 1, 
 										   D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &m_device, NULL, &m_deviceContext);*/
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error10",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 	// Release the adapter.
@@ -249,18 +207,14 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 	// Get the pointer to the back buffer.
 	result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
 	if(FAILED(result)){
-		MessageBox(NULL,L"error11",NULL,NULL);
 		return false;
 	}
-
 	// Create the render target view with the back buffer pointer.
 	result = m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
 	if(FAILED(result)){
-		MessageBox(NULL,L"error12",NULL,NULL);
 		return false;
 	}
-
-	// Release pointer to the back buffer as we no longer need it.
+		// Release pointer to the back buffer as we no longer need it.
 	backBufferPtr->Release();
 	backBufferPtr = 0;
 
@@ -282,9 +236,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Create the texture for the depth buffer using the filled out description.
 	result = m_device->CreateTexture2D(&depthBufferDesc, NULL, &m_depthStencilBuffer);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error13",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -314,9 +266,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Create the depth stencil state.
 	result = m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error14",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -333,9 +283,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Create the depth stencil view.
 	result = m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error15",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -390,9 +338,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Create the state using the device.
 	result = m_device->CreateDepthStencilState(&depthDisabledStencilDesc, &m_depthDisabledStencilState);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error18",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -411,9 +357,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Create the blend state using the description.
 	result = m_device->CreateBlendState(&blendStateDescription, &m_alphaEnableBlendingState);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error19",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -422,9 +366,7 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 
 	// Create the second blend state using the description.
 	result = m_device->CreateBlendState(&blendStateDescription, &m_alphaDisableBlendingState);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error20",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -446,9 +388,7 @@ bool CUDAD3D::CreateRaster(){
 
 	// Create the rasterizer state from the description we just filled out.
 	bool result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
-	if(FAILED(result))
-	{
-		MessageBox(NULL,L"error16",NULL,NULL);
+	if(FAILED(result)){
 		return false;
 	}
 
@@ -473,7 +413,6 @@ bool CUDAD3D::CreateBackFaceRaster(){
 	// Create the rasterizer state from the description we just filled out.
 	bool result = m_device->CreateRasterizerState(&rasterDesc, &m_rasterState);
 	if(FAILED(result)){
-		MessageBox(NULL,L"error16",NULL,NULL);
 		return false;
 	}
 
@@ -483,102 +422,88 @@ bool CUDAD3D::CreateBackFaceRaster(){
 }
 
 
-bool CUDAD3D::findCUDADevice()
-{
-    int nGraphicsGPU = 0;
-    int deviceCount = 0;
-    bool bFoundGraphics = false;
-    char firstGraphicsName[NAME_LEN], devname[NAME_LEN];
+bool CUDAD3D::findCUDADevice(){
+	int nGraphicsGPU = 0;
+	int deviceCount = 0;
+	bool bFoundGraphics = false;
+	char firstGraphicsName[NAME_LEN], devname[NAME_LEN];
 
 	// This function call returns 0 if there are no CUDA capable devices.
-    cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
+	cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
 
-    if (error_id != cudaSuccess) 
-    {
-        //printf("cudaGetDeviceCount returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
-        exit(EXIT_FAILURE);
-    }
+	if (error_id != cudaSuccess){
+		//printf("cudaGetDeviceCount returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
+		exit(EXIT_FAILURE);
+	}
 
-    if (deviceCount == 0) 
-    {
-        //printf("> There are no device(s) supporting CUDA\n");
-        return false;
-    } else {
-        //printf("> Found %d CUDA Capable Device(s)\n", deviceCount);
-    }
-	
+	if (deviceCount == 0) {
+		//printf("> There are no device(s) supporting CUDA\n");
+		return false;
+	}else{
+		//printf("> Found %d CUDA Capable Device(s)\n", deviceCount);
+	}
+
 	// Get CUDA device properties
-    cudaDeviceProp deviceProp;
-    for (int dev = 0; dev < deviceCount; ++dev)
-    {
-        cudaGetDeviceProperties (&deviceProp, dev);
-        STRCPY ( devname, NAME_LEN, deviceProp.name );
-        //printf("> GPU %d: %s\n", dev, devname );
-    }
+	cudaDeviceProp deviceProp;
+	for (int dev = 0; dev < deviceCount; ++dev){
+		cudaGetDeviceProperties (&deviceProp, dev);
+		STRCPY ( devname, NAME_LEN, deviceProp.name );
+		//printf("> GPU %d: %s\n", dev, devname );
+	}
 	return true;
 }
 
-bool CUDAD3D::findDXDevice( char* dev_name )
-{
-    HRESULT hr = S_OK;
-    cudaError cuStatus;
+bool CUDAD3D::findDXDevice( char* dev_name ){
+	HRESULT hr = S_OK;
+	cudaError cuStatus;
 	bool error;
-    // Iterate through the candidate adapters
-    IDXGIFactory *pFactory;
-    hr = sFnPtr_CreateDXGIFactory(__uuidof(IDXGIFactory), (void **)(&pFactory));	
-    if ( ! SUCCEEDED(hr) ) 
-    {
-        printf ( "> No DXGI Factory created.\n");
-        return false;
-    }
-	
-    UINT adapter = 0;
-    for (; !g_pCudaCapableAdapter; ++adapter)
-    {
-        // Get a candidate DXGI adapter
-        IDXGIAdapter *pAdapter = NULL;
-        hr = pFactory->EnumAdapters(adapter, &pAdapter);
-        if (FAILED(hr)) { break; }		// no compatible adapters found
+	// Iterate through the candidate adapters
+	IDXGIFactory *pFactory;
+	// Create a DirectX graphics interface factory.
+	hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory);
+	if(FAILED(hr)){
+		return false;
+	}
 
-        // Query to see if there exists a corresponding compute device
-        int cuDevice;
-        cuStatus = cudaD3D11GetDevice(&cuDevice, pAdapter);
+	UINT adapter = 0;
+	for (; !g_pCudaCapableAdapter; ++adapter){
+		// Get a candidate DXGI adapter
+		IDXGIAdapter *pAdapter = NULL;
+		hr = pFactory->EnumAdapters(adapter, &pAdapter);
+		if (FAILED(hr)) { break; }		// no compatible adapters found
+		// Query to see if there exists a corresponding compute device
+		int cuDevice;
+		cuStatus = cudaD3D11GetDevice(&cuDevice, pAdapter);
+		if (cudaSuccess == cuStatus){
+			// If so, mark it as the one against which to create our d3d10 device
+			g_pCudaCapableAdapter = pAdapter;
+			g_pCudaCapableAdapter->AddRef();
+		}
 
-        if (cudaSuccess == cuStatus)
-        {
-            // If so, mark it as the one against which to create our d3d10 device
-            g_pCudaCapableAdapter = pAdapter;
-            g_pCudaCapableAdapter->AddRef();
-        }
+		pAdapter->Release();
+	}
+	//printf("> Found %d D3D11 Adapater(s).\n", (int) adapter );
 
-        pAdapter->Release();
-    }
-    //printf("> Found %d D3D11 Adapater(s).\n", (int) adapter );
+	pFactory->Release();     
 
-    pFactory->Release();     
+	if(!g_pCudaCapableAdapter){
+		return false;
+	}
 
-    if ( !g_pCudaCapableAdapter ) 
-    {
-        //printf("> Found 0 D3D11 Adapater(s) /w Compute capability.\n" );
-        return false;
-    }
+	DXGI_ADAPTER_DESC adapterDesc;
+	g_pCudaCapableAdapter->GetDesc (&adapterDesc);
+	wcstombs (dev_name, adapterDesc.Description, 128);
 
-    DXGI_ADAPTER_DESC adapterDesc;
-    g_pCudaCapableAdapter->GetDesc ( &adapterDesc );
-    wcstombs ( dev_name, adapterDesc.Description, 128 );
-	
 	// Store the dedicated video card memory in megabytes.
 	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
 	unsigned int stringLength;
 	// Convert the name of the video card to a character array and store it.
 	error = wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128);
-	if(error != 0)
-	{
-		MessageBox(NULL,L"error8",NULL,NULL);
+	if(error){
+
 		return false;
 	}
-    //printf("> Found 1 D3D11 Adapater(s) /w Compute capability.\n" );
-    //printf("> %s\n", dev_name );
-
-    return true;
+	//printf("> Found 1 D3D11 Adapater(s) /w Compute capability.\n" );
+	//printf("> %s\n", dev_name );
+	return true;
 }
