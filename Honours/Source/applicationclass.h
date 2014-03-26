@@ -101,7 +101,7 @@ private:
 	void ShutdownCamera();
 	void ShutdownShaders();
 
-	HRESULT InitCudaTextures();
+	bool InitCudaTextures();
 	void CudaRender();
 	void RunKernels();
 	void InitClouds();

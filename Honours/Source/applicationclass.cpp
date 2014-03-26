@@ -10,7 +10,6 @@ ApplicationClass::ApplicationClass(): m_Input(0), m_Direct3D(0), m_Camera(0), m_
 	m_HalfSizeTexture(0)
 {
 }
-
 ApplicationClass::ApplicationClass(const ApplicationClass& other): m_Input(0), m_Direct3D(0), m_Camera(0), m_Terrain(0),
 	m_Timer(0), m_Position(0), m_Fps(0), m_Cpu(0), m_FontShader(0), m_Text(0),
 	m_TerrainShader(0), m_Light(0), m_TextureShader(0), m_TextureToTextureShader(0),
@@ -23,7 +22,6 @@ ApplicationClass::~ApplicationClass(){
 bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight){
 	bool result;
 	int downSampleWidth, downSampleHeight;
-	char *ref_file = NULL;
 
 	// Set the size to sample down to.
 	downSampleWidth = screenWidth / 2;
@@ -82,23 +80,25 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		MessageBox(hwnd, L"Could not initialize the full screen ortho window object.", L"Error", MB_OK);
 		return false;
 	}
-
+	result = InitCudaTextures();
 	// Initialize Direct3D
-	if (SUCCEEDED(InitCudaTextures()))	{
-		// 2D
-		// register the Direct3D resources that we'll use
-		// we'll read to and write from g_texture_2d, so don't set any special map flags for it
-		cudaGraphicsD3D11RegisterResource(&g_texture_2d.cudaResource, g_texture_2d.pTexture, cudaGraphicsRegisterFlagsNone);
-		getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
-		// cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
-		// Create a buffer so that cuda can write into it
-		// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-		cudaMallocPitch(&g_texture_2d.cudaLinearMemory, &g_texture_2d.pitch, g_texture_2d.width * sizeof(float) * 4, g_texture_2d.height);
-		getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
-		cudaMemset(g_texture_2d.cudaLinearMemory, 1, g_texture_2d.pitch * g_texture_2d.height);
-
-		InitClouds();
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize cuda textures.", L"Error", MB_OK);
+		return false;
 	}
+	// 2D
+	// register the Direct3D resources that we'll use
+	// we'll read to and write from g_texture_2d, so don't set any special map flags for it
+	cudaGraphicsD3D11RegisterResource(&g_texture_2d.cudaResource, g_texture_2d.pTexture, cudaGraphicsRegisterFlagsNone);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
+	// cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
+	// Create a buffer so that cuda can write into it
+	// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
+	cudaMallocPitch(&g_texture_2d.cudaLinearMemory, &g_texture_2d.pitch, g_texture_2d.width * sizeof(float) * 4, g_texture_2d.height);
+	getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
+	cudaMemset(g_texture_2d.cudaLinearMemory, 1, g_texture_2d.pitch * g_texture_2d.height);
+
+	InitClouds();
 	return true;
 }
 void ApplicationClass::InitClouds(){
@@ -106,7 +106,6 @@ void ApplicationClass::InitClouds(){
 	cudaGraphicsD3D11RegisterResource(&g_texture_cloud.cudaVelocityResource, g_texture_cloud.pTexture, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	//cudaMallocPitch(&g_texture_3d.cudaLinearMemory, &g_texture_3d.pitch, g_texture_3d.width * 4, g_texture_3d.height * g_texture_3d.depth);
 	cudaMalloc(&g_texture_cloud.cudaVelocityLinearMemory, g_texture_cloud.width * 4 * g_texture_cloud.height * g_texture_cloud.depth);
 	g_texture_cloud.pitch = g_texture_cloud.width * 4;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
@@ -184,7 +183,6 @@ bool ApplicationClass::Frame(){
 	if(!result){
 		return false;
 	}
-
 	// Update the CPU usage value in the text object.
 	result = m_Text->SetCpu(m_Cpu->GetCpuPercentage(), m_Direct3D->GetDeviceContext());
 	if(!result){
@@ -306,12 +304,10 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 	}
 	// Turn on the alpha blending before rendering the text.
 	m_Direct3D->TurnOnAlphaBlending();
-
 	// Turn off alpha blending after rendering the text.
 	m_Direct3D->TurnOffAlphaBlending();
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_Direct3D->SetBackBufferRenderTarget();
-
 	// Reset the viewport back to the original.
 	m_Direct3D->ResetViewport();
 
@@ -716,7 +712,7 @@ void ApplicationClass::ShutdownShaders(){
 // Name: InitTextures()
 // Desc: Initializes Direct3D Textures (allocation and initialization)
 //-----------------------------------------------------------------------------
-HRESULT ApplicationClass::InitCudaTextures(){
+bool ApplicationClass::InitCudaTextures(){
 	int offsetInShader = 0;
 	ID3D11Device* g_pd3dDevice = m_Direct3D->GetDevice();
 	ID3D11DeviceContext* g_pd3dDeviceContext = m_Direct3D->GetDeviceContext();
@@ -737,16 +733,14 @@ HRESULT ApplicationClass::InitCudaTextures(){
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-		if (FAILED(g_pd3dDevice->CreateTexture2D(&desc, NULL, &g_texture_2d.pTexture))){
-			return E_FAIL;
+		if(FAILED(g_pd3dDevice->CreateTexture2D(&desc, NULL, &g_texture_2d.pTexture))){
+			return false;
 		}
-
-		if (FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_2d.pTexture, NULL, &g_texture_2d.pSRView))){
-			return E_FAIL;
+		if(FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_2d.pTexture, NULL, &g_texture_2d.pSRView))){
+			return false;
 		}
-
-		offsetInShader = 0; // to be clean we should look for the offset from the shader code
 		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_2d.pSRView);
+		offsetInShader++;
 	}
 
 	// CLoud texture
@@ -766,18 +760,14 @@ HRESULT ApplicationClass::InitCudaTextures(){
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 		if (FAILED(g_pd3dDevice->CreateTexture3D(&desc, NULL, &g_texture_cloud.pTexture))){
-			return E_FAIL;
+			return false;
 		}
-
 		if (FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_cloud.pTexture, NULL, &g_texture_cloud.pSRView))){
-			return E_FAIL;
+			return false;
 		}
-
-		offsetInShader++; // to be clean we should look for the offset from the shader code
 		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_cloud.pSRView);
 	}
-
-	return S_OK;
+	return true;
 }
 //-----------------------------------------------------------------------------
 // Name: CudaRender()
