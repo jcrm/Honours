@@ -4,7 +4,6 @@
 #ifndef _D3DCLASS_H_
 #define _D3DCLASS_H_
 
-
 /////////////
 // LINKING //
 /////////////
@@ -12,7 +11,6 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dx11.lib")
 #pragma comment(lib, "d3dx10.lib")
-
 
 //////////////
 // INCLUDES //
@@ -26,8 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: D3DClass
 ////////////////////////////////////////////////////////////////////////////////
-class D3DClass
-{
+class D3DClass{
 public:
 	D3DClass();
 	D3DClass(const D3DClass&);
@@ -54,6 +51,15 @@ public:
 	void TurnOffAlphaBlending();
 	void SetBackBufferRenderTarget();
 	void ResetViewport();
+	bool CreateRaster();
+	bool CreateBackFaceRaster();
+protected:
+	virtual bool InitDisplayMode(int, int,unsigned int&, unsigned int&);
+	virtual bool InitSwapChain(HWND, int screenWidth, int screenHeight,unsigned int&, unsigned int&, bool fullscreen);
+	bool InitDepthBuffer(int screenWidth, int screenHeight);
+	bool InitDepthStencil();
+	bool InitDepthDisableStencil();
+	bool InitBlendState();
 protected:
 	bool m_vsync_enabled;
 	int m_videoCardMemory;
@@ -74,5 +80,4 @@ protected:
 	ID3D11BlendState* m_alphaDisableBlendingState;
 	D3D11_VIEWPORT m_viewport;
 };
-
 #endif

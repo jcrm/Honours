@@ -10,8 +10,10 @@ public:
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 	bool findCUDADevice();
 	bool findDXDevice( char* dev_name );
-	bool CreateRaster();
-	bool CreateBackFaceRaster();
+protected:
+	bool InitDisplayMode(int, int,unsigned int&, unsigned int&);
+	bool InitSwapChain(HWND, int screenWidth, int screenHeight,unsigned int&, unsigned int&, bool fullscreen);
+private:
 	IDXGIAdapter *g_pCudaCapableAdapter;  // Adapter to use
 };
 
