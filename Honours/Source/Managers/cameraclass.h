@@ -24,8 +24,8 @@ public:
 	void SetPosition(float, float, float);
 	void SetRotation(float, float, float);
 
-	D3DXVECTOR3 GetPosition();
-	D3DXVECTOR3 GetRotation();
+	inline D3DXVECTOR3 GetPosition(){return D3DXVECTOR3(m_positionX, m_positionY, m_positionZ);}
+	inline D3DXVECTOR3 GetRotation(){return D3DXVECTOR3(m_rotationX, m_rotationY, m_rotationZ);}
 
 	void Render();
 	void GetViewMatrix(D3DXMATRIX&);

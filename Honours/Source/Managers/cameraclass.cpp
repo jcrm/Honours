@@ -3,9 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "cameraclass.h"
 
-
-CameraClass::CameraClass()
-{
+CameraClass::CameraClass(){
 	m_positionX = 0.0f;
 	m_positionY = 0.0f;
 	m_positionZ = 0.0f;
@@ -15,53 +13,30 @@ CameraClass::CameraClass()
 	m_rotationZ = 0.0f;
 }
 
-
-CameraClass::CameraClass(const CameraClass& other)
-{
+CameraClass::CameraClass(const CameraClass& other){
 }
 
-
-CameraClass::~CameraClass()
-{
+CameraClass::~CameraClass(){
 }
 
-
-void CameraClass::SetPosition(float x, float y, float z)
-{
+void CameraClass::SetPosition(float x, float y, float z){
 	m_positionX = x;
 	m_positionY = y;
 	m_positionZ = z;
 	return;
 }
 
-
-void CameraClass::SetRotation(float x, float y, float z)
-{
+void CameraClass::SetRotation(float x, float y, float z){
 	m_rotationX = x;
 	m_rotationY = y;
 	m_rotationZ = z;
 	return;
 }
 
-
-D3DXVECTOR3 CameraClass::GetPosition()
-{
-	return D3DXVECTOR3(m_positionX, m_positionY, m_positionZ);
-}
-
-
-D3DXVECTOR3 CameraClass::GetRotation()
-{
-	return D3DXVECTOR3(m_rotationX, m_rotationY, m_rotationZ);
-}
-
-
-void CameraClass::Render()
-{
+void CameraClass::Render(){
 	D3DXVECTOR3 up, position, lookAt;
 	float yaw, pitch, roll;
 	D3DXMATRIX rotationMatrix;
-
 
 	// Setup the vector that points upwards.
 	up.x = 0.0f;
@@ -99,9 +74,7 @@ void CameraClass::Render()
 	return;
 }
 
-
-void CameraClass::GetViewMatrix(D3DXMATRIX& viewMatrix)
-{
+void CameraClass::GetViewMatrix(D3DXMATRIX& viewMatrix){
 	viewMatrix = m_viewMatrix;
 	return;
 }

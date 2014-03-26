@@ -4,22 +4,18 @@
 #ifndef _ORTHOWINDOWCLASS_H_
 #define _ORTHOWINDOWCLASS_H_
 
-
 //////////////
 // INCLUDES //
 //////////////
 #include <d3d11.h>
 #include <d3dx10math.h>
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: OrthoWindowClass
 ////////////////////////////////////////////////////////////////////////////////
-class OrthoWindowClass
-{
+class OrthoWindowClass{
 private:
-	struct VertexType
-	{
+	struct VertexType{
 		D3DXVECTOR3 position;
 	    D3DXVECTOR2 texture;
 	};
@@ -33,7 +29,7 @@ public:
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
-	int GetIndexCount();
+	inline int GetIndexCount(){return m_indexCount;}
 
 private:
 	bool InitializeBuffers(ID3D11Device*, int, int);
