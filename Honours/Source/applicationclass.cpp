@@ -105,6 +105,7 @@ void ApplicationClass::InitClouds(){
 	// 3D
 	cudaGraphicsD3D11RegisterResource(&g_texture_cloud.cudaVelocityResource, g_texture_cloud.pTexture, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
+
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
 	cudaMalloc(&g_texture_cloud.cudaVelocityLinearMemory, g_texture_cloud.width * 4 * g_texture_cloud.height * g_texture_cloud.depth);
 	g_texture_cloud.pitch = g_texture_cloud.width * 4;
@@ -865,10 +866,13 @@ void ApplicationClass::CudaRender(){
 	//for Direct3D and Cuda
 
 	cudaStream_t stream = 0;
-	const int nbResources = 2;
+	const int nbResources = /*5;*/2;
 	cudaGraphicsResource *ppResources[nbResources] ={
 		g_texture_2d.cudaResource,
-		g_texture_cloud.cudaVelocityResource,
+		g_texture_cloud.cudaVelocityResource/*,
+		g_texture_cloud.cudaAdvectResource,
+		g_texture_cloud.cudaDivergenceResource,
+		g_texture_cloud.cudaPressureResource*/
 	};
 	cudaGraphicsMapResources(nbResources, ppResources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
@@ -919,28 +923,41 @@ void ApplicationClass::RunCloudKernals(){
 	sizeWHD.x = g_texture_cloud.width;
 	sizeWHD.y = g_texture_cloud.height;
 	sizeWHD.z = g_texture_cloud.depth;
+	static bool isDoneOnce = false;
+	if(isDoneOnce == false){
+		cuda_fluid_initial(g_texture_cloud.cudaVelocityLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 55.f);
+		getLastCudaError("cuda_fluid_initial failed");
 
+		cuda_fluid_initial(g_texture_cloud.cudaAdvectLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 200.f);
+		getLastCudaError("cuda_fluid_initial failed");
+
+		cuda_fluid_initial(g_texture_cloud.cudaDivergenceLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 0.f);
+		getLastCudaError("cuda_fluid_initial failed");
+
+		cuda_fluid_initial(g_texture_cloud.cudaPressureLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 0.f);
+		getLastCudaError("cuda_fluid_initial failed");
+		isDoneOnce = true;
+	}
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_advect(g_texture_cloud.cudaAdvectLinearMemory,
 		g_texture_cloud.cudaVelocityLinearMemory,
 		sizeWHD, g_texture_cloud.pitch, pitchSlice);
 
 	getLastCudaError("cuda_fluid_advect failed");
-
+	
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_divergence(g_texture_cloud.cudaDivergenceLinearMemory,
 		g_texture_cloud.cudaAdvectLinearMemory,
 		sizeWHD, g_texture_cloud.pitch, pitchSlice);
 
 	getLastCudaError("cuda_fluid_divergence failed");
-
-	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_jacobi(g_texture_cloud.cudaPressureLinearMemory,
-		g_texture_cloud.cudaDivergenceLinearMemory,
-		sizeWHD, g_texture_cloud.pitch, pitchSlice);
-
-	getLastCudaError("cuda_fluid_jacobi failed");
-
+	for(int i = 0; i < 10; i++){
+		// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+		cuda_fluid_jacobi(g_texture_cloud.cudaPressureLinearMemory,
+			g_texture_cloud.cudaDivergenceLinearMemory,
+			sizeWHD, g_texture_cloud.pitch, pitchSlice);
+		getLastCudaError("cuda_fluid_jacobi failed");
+	}
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_project(g_texture_cloud.cudaPressureLinearMemory,
 		g_texture_cloud.cudaVelocityLinearMemory, 
@@ -960,5 +977,6 @@ void ApplicationClass::RunCloudKernals(){
 	memcpyParams.extent.depth = g_texture_cloud.depth;
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
+
 	getLastCudaError("cudaMemcpy3D failed");
 }

@@ -22,8 +22,9 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 		unsigned char *fieldTop = velocityInput + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);   
 		unsigned char *fieldDown = velocityInput + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter); 
 		unsigned char *fieldUp = velocityInput + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter);
+		unsigned char* cellDivergence = divergence + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
 		// Compute the velocity's divergence using central differences.  
-		divergence[0] =  0.5 * ((fieldRight[0] - fieldLeft[0])+  
+		cellDivergence[0] =  0.5 * ((fieldRight[0] - fieldLeft[0])+  
 									(fieldTop[1] - fieldBottom[1])+  
 									(fieldUp[2] - fieldDown[2])); 
 	}
