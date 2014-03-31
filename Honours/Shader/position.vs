@@ -24,8 +24,6 @@ struct PixelInputType
 	float4 pos			: TEXCOORD1;
 };
 
-float4 ScaleFactor;
-
 PixelInputType PositionVS(VertexInputType input){
 	PixelInputType output;
 
@@ -33,7 +31,7 @@ PixelInputType PositionVS(VertexInputType input){
 	input.Position.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output.Position = mul(input.Position, worldMatrix);
+	output.Position = mul(input.Position*0.1f, worldMatrix);
 	output.Position = mul(output.Position, viewMatrix);
 	output.Position = mul(output.Position, projectionMatrix);
 

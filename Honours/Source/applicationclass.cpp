@@ -264,11 +264,13 @@ bool ApplicationClass::HandleInput(float frameTime){
 bool ApplicationClass::Render(){
 	bool result;
 	CudaRender();
+	RenderClouds();
 	// First render the scene to a render texture.
 	result = RenderSceneToTexture(m_RenderFullSizeTexture);
 	if(!result){
 		return false;
 	}
+	
 	//render the texture to the scene
 	result = Render2DTextureScene(m_RenderFullSizeTexture);
 	if(!result){
@@ -292,8 +294,8 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Camera->GetViewMatrix(viewMatrix);
-	m_Direct3D->GetProjectionMatrix(projectionMatrix);	
-
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	/*
 	// Render the terrain buffers.
 	m_Terrain->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
@@ -301,7 +303,7 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_Terrain->GetTexture());
 	if(!result){
 		return false;
-	}
+	}*/
 	// Turn on the alpha blending before rendering the text.
 	m_Direct3D->TurnOnAlphaBlending();
 	// Turn off alpha blending after rendering the text.
@@ -311,6 +313,69 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 	// Reset the viewport back to the original.
 	m_Direct3D->ResetViewport();
 
+	return true;
+}
+bool ApplicationClass::RenderClouds(){
+	D3DXMATRIX worldMatrix, modelWorldMatrix, viewMatrix, projectionMatrix;
+	bool result;
+
+	// Set the render target to be the render to texture.
+	mCloud->m_FrontPositionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	// Clear the render to texture.
+	mCloud->m_FrontPositionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Render();
+	// Get the world, view, and projection matrices from the camera and d3d objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	// Render the terrain buffers.
+	mCloud->Render(m_Direct3D->GetDeviceContext());
+	// Render the terrain using the terrain shader.
+	result = mPositionShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	if(!result){
+		return false;
+	}
+	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	m_Direct3D->SetBackBufferRenderTarget();
+	// Reset the viewport back to the original.
+	m_Direct3D->ResetViewport();
+
+	// Set the render target to be the render to texture.
+	mCloud->m_FrontTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	// Clear the render to texture.
+	mCloud->m_FrontTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
+
+	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		mCloud->m_FrontPositionTexture->GetShaderResourceView());
+	if(!result){
+		return false;
+	}
+	m_Direct3D->CreateBackFaceRaster();
+	mCloud->Render(m_Direct3D->GetDeviceContext());
+
+	// Set the render target to be the render to texture.
+	mCloud->m_BackPositionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	// Clear the render to texture.
+	mCloud->m_BackPositionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
+
+	// Render the terrain using the terrain shader.
+	result = mPositionShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	if(!result){
+		return false;
+	}
+
+	// Set the render target to be the render to texture.
+	mCloud->m_BackTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	// Clear the render to texture.
+	mCloud->m_BackTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
+
+	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		mCloud->m_BackPositionTexture->GetShaderResourceView());
+	if(!result){
+		return false;
+	}
+	m_Direct3D->CreateRaster();
 	return true;
 }
 /*
@@ -383,8 +448,9 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
-	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
+	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
 	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
+	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mCloud->m_FrontPositionTexture->GetShaderResourceView());
 	if(!result){
 		return false;
 	}
@@ -474,6 +540,16 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
 		return false;
 	}
+	mCloud = new CloudClass;
+	if(!mCloud){
+		return false;
+	}
+	// Initialize the terrain object.
+	result = mCloud->Initialize(m_Direct3D->GetDevice(), 800,600,SCREEN_DEPTH, SCREEN_NEAR);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
+		return false;
+	}
 	return true;
 }
 bool ApplicationClass::InitTextures(HWND hwnd, int screenWidth, int screenHeight){
@@ -546,29 +622,29 @@ bool ApplicationClass::InitCamera(){
 	return true;
 }
 bool ApplicationClass::InitShaders(HWND hwnd){
-	bool result;
 	// Create the font shader object.
 	m_FontShader = new FontShaderClass;
 	if(!m_FontShader){
 		return false;
 	}
 	// Initialize the font shader object.
-	result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	bool result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if(!result){
 		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
 		return false;
 	}
-	// Create the terrain shader object.
-	m_TerrainShader = new TerrainShaderClass;
-	if(!m_TerrainShader){
+	if(!InitTextureShaders(hwnd)){
+		MessageBox(hwnd, L"Could not initialize the texture shaders.", L"Error", MB_OK);
+		return false;
+	}	
+	if(!InitObjectShaders(hwnd)){
+		MessageBox(hwnd, L"Could not initialize the object shaders.", L"Error", MB_OK);
 		return false;
 	}
-	// Initialize the terrain shader object.
-	result = m_TerrainShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the terrain shader object.", L"Error", MB_OK);
-		return false;
-	}
+	return true;
+}
+bool ApplicationClass::InitTextureShaders(HWND hwnd){
+	bool result;
 	// Create the texture to texture shader object.
 	m_TextureToTextureShader = new TextureToTextureShaderClass;
 	if(!m_TextureToTextureShader){
@@ -591,13 +667,26 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
+	return true;
+}
+bool ApplicationClass::InitObjectShaders(HWND hwnd){
+	bool result;
+	// Create the terrain shader object.
+	m_TerrainShader = new TerrainShaderClass;
+	if(!m_TerrainShader){
+		return false;
+	}
+	// Initialize the terrain shader object.
+	result = m_TerrainShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if(!result){
+		return false;
+	}
 	mVolumeShader = new VolumeShader;
 	if (!mVolumeShader){
 		return false;
 	}
 	result = mVolumeShader->Initialize(m_Direct3D->GetDevice(),hwnd);
 	if(!result){
-		MessageBox(hwnd, L"Could not initialize the volume shader object.", L"Error", MB_OK);
 		return false;
 	}
 	mFaceShader = new FaceShader;
@@ -606,7 +695,14 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 	}
 	result = mFaceShader->Initialize(m_Direct3D->GetDevice(),hwnd);
 	if(!result){
-		MessageBox(hwnd, L"Could not initialize the face shader object.", L"Error", MB_OK);
+		return false;
+	}
+	mPositionShader = new PositionShader;
+	if (!mPositionShader){
+		return false;
+	}
+	result = mPositionShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+	if(!result){
 		return false;
 	}
 	return true;

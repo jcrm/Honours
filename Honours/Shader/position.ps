@@ -1,0 +1,14 @@
+struct PixelInputType
+{
+	float4 Position		: POSITION0;
+	float3 texC			: TEXCOORD0;
+	float4 pos			: TEXCOORD1;
+};
+
+SamplerState SampleType;
+
+float4 PositionPS(PixelInputType input) : SV_TARGET
+{
+	return float4(1.f,1.f,1.f,1.f);
+	//return float4(input.texC, 1.0f);
+}

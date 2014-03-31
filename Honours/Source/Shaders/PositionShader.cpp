@@ -1,34 +1,35 @@
-#include "FaceShader.h"
+#include "PositionShader.h"
 
-FaceShader::FaceShader(void){
+PositionShader::PositionShader(void){
 }
-FaceShader::~FaceShader(void){
+PositionShader::~PositionShader(void){
 }
-bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
+bool PositionShader::Initialize(ID3D11Device* device, HWND hwnd){
 	bool result;
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/face.vs", L"Shader/face.ps");
+	result = InitializeShader(device, hwnd, L"Shader/position.vs", L"Shader/position.ps");
 	if(!result){
 		return false;
 	}
 	return true;
 }
 
-bool FaceShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-						  D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+bool PositionShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+						  D3DXMATRIX projectionMatrix){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
-		if(!result){
-			return false;
-		}
-		// Now render the prepared buffers with the shader.
-		RenderShader(deviceContext, indexCount);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix);
+	if(!result){
+		return false;
+	}
+	// Now render the prepared buffers with the shader.
+	RenderShader(deviceContext, indexCount);
+
 	return true;
 }
 
-bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
+bool PositionShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
 	HRESULT result;
 	ID3D10Blob* errorMessage;
 	ID3D10Blob* vertexShaderBuffer;
@@ -55,9 +56,8 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 		}
 		return false;
 	}
-
 	// Compile the pixel shader code.
-	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "FacePS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
+	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "PositionPS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 		&pixelShaderBuffer, &errorMessage, NULL);
 	if(FAILED(result)){
 		// If the shader failed to compile it should have writen something to the error message.
@@ -69,7 +69,6 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 		}
 		return false;
 	}
-
 	// Create the vertex shader from the buffer.
 	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
 	if(FAILED(result)){
@@ -81,7 +80,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	if(FAILED(result)){
 		return false;
 	}
-	
+
 	// Create the vertex input layout description.
 	polygonLayout[0].SemanticName = "POSITION";
 	polygonLayout[0].SemanticIndex = 0;
@@ -153,8 +152,8 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	return true;
 }
 
-bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-									   D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+bool PositionShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+									   D3DXMATRIX projectionMatrix){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
@@ -188,12 +187,9 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
 	// Now set the constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
-	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-
 	return true;
 }
-void FaceShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount){
+void PositionShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount){
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(m_layout);
 

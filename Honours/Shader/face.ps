@@ -8,10 +8,6 @@ struct PixelInputType
 Texture2D Face;
 SamplerState SampleType;
 
-float4 PositionPS(PixelInputType input) : SV_TARGET
-{
-	return float4(input.texC, 1.0f);
-}
 float4 FacePS(PixelInputType input) : SV_TARGET
 {
 	float2 texC = input.pos.xy /= input.pos.w;
@@ -19,5 +15,6 @@ float4 FacePS(PixelInputType input) : SV_TARGET
 	texC.y = -0.5f*texC.y + 0.5f;
 
     float3 colour= Face.Sample(SampleType, texC);
-	return float4(colour, 1.0f);
+	//return float4(colour, 0.9f);
+	return float4(1.0f,0.0f,1.0f,1.0f);
 }

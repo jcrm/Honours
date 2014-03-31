@@ -39,6 +39,7 @@ const float SCREEN_NEAR = 0.1f;
 #include "DirectX/cudad3d.h"
 
 #include "Objects/terrainclass.h"
+#include "Objects/CloudBox.h"
 
 #include "Text/timerclass.h"
 #include "Text/fpsclass.h"
@@ -52,20 +53,12 @@ const float SCREEN_NEAR = 0.1f;
 #include "Shaders/ShaderClass.h"
 #include "Shaders/VolumeShader.h"
 #include "Shaders/FaceShader.h"
+#include "Shaders/PositionShader.h"
 
 #include "Textures/rendertextureclass.h"
 
 #include "CUDA/cuda_structs.h"
 #include "CUDA/cuda_kernals.h"
-
-// testing/tracing function used pervasively in tests.  if the condition is unsatisfied
-// then spew and fail the function immediately (doing no cleanup)
-#define AssertOrQuit(x) \
-    if (!(x)) \
-    { \
-        fprintf(stdout, "Assert unsatisfied in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \
-        return 1; \
-    }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
@@ -86,6 +79,7 @@ private:
 	bool Render();
 	bool RenderSceneToTexture(RenderTextureClass* mWrite);
 	bool RenderTexture(ShaderClass *mShader, RenderTextureClass *mReadTexture, RenderTextureClass *mWriteTexture, OrthoWindowClass *mWindow);
+	bool RenderFrontTexture(RenderTextureClass *mReadTexture, RenderTextureClass *mWriteTexture, OrthoWindowClass *mWindow);
 	bool RenderMergeTexture(RenderTextureClass *readTexture, RenderTextureClass *readTexture2, RenderTextureClass *writeTexture, OrthoWindowClass *window);
 	bool Render2DTextureScene(RenderTextureClass* mRead);
 	//Init functions
@@ -93,6 +87,8 @@ private:
 	bool InitTextures(HWND hwnd, int screenWidth, int screenHeight);
 	bool InitText(HWND hwnd, int screenWidth , int screenHeight);
 	bool InitShaders(HWND hwnd);
+	bool InitObjectShaders(HWND hwnd);
+	bool InitTextureShaders(HWND hwnd);
 	bool InitCamera();
 	//Shutdown functions
 	void ShutdownObjects();
@@ -130,9 +126,12 @@ private:
 	TerrainShaderClass* m_TerrainShader;
 	VolumeShader* mVolumeShader;
 	FaceShader* mFaceShader;
+	PositionShader* mPositionShader;
+	CloudClass* mCloud;
 
 	texture_2d g_texture_2d;
 	fluid_texture_3d g_texture_cloud;
+	bool RenderClouds();
 };
 
 #endif
