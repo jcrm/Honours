@@ -8,7 +8,7 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 	bool result;
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/volume.vs", L"Shader/volume.ps");
+	result = InitializeShader(device, hwnd, L"Shader/Volume/volume.vs", L"Shader/Volume/volume.ps");
 	if(!result){
 		return false;
 	}

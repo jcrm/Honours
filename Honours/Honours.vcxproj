@@ -17,18 +17,18 @@
     <None Include="Data\fontdata.txt" />
     <None Include="Data\ground.dds" />
     <None Include="Data\heightmap01.bmp" />
-    <None Include="Shader\font.ps" />
-    <None Include="Shader\font.vs" />
-    <None Include="Shader\face.ps" />
-    <None Include="Shader\face.vs" />
-    <None Include="Shader\volume.ps" />
-    <None Include="Shader\volume.vs" />
-    <None Include="Shader\terrain.ps" />
-    <None Include="Shader\terrain.vs" />
-    <None Include="Shader\texture.ps" />
-    <None Include="Shader\texture.vs" />
-    <None Include="Shader\texturetotexture.ps" />
-    <None Include="Shader\texturetotexture.vs" />
+    <None Include="Shader\Face\face.ps" />
+    <None Include="Shader\Face\face.vs" />
+    <None Include="Shader\Font\font.ps" />
+    <None Include="Shader\Font\font.vs" />
+    <None Include="Shader\Terrain\terrain.ps" />
+    <None Include="Shader\Terrain\terrain.vs" />
+    <None Include="Shader\TextureToTextutre\texturetotexture.ps" />
+    <None Include="Shader\TextureToTextutre\texturetotexture.vs" />
+    <None Include="Shader\Texture\texture.ps" />
+    <None Include="Shader\Texture\texture.vs" />
+    <None Include="Shader\Volume\volume.ps" />
+    <None Include="Shader\Volume\volume.vs" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CUDA\advect.cu" />

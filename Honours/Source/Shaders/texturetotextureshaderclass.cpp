@@ -17,7 +17,7 @@ bool TextureToTextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/texturetotexture.vs", L"Shader/texturetotexture.ps");
+	result = InitializeShader(device, hwnd, L"Shader/TextureToTexture/texturetotexture.vs", L"Shader/TextureToTexture/texturetotexture.ps");
 	if(!result)
 	{
 		return false;

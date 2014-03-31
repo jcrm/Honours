@@ -19,7 +19,7 @@ bool TerrainShaderClass::Initialize(ID3D11Device* device, HWND hwnd){
 
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/terrain.vs", L"Shader/terrain.ps");
+	result = InitializeShader(device, hwnd, L"Shader/Terrain/terrain.vs", L"Shader/Terrain/terrain.ps");
 	if(!result)
 	{
 		return false;

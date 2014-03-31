@@ -8,7 +8,7 @@ bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
 	bool result;
 
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, L"Shader/face.vs", L"Shader/face.ps");
+	result = InitializeShader(device, hwnd, L"Shader/Face/face.vs", L"Shader/Face/face.ps");
 	if(!result){
 		return false;
 	}

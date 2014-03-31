@@ -114,40 +114,40 @@
     <None Include="Data\fontdata.txt">
       <Filter>Resource Files\Other Files</Filter>
     </None>
-    <None Include="Shader\font.ps">
-      <Filter>Resource Files\Shader Files\Font Files</Filter>
-    </None>
-    <None Include="Shader\font.vs">
-      <Filter>Resource Files\Shader Files\Font Files</Filter>
-    </None>
-    <None Include="Shader\texture.ps">
-      <Filter>Resource Files\Shader Files\Texture Files</Filter>
-    </None>
-    <None Include="Shader\texture.vs">
-      <Filter>Resource Files\Shader Files\Texture Files</Filter>
-    </None>
-    <None Include="Shader\terrain.vs">
-      <Filter>Resource Files\Shader Files\Terrain Files</Filter>
-    </None>
-    <None Include="Shader\terrain.ps">
-      <Filter>Resource Files\Shader Files\Terrain Files</Filter>
-    </None>
-    <None Include="Shader\texturetotexture.ps">
-      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
-    </None>
-    <None Include="Shader\texturetotexture.vs">
-      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
-    </None>
-    <None Include="Shader\volume.ps">
+    <None Include="Shader\Volume\volume.ps">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>
-    <None Include="Shader\volume.vs">
+    <None Include="Shader\Volume\volume.vs">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>
-    <None Include="Shader\face.ps">
+    <None Include="Shader\TextureToTextutre\texturetotexture.ps">
+      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
+    </None>
+    <None Include="Shader\TextureToTextutre\texturetotexture.vs">
+      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
+    </None>
+    <None Include="Shader\Texture\texture.ps">
+      <Filter>Resource Files\Shader Files\Texture Files</Filter>
+    </None>
+    <None Include="Shader\Texture\texture.vs">
+      <Filter>Resource Files\Shader Files\Texture Files</Filter>
+    </None>
+    <None Include="Shader\Terrain\terrain.vs">
+      <Filter>Resource Files\Shader Files\Terrain Files</Filter>
+    </None>
+    <None Include="Shader\Terrain\terrain.ps">
+      <Filter>Resource Files\Shader Files\Terrain Files</Filter>
+    </None>
+    <None Include="Shader\Font\font.vs">
+      <Filter>Resource Files\Shader Files\Font Files</Filter>
+    </None>
+    <None Include="Shader\Font\font.ps">
+      <Filter>Resource Files\Shader Files\Font Files</Filter>
+    </None>
+    <None Include="Shader\Face\face.ps">
       <Filter>Resource Files\Shader Files\Face Files</Filter>
     </None>
-    <None Include="Shader\face.vs">
+    <None Include="Shader\Face\face.vs">
       <Filter>Resource Files\Shader Files\Face Files</Filter>
     </None>
   </ItemGroup>
@@ -248,7 +248,7 @@
       <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Shaders\FaceShader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -328,7 +328,7 @@
       <Filter>Source Files\Shader Files\Texture Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Shaders\FaceShader.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Shader Files\Object Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
