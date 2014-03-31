@@ -64,7 +64,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	// Initialize the light object.
 	m_Light->SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light->SetDirection(1.0f,0.0f, 0.0f);
+	m_Light->SetDirection(1.0f,-1.0f, 0.0f);
 	//Initialize the texture to render to
 	InitTextures(hwnd, screenWidth, screenHeight);
 	//Initialize the sahders to be used.
@@ -295,7 +295,6 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
-	/*
 	// Render the terrain buffers.
 	m_Terrain->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
@@ -303,7 +302,7 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 		m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_Terrain->GetTexture());
 	if(!result){
 		return false;
-	}*/
+	}
 	// Turn on the alpha blending before rendering the text.
 	m_Direct3D->TurnOnAlphaBlending();
 	// Turn off alpha blending after rendering the text.
@@ -438,9 +437,8 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
-	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
+	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
 	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
-	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mCloud->m_BackPositionTexture->GetShaderResourceView());
 	if(!result){
 		return false;
 	}
@@ -676,14 +674,6 @@ bool ApplicationClass::InitObjectShaders(HWND hwnd){
 		return false;
 	}
 	result = mVolumeShader->Initialize(m_Direct3D->GetDevice(),hwnd);
-	if(!result){
-		return false;
-	}
-	mFaceShader = new FaceShader;
-	if (!mFaceShader){
-		return false;
-	}
-	result = mFaceShader->Initialize(m_Direct3D->GetDevice(),hwnd);
 	if(!result){
 		return false;
 	}

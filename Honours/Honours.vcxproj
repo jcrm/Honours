@@ -17,8 +17,6 @@
     <None Include="Data\fontdata.txt" />
     <None Include="Data\ground.dds" />
     <None Include="Data\heightmap01.bmp" />
-    <None Include="Shader\face.ps" />
-    <None Include="Shader\face.vs" />
     <None Include="Shader\font.ps" />
     <None Include="Shader\font.vs" />
     <None Include="Shader\position.ps" />
@@ -53,7 +51,6 @@
     <ClInclude Include="Source\Managers\systemclass.h" />
     <ClInclude Include="Source\Objects\CloudBox.h" />
     <ClInclude Include="Source\Objects\terrainclass.h" />
-    <ClInclude Include="Source\Shaders\FaceShader.h" />
     <ClInclude Include="Source\Shaders\fontshaderclass.h" />
     <ClInclude Include="Source\Shaders\PositionShader.h" />
     <ClInclude Include="Source\Shaders\ShaderClass.h" />
@@ -82,7 +79,6 @@
     <ClCompile Include="Source\Managers\systemclass.cpp" />
     <ClCompile Include="Source\Objects\CloudBox.cpp" />
     <ClCompile Include="Source\Objects\terrainclass.cpp" />
-    <ClCompile Include="Source\Shaders\FaceShader.cpp" />
     <ClCompile Include="Source\Shaders\fontshaderclass.cpp" />
     <ClCompile Include="Source\Shaders\PositionShader.cpp" />
     <ClCompile Include="Source\Shaders\ShaderClass.cpp" />
