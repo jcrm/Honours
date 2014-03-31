@@ -120,12 +120,6 @@
     <None Include="Shader\Volume\volume.vs">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>
-    <None Include="Shader\TextureToTextutre\texturetotexture.ps">
-      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
-    </None>
-    <None Include="Shader\TextureToTextutre\texturetotexture.vs">
-      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
-    </None>
     <None Include="Shader\Texture\texture.ps">
       <Filter>Resource Files\Shader Files\Texture Files</Filter>
     </None>
@@ -149,6 +143,12 @@
     </None>
     <None Include="Shader\Face\face.vs">
       <Filter>Resource Files\Shader Files\Face Files</Filter>
+    </None>
+    <None Include="Shader\TextureToTexture\texturetotexture.vs">
+      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
+    </None>
+    <None Include="Shader\TextureToTexture\texturetotexture.ps">
+      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -35,25 +35,6 @@ bool CloudClass::Initialize(ID3D11Device* device, int width, int height, float S
 	if(!result){
 		return false;
 	}
-	// Create the up sample render to texture object.
-	m_FrontPositionTexture = new RenderTextureClass;
-	if(!m_FrontPositionTexture){
-		return false;
-	}
-	// Initialize the up sample render to texture object.
-	result = m_FrontPositionTexture->Initialize(device, width, height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		return false;
-	}
-	m_BackPositionTexture = new RenderTextureClass;
-	if(!m_BackPositionTexture){
-		return false;
-	}
-	// Initialize the up sample render to texture object.
-	result = m_BackPositionTexture->Initialize(device, width, height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		return false;
-	}
 	// Initialize the vertex and index buffer that hold the geometry for the terrain.
 	result = InitializeBuffers(device);
 	if(!result){
@@ -117,7 +98,7 @@ bool CloudClass::InitializeBuffers(ID3D11Device* device){
 
 	// Initialize the index to the vertex buffer.
 	index = 0;
-	float size = 1.f;
+	size = 5.f;
 	// Load the vertex and index array with the terrain data using a quilt method.
 	//front -0
 	vertices[index].position = D3DXVECTOR3(0.f, 0.f, 0.f);

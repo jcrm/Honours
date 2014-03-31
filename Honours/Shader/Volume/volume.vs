@@ -7,38 +7,41 @@ cbuffer MatrixBuffer
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
-
+cbuffer ScaleBuffer
+{
+	float4 scale;
+	float3 StepSize;
+	float Iterations;
+};
 //////////////
 // TYPEDEFS //
 //////////////
-struct VertexInputType
+struct VertexShaderInput
 {
-    float4 Position : POSITION0;
-    float2 texC		: TEXCOORD0;
+	float4 position : POSITION;
+	float2 texcoord : TEXCOORD0;
 };
 
-struct PixelInputType
+struct PixelShaderInput
 {
-	float4 Position		: POSITION0;
-	float3 texC			: TEXCOORD0;
-	float4 pos			: TEXCOORD1;
+    float4 position : SV_POSITION;
+    float3 texC		: TEXCOORD0;
+    float4 pos		: TEXCOORD1;
 };
+PixelShaderInput VolumeVS(VertexShaderInput input)
+{
+	PixelShaderInput output;
 
-float4 ScaleFactor;
-
-PixelInputType PositionVS(VertexInputType input){
-	PixelInputType output;
-
-	// Change the position vector to be 4 units for proper matrix calculations.
-	input.Position.w = 1.0f;
+	input.position.w = 1.0f;
+	input.position = input.position * float4(1, 1, 1, 1) * scale;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output.Position = mul(input.Position * ScaleFactor, worldMatrix);
-	output.Position = mul(output.Position, viewMatrix);
-	output.Position = mul(output.Position, projectionMatrix);
+	output.position = mul(input.position/scale, worldMatrix);
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
 
-	output.texC = input.Position;
-	output.pos = output.Position;
+	output.texC = input.position;
+	output.pos = output.position;
 
 	return output;
 }

@@ -16,11 +16,12 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 }
 
 bool VolumeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-						  D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+						  D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* frontTexture , ID3D11ShaderResourceView* backTexture,
+						  ID3D11ShaderResourceView* volumeTexture, float scale){
 	bool result;
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, frontTexture, backTexture, volumeTexture, scale);
 	if(!result){
 		return false;
 	}
@@ -38,6 +39,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
+	D3D11_BUFFER_DESC volumeBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
 	// Initialize the pointers this function will use to null.
@@ -46,7 +48,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	pixelShaderBuffer = 0;
 
 	// Compile the vertex shader code.
-	result = D3DX11CompileFromFile(vsFilename, NULL, NULL, "PositionVS", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
+	result = D3DX11CompileFromFile(vsFilename, NULL, NULL, "VolumeVS", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 		&vertexShaderBuffer, &errorMessage, NULL);
 	if(FAILED(result)){
 		// If the shader failed to compile it should have writen something to the error message.
@@ -152,15 +154,31 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	if(FAILED(result)){
 		return false;
 	}
+	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
+	volumeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	volumeBufferDesc.ByteWidth = sizeof(VolumeBufferType);
+	volumeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	volumeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	volumeBufferDesc.MiscFlags = 0;
+	volumeBufferDesc.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->CreateBuffer(&volumeBufferDesc, NULL, &mVolumeBuffer);
+	if(FAILED(result)){
+		return false;
+	}
 
 	return true;
 }
 
 bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-									   D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+									   D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* frontTexture, 
+									   ID3D11ShaderResourceView* backTexture, ID3D11ShaderResourceView* volumeTexture, float scale){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
+	VolumeBufferType* dataPtr2;
 	unsigned int bufferNumber;
 
 	// Transpose the matrices to prepare them for the shader.
@@ -192,7 +210,29 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXM
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	deviceContext->PSSetShaderResources(0, 1, &frontTexture);
+	deviceContext->PSSetShaderResources(1, 1, &backTexture);
+	deviceContext->PSSetShaderResources(2, 1, &volumeTexture);
+	
+	result = deviceContext->Map(mVolumeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if(FAILED(result)){
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr2 = (VolumeBufferType*)mappedResource.pData;
+
+	// Copy the lighting variables into the constant buffer.
+	dataPtr2->scale = D3DXVECTOR4(scale,scale,scale,1.0f);
+
+	// Unlock the constant buffer.
+	deviceContext->Unmap(mVolumeBuffer, 0);
+
+	// Set the position of the light constant buffer in the pixel shader.
+	bufferNumber = 1;
+
+	// Finally set the light constant buffer in the pixel shader with the updated values.
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &mVolumeBuffer);
 
 	return true;
 }

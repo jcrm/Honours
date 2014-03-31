@@ -16,10 +16,10 @@ bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
 }
 
 bool FaceShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-						  D3DXMATRIX projectionMatrix){
+						  D3DXMATRIX projectionMatrix, float scale){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, scale);
 	if(!result){
 		return false;
 	}
@@ -37,6 +37,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
 	D3D11_BUFFER_DESC matrixBufferDesc;
+	D3D11_BUFFER_DESC scaleBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
 
 	// Initialize the pointers this function will use to null.
@@ -148,15 +149,29 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	if(FAILED(result)){
 		return false;
 	}
+	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
+	scaleBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	scaleBufferDesc.ByteWidth = sizeof(ScaleBufferType);
+	scaleBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	scaleBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	scaleBufferDesc.MiscFlags = 0;
+	scaleBufferDesc.StructureByteStride = 0;
 
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->CreateBuffer(&scaleBufferDesc, NULL, &m_scaleBuffer);
+	if(FAILED(result)){
+		return false;
+	}
 	return true;
 }
 
 bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-									   D3DXMATRIX projectionMatrix){
+									   D3DXMATRIX projectionMatrix, float scale){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
+	ScaleBufferType* dataPtr2;
 	unsigned int bufferNumber;
 
 	// Transpose the matrices to prepare them for the shader.
@@ -186,6 +201,26 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
 
 	// Now set the constant buffer in the vertex shader with the updated values.
 	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	
+	result = deviceContext->Map(m_scaleBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if(FAILED(result)){
+		return false;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr2 = (ScaleBufferType*)mappedResource.pData;
+
+	// Copy the lighting variables into the constant buffer.
+	dataPtr2->scale = D3DXVECTOR4(scale,scale,scale,1.0f);
+
+	// Unlock the constant buffer.
+	deviceContext->Unmap(m_scaleBuffer, 0);
+
+	// Set the position of the light constant buffer in the pixel shader.
+	bufferNumber = 1;
+
+	// Finally set the light constant buffer in the pixel shader with the updated values.
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_scaleBuffer);
 
 	return true;
 }

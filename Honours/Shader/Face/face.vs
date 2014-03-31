@@ -4,6 +4,10 @@ cbuffer MatrixBuffer
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
+cbuffer ScaleBuffer
+{
+	float4 scale;
+};
 struct VertexShaderInput
 {
 	float4 position : POSITION;
@@ -22,14 +26,14 @@ PixelShaderInput FaceVS(VertexShaderInput input)
 	PixelShaderInput output;
 
 	input.position.w = 1.0f;
-	input.position = input.position * float4(1, 1, 1, 1);
+	input.position = input.position * float4(1, 1, 1, 1) * scale;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output.position = mul(input.position, worldMatrix);
+	output.position = mul(input.position/scale, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
-	output.texC = input.position;
+	output.texC = input.position ;
 	output.pos = output.position;
 
 	return output;

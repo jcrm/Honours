@@ -23,8 +23,8 @@
     <None Include="Shader\Font\font.vs" />
     <None Include="Shader\Terrain\terrain.ps" />
     <None Include="Shader\Terrain\terrain.vs" />
-    <None Include="Shader\TextureToTextutre\texturetotexture.ps" />
-    <None Include="Shader\TextureToTextutre\texturetotexture.vs" />
+    <None Include="Shader\TextureToTexture\texturetotexture.ps" />
+    <None Include="Shader\TextureToTexture\texturetotexture.vs" />
     <None Include="Shader\Texture\texture.ps" />
     <None Include="Shader\Texture\texture.vs" />
     <None Include="Shader\Volume\volume.ps" />

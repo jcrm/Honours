@@ -35,10 +35,13 @@ public:
 	void Render(ID3D11DeviceContext*);
 	//getters
 	inline int  GetIndexCount() const {return m_indexCount;}
-	inline ID3D11ShaderResourceView* GetFrontTexture(){return m_FrontTexture->GetShaderResourceView();}
-	inline ID3D11ShaderResourceView* GetBackTexture(){return m_BackTexture->GetShaderResourceView();}
-	RenderTextureClass* m_FrontTexture, *m_BackTexture;
-	RenderTextureClass* m_FrontPositionTexture, *m_BackPositionTexture;
+	inline RenderTextureClass* GetFrontTexture(){return m_FrontTexture;}
+	inline RenderTextureClass* GetBackTexture(){return m_BackTexture;}
+	
+	inline ID3D11ShaderResourceView* GetFrontShaderResource(){return m_FrontTexture->GetShaderResourceView();}
+	inline ID3D11ShaderResourceView* GetBackShaderResource(){return m_BackTexture->GetShaderResourceView();}
+
+	inline float GetScale(){return 1/size;}
 private:
 	//buffer functions
 	bool InitializeBuffers(ID3D11Device*);
@@ -49,7 +52,8 @@ private:
 private:
 	int m_vertexCount, m_indexCount;
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
-
+	RenderTextureClass* m_FrontTexture, *m_BackTexture;
+	float size;
 };
 
 #endif

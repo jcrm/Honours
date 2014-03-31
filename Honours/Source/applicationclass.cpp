@@ -305,6 +305,14 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 	}
 	// Turn on the alpha blending before rendering the text.
 	m_Direct3D->TurnOnAlphaBlending();
+
+	mCloud->Render(m_Direct3D->GetDeviceContext());
+	result = mVolumeShader->Render(m_Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		mCloud->GetFrontShaderResource(), mCloud->GetBackShaderResource(), g_texture_cloud.pSRView,mCloud->GetScale());
+	if(!result){
+		return false;
+	}
+	
 	// Turn off alpha blending after rendering the text.
 	m_Direct3D->TurnOffAlphaBlending();
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
@@ -319,9 +327,9 @@ bool ApplicationClass::RenderClouds(){
 	bool result;
 
 	// Set the render target to be the render to texture.
-	mCloud->m_FrontPositionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	mCloud->GetFrontTexture()->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	// Clear the render to texture.
-	mCloud->m_FrontPositionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
+	mCloud->GetFrontTexture()->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
@@ -331,7 +339,7 @@ bool ApplicationClass::RenderClouds(){
 	// Render the terrain buffers.
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, mCloud->GetScale());
 	if(!result){
 		return false;
 	}
@@ -344,9 +352,9 @@ bool ApplicationClass::RenderClouds(){
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 
 	// Set the render target to be the render to texture.
-	mCloud->m_BackPositionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+	mCloud->GetBackTexture()->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	// Clear the render to texture.
-	mCloud->m_BackPositionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
+	mCloud->GetBackTexture()->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
 	// Generate the view matrix based on the camera's position.
 	m_Camera->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
@@ -356,7 +364,7 @@ bool ApplicationClass::RenderClouds(){
 	// Render the terrain buffers.
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, mCloud->GetScale());
 	if(!result){
 		return false;
 	}
@@ -437,9 +445,9 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
-	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
+	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
 	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
-	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix,mCloud->m_FrontPositionTexture->GetShaderResourceView());
+	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix,mCloud->GetFrontShaderResource());
 	if(!result){
 		return false;
 	}
