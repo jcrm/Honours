@@ -1,4 +1,4 @@
-struct VOut
+struct PixelShaderInput
 {
     float4 position : SV_POSITION;
     float3 texC		: TEXCOORD0;
@@ -7,7 +7,7 @@ struct VOut
 
 SamplerState SampleType;
 
-float4 PositionPS(VOut input) : SV_TARGET
+float4 FacePS(PixelShaderInput input) : SV_TARGET
 {
 	return float4(input.texC, 1.0f);
 }

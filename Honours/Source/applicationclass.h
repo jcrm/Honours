@@ -52,7 +52,7 @@ const float SCREEN_NEAR = 0.1f;
 #include "Shaders/texturetotextureshaderclass .h"
 #include "Shaders/ShaderClass.h"
 #include "Shaders/VolumeShader.h"
-#include "Shaders/PositionShader.h"
+#include "Shaders/FaceShader.h"
 
 #include "Textures/rendertextureclass.h"
 
@@ -124,7 +124,7 @@ private:
 	FontShaderClass* m_FontShader;
 	TerrainShaderClass* m_TerrainShader;
 	VolumeShader* mVolumeShader;
-	PositionShader* mPositionShader;
+	FaceShader* mFaceShader;
 	CloudClass* mCloud;
 
 	texture_2d g_texture_2d;

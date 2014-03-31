@@ -1,10 +1,10 @@
 #pragma once
 #include "shaderclass.h"
-class PositionShader : public ShaderClass
+class FaceShader : public ShaderClass
 {
 public:
-	PositionShader(void);
-	~PositionShader(void);
+	FaceShader(void);
+	~FaceShader(void);
 	bool Initialize(ID3D11Device*, HWND);
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX);
 	ID3D11Buffer* GetBuffer(){return m_matrixBuffer;}

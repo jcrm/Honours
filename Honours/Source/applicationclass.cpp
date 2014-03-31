@@ -331,7 +331,7 @@ bool ApplicationClass::RenderClouds(){
 	// Render the terrain buffers.
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = mPositionShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if(!result){
 		return false;
 	}
@@ -356,7 +356,7 @@ bool ApplicationClass::RenderClouds(){
 	// Render the terrain buffers.
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = mPositionShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if(!result){
 		return false;
 	}
@@ -437,8 +437,9 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 	m_FullScreenWindow->Render(m_Direct3D->GetDeviceContext());
 
 	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
-	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
+	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
 	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
+	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix,mCloud->m_FrontPositionTexture->GetShaderResourceView());
 	if(!result){
 		return false;
 	}
@@ -677,11 +678,11 @@ bool ApplicationClass::InitObjectShaders(HWND hwnd){
 	if(!result){
 		return false;
 	}
-	mPositionShader = new PositionShader;
-	if (!mPositionShader){
+	mFaceShader = new FaceShader;
+	if (!mFaceShader){
 		return false;
 	}
-	result = mPositionShader->Initialize(m_Direct3D->GetDevice(),hwnd);
+	result = mFaceShader->Initialize(m_Direct3D->GetDevice(),hwnd);
 	if(!result){
 		return false;
 	}

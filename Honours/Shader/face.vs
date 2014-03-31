@@ -4,22 +4,22 @@ cbuffer MatrixBuffer
 	matrix viewMatrix;
 	matrix projectionMatrix;
 };
-struct VIn
+struct VertexShaderInput
 {
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
 };
 
-struct VOut
+struct PixelShaderInput
 {
     float4 position : SV_POSITION;
     float3 texC		: TEXCOORD0;
     float4 pos		: TEXCOORD1;
 };
 
-VOut PositionVS(VIn input)
+PixelShaderInput FaceVS(VertexShaderInput input)
 {
-	VOut output;
+	PixelShaderInput output;
 
 	input.position.w = 1.0f;
 	input.position = input.position * float4(1, 1, 1, 1);

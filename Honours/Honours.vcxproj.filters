@@ -144,10 +144,10 @@
     <None Include="Shader\volume.vs">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>
-    <None Include="Shader\position.ps">
+    <None Include="Shader\face.ps">
       <Filter>Resource Files\Shader Files\Face Files</Filter>
     </None>
-    <None Include="Shader\position.vs">
+    <None Include="Shader\face.vs">
       <Filter>Resource Files\Shader Files\Face Files</Filter>
     </None>
   </ItemGroup>
@@ -247,7 +247,7 @@
     <ClInclude Include="Source\Shaders\terrainshaderclass.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\PositionShader.h">
+    <ClInclude Include="Source\Shaders\FaceShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -327,7 +327,7 @@
     <ClCompile Include="Source\Shaders\texturetotextureshaderclass.cpp">
       <Filter>Source Files\Shader Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\PositionShader.cpp">
+    <ClCompile Include="Source\Shaders\FaceShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
