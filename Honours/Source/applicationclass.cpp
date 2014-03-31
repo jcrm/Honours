@@ -341,16 +341,6 @@ bool ApplicationClass::RenderClouds(){
 	// Reset the viewport back to the original.
 	m_Direct3D->ResetViewport();
 
-	// Set the render target to be the render to texture.
-	mCloud->m_FrontTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	// Clear the render to texture.
-	mCloud->m_FrontTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
-
-	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-		mCloud->m_FrontPositionTexture->GetShaderResourceView());
-	if(!result){
-		return false;
-	}
 	m_Direct3D->CreateBackFaceRaster();
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 
@@ -358,23 +348,23 @@ bool ApplicationClass::RenderClouds(){
 	mCloud->m_BackPositionTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
 	// Clear the render to texture.
 	mCloud->m_BackPositionTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
-
+	// Generate the view matrix based on the camera's position.
+	m_Camera->Render();
+	// Get the world, view, and projection matrices from the camera and d3d objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+	// Render the terrain buffers.
+	mCloud->Render(m_Direct3D->GetDeviceContext());
 	// Render the terrain using the terrain shader.
 	result = mPositionShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
 	if(!result){
 		return false;
 	}
-
-	// Set the render target to be the render to texture.
-	mCloud->m_BackTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
-	// Clear the render to texture.
-	mCloud->m_BackTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
-
-	result = mFaceShader->Render(m_Direct3D->GetDeviceContext(), mCloud->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-		mCloud->m_BackPositionTexture->GetShaderResourceView());
-	if(!result){
-		return false;
-	}
+	// Reset the render target back to the original back buffer and not the render to texture anymore.
+	m_Direct3D->SetBackBufferRenderTarget();
+	// Reset the viewport back to the original.
+	m_Direct3D->ResetViewport();
 	m_Direct3D->CreateRaster();
 	return true;
 }
@@ -450,7 +440,7 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
 	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
 	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
-	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mCloud->m_FrontPositionTexture->GetShaderResourceView());
+	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mCloud->m_BackPositionTexture->GetShaderResourceView());
 	if(!result){
 		return false;
 	}

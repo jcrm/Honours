@@ -117,7 +117,7 @@ bool CloudClass::InitializeBuffers(ID3D11Device* device){
 
 	// Initialize the index to the vertex buffer.
 	index = 0;
-	float size = 10.f;
+	float size = 1.f;
 	// Load the vertex and index array with the terrain data using a quilt method.
 	//front -0
 	vertices[index].position = D3DXVECTOR3(0.f, 0.f, 0.f);
@@ -236,7 +236,7 @@ bool CloudClass::InitializeBuffers(ID3D11Device* device){
 	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 0.f);
 	indices[index] = index++;
 	//7
-	vertices[index].position = D3DXVECTOR3(0.f, 0.f, size);
+	vertices[index].position = D3DXVECTOR3(size, 0.f, size);
 	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 1.f);
 	indices[index] = index++;
 	//4
