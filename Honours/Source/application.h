@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef _APPLICATIONCLASS_H_
 #define _APPLICATIONCLASS_H_
-
 /////////////
 // GLOBALS //
 /////////////
@@ -12,40 +11,32 @@ const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
-
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
 #include <windows.h>
 #include <mmsystem.h>
-
 // This header inclues all the necessary D3D11 and CUDA includes
 #include <dynlink_d3d11.h>
 #include <cuda_runtime_api.h>
 #include <cuda_d3d11_interop.h>
-
 // includes, project
 #include <rendercheck_d3d11.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
-
 #include "Managers/input.h"
 #include "Managers/camera.h"
 #include "Managers/position.h"
 #include "Managers/light.h"
 #include "Managers/ortho_window.h"
-
 #include "DirectX/d3dclass.h"
 #include "DirectX/cuda_d3d.h"
-
 #include "Objects/terrain.h"
 #include "Objects/cloud_box.h"
-
 #include "Text/timerclass.h"
 #include "Text/fpsclass.h"
 #include "Text/cpuclass.h"
 #include "Text/textclass.h"
-
 #include "Shaders/fontshaderclass.h"
 #include "Shaders/terrain_shader.h"
 #include "Shaders/texture_shader.h"
@@ -53,12 +44,9 @@ const float SCREEN_NEAR = 0.1f;
 #include "Shaders/shader.h"
 #include "Shaders/volume_shader.h"
 #include "Shaders/face_shader.h"
-
 #include "Textures/render_texture.h"
-
 #include "CUDA/cuda_structs.h"
 #include "CUDA/cuda_kernals.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +56,6 @@ public:
 	ApplicationClass();
 	ApplicationClass(const ApplicationClass&);
 	~ApplicationClass();
-
 	bool Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height);
 	void Shutdown();
 	bool Frame();
@@ -93,7 +80,6 @@ private:
 	void ShutdownTextures();
 	void ShutdownCamera();
 	void ShutdownShaders();
-
 	bool InitCudaTextures();
 	void CudaRender();
 	void RunKernels();
@@ -129,8 +115,6 @@ private:
 	fluid_texture velocity_cuda_;
 	fluid_texture advect_velocity_cuda_;
 	fluid_texture pressure_divergence_cuda_;
-
 	bool is_done_once_;
 };
-
 #endif

@@ -3,15 +3,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef _RENDERTEXTURECLASS_H_
 #define _RENDERTEXTURECLASS_H_
-
-
 //////////////
 // INCLUDES //
 //////////////
 #include <d3d11.h>
 #include <d3dx10math.h>
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: RenderTextureClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,20 +17,15 @@ public:
 	RenderTextureClass();
 	RenderTextureClass(const RenderTextureClass&);
 	~RenderTextureClass();
-
 	bool Initialize(ID3D11Device*, int, int, float, float);
 	void Shutdown();
-
 	void SetRenderTarget(ID3D11DeviceContext*);
 	void ClearRenderTarget(ID3D11DeviceContext*, float, float, float, float);
 	ID3D11ShaderResourceView* GetShaderResourceView();
-
 	void GetProjectionMatrix(D3DXMATRIX&);
 	void GetOrthoMatrix(D3DXMATRIX&);
-
 	int GetTextureWidth();
 	int GetTextureHeight();
-
 private:
 	int m_textureWidth, m_textureHeight;
 	ID3D11Texture2D* m_renderTargetTexture;
@@ -46,5 +37,4 @@ private:
 	D3DXMATRIX m_projectionMatrix;
 	D3DXMATRIX m_orthoMatrix;
 };
-
 #endif

@@ -1,7 +1,6 @@
 #pragma once
 #include "d3dclass.h"
-class CUDAD3D :
-	public D3DClass
+class CUDAD3D :	public D3DClass
 {
 public:
 	CUDAD3D(void);
@@ -16,4 +15,3 @@ protected:
 private:
 	IDXGIAdapter *g_pCudaCapableAdapter;  // Adapter to use
 };
-

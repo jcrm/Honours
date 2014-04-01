@@ -2,23 +2,15 @@
 // Filename: fpsclass.cpp
 ///////////////////////////////////////////////////////////////////////////////
 #include "fpsclass.h"
-
-
 FpsClass::FpsClass()
 {
 }
-
-
 FpsClass::FpsClass(const FpsClass& other)
 {
 }
-
-
 FpsClass::~FpsClass()
 {
 }
-
-
 void FpsClass::Initialize()
 {
 	// Initialize the counters and the start time.
@@ -28,12 +20,9 @@ void FpsClass::Initialize()
 	
 	return;
 }
-
-
 void FpsClass::Frame()
 {
 	m_count++;
-
 	// If one second has passed then update the frame per second speed.
 	if(timeGetTime() >= (m_startTime + 1000))
 	{
@@ -43,8 +32,6 @@ void FpsClass::Frame()
 		m_startTime = timeGetTime();
 	}
 }
-
-
 int FpsClass::GetFps()
 {
 	return m_fps;

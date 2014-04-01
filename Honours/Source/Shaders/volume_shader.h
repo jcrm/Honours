@@ -21,4 +21,3 @@ protected:
 
 	ID3D11Buffer* mVolumeBuffer;
 };
-

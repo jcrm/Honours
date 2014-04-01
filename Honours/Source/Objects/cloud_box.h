@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef _CLOUDCLASS_H_
 #define _CLOUDCLASS_H_
-
 //////////////
 // INCLUDES //
 //////////////
@@ -11,7 +10,6 @@
 #include <d3dx10math.h>
 #include <stdio.h>
 #include "../Textures/render_texture.h"
-
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: TerrainClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,12 +22,10 @@ private:
 	struct VectorType { 
 		float x, y, z;
 	};
-
 public:
 	CloudClass();
 	CloudClass(const CloudClass&);
 	~CloudClass();
-
 	bool Initialize(ID3D11Device* device, int screenWidth, int screenHeight, float SCREEN_DEPTH, float SCREEN_NEAR);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
@@ -40,7 +36,6 @@ public:
 	
 	inline ID3D11ShaderResourceView* GetFrontShaderResource(){return m_FrontTexture->GetShaderResourceView();}
 	inline ID3D11ShaderResourceView* GetBackShaderResource(){return m_BackTexture->GetShaderResourceView();}
-
 	inline float GetScale(){return 1/size;}
 private:
 	//buffer functions
@@ -55,5 +50,4 @@ private:
 	RenderTextureClass* m_FrontTexture, *m_BackTexture;
 	float size;
 };
-
 #endif

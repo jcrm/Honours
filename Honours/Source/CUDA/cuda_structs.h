@@ -2,12 +2,10 @@
 #include <dynlink_d3d11.h>
 #include <cuda_runtime_api.h>
 #include <cuda_d3d11_interop.h>
-
 // includes, project
 #include <rendercheck_d3d11.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
-
 // Data structure for volume textures shared between DX10 and CUDA
 struct fluid_texture{
 	ID3D11Texture3D			*texture_;

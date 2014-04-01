@@ -18,4 +18,3 @@ protected:
 	void RenderShader(ID3D11DeviceContext*, int);
 	ID3D11Buffer* m_scaleBuffer;
 };
-
