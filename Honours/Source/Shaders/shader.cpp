@@ -1,4 +1,4 @@
-#include "ShaderClass.h"
+#include "shader.h"
 
 
 ShaderClass::ShaderClass(void): m_vertexShader(0), m_pixelShader(0), m_layout(0), 

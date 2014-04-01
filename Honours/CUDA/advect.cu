@@ -4,23 +4,23 @@
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
 
-__global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocityInput, float3 sizeWHD, size_t pitch, size_t pitchSlice){ 
+__global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocityInput, float3 size_WHD, size_t pitch, size_t pitch_slice){ 
 	int xIter = blockIdx.x*blockDim.x + threadIdx.x;
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
 	float timeStep = 0.01f;
 
-	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
+	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
 		//location is z slide + y position + variable size time x position
-		int location =(zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		int location =(zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		unsigned char* cellVelocity = velocityInput + location;
 		float3 pos;
-		pos.x = (xIter - (timeStep * cellVelocity[0]))/ sizeWHD.x;
-		pos.x = (yIter - (timeStep * cellVelocity[1]))/ sizeWHD.y;
-		pos.x = (zIter - (timeStep * cellVelocity[2])+0.5f)/ sizeWHD.z;
+		pos.x = (xIter - (timeStep * cellVelocity[0]))/ size_WHD.x;
+		pos.x = (yIter - (timeStep * cellVelocity[1]))/ size_WHD.y;
+		pos.x = (zIter - (timeStep * cellVelocity[2])+0.5f)/ size_WHD.z;
 
 		unsigned char* outputPixel = output + location;
-		location =(pos.z*pitchSlice) + (pos.y*pitch) + (4*pos.x);
+		location =(pos.z*pitch_slice) + (pos.y*pitch) + (4*pos.x);
 		cellVelocity = velocityInput + location;
 		outputPixel[0] = cellVelocity[0];
 		outputPixel[1] = cellVelocity[1];
@@ -30,13 +30,13 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocit
 }
 
 extern "C"
-void cuda_fluid_advect(void *output, void *velocityinput, float3 sizeWHD, size_t pitch, size_t pitchSlice){
+void cuda_fluid_advect(void *output, void *velocityinput, float3 size_WHD, size_t pitch, size_t pitch_slice){
 	cudaError_t error = cudaSuccess;
 
     dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
-    dim3 Dg = dim3((sizeWHD.x+Db.x-1)/Db.x, (sizeWHD.y+Db.y-1)/Db.y);
+    dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-    cuda_kernel_advect<<<Dg,Db>>>((unsigned char *)output, (unsigned char *)velocityinput, sizeWHD, pitch, pitchSlice);
+    cuda_kernel_advect<<<Dg,Db>>>((unsigned char *)output, (unsigned char *)velocityinput, size_WHD, pitch, pitch_slice);
 
     error = cudaGetLastError();
     if (error != cudaSuccess){

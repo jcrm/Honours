@@ -1,4 +1,4 @@
-#include "VolumeShader.h"
+#include "volume_shader.h"
 
 VolumeShader::VolumeShader(void){
 }

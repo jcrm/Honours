@@ -29,17 +29,17 @@ const float SCREEN_NEAR = 0.1f;
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
 
-#include "Managers/inputclass.h"
-#include "Managers/cameraclass.h"
-#include "Managers/positionclass.h"
-#include "Managers/lightclass.h"
-#include "Managers/orthowindowclass.h"
+#include "Managers/input.h"
+#include "Managers/camera.h"
+#include "Managers/position.h"
+#include "Managers/light.h"
+#include "Managers/ortho_window.h"
 
 #include "DirectX/d3dclass.h"
-#include "DirectX/cudad3d.h"
+#include "DirectX/cuda_d3d.h"
 
-#include "Objects/terrainclass.h"
-#include "Objects/CloudBox.h"
+#include "Objects/terrain.h"
+#include "Objects/cloud_box.h"
 
 #include "Text/timerclass.h"
 #include "Text/fpsclass.h"
@@ -47,14 +47,14 @@ const float SCREEN_NEAR = 0.1f;
 #include "Text/textclass.h"
 
 #include "Shaders/fontshaderclass.h"
-#include "Shaders/terrainshaderclass.h"
-#include "Shaders/textureshaderclass.h"
-#include "Shaders/texturetotextureshaderclass .h"
-#include "Shaders/ShaderClass.h"
-#include "Shaders/VolumeShader.h"
-#include "Shaders/FaceShader.h"
+#include "Shaders/terrain_shader.h"
+#include "Shaders/texture_shader.h"
+#include "Shaders/texture_to_texture_shader.h"
+#include "Shaders/shader.h"
+#include "Shaders/volume_shader.h"
+#include "Shaders/face_shader.h"
 
-#include "Textures/rendertextureclass.h"
+#include "Textures/render_texture.h"
 
 #include "CUDA/cuda_structs.h"
 #include "CUDA/cuda_kernals.h"
@@ -69,22 +69,20 @@ public:
 	ApplicationClass(const ApplicationClass&);
 	~ApplicationClass();
 
-	bool Initialize(HINSTANCE, HWND, int, int);
+	bool Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height);
 	void Shutdown();
 	bool Frame();
 private:
 	bool HandleInput(float);
 	//Render Functions
 	bool Render();
-	bool RenderSceneToTexture(RenderTextureClass* mWrite);
-	bool RenderTexture(ShaderClass *mShader, RenderTextureClass *mReadTexture, RenderTextureClass *mWriteTexture, OrthoWindowClass *mWindow);
-	bool RenderFrontTexture(RenderTextureClass *mReadTexture, RenderTextureClass *mWriteTexture, OrthoWindowClass *mWindow);
-	bool RenderMergeTexture(RenderTextureClass *readTexture, RenderTextureClass *readTexture2, RenderTextureClass *writeTexture, OrthoWindowClass *window);
-	bool Render2DTextureScene(RenderTextureClass* mRead);
+	bool RenderSceneToTexture(RenderTextureClass* write_texture);
+	bool RenderTexture(ShaderClass *shader, RenderTextureClass *read_texture, RenderTextureClass *write_texture, OrthoWindowClass *window);
+	bool Render2DTextureScene(RenderTextureClass* read_texture);
 	//Init functions
 	bool InitObjects(HWND hwnd);
-	bool InitTextures(HWND hwnd, int screenWidth, int screenHeight);
-	bool InitText(HWND hwnd, int screenWidth , int screenHeight);
+	bool InitTextures(HWND hwnd, int screen_width, int screen_height);
+	bool InitText(HWND hwnd, int screen_width , int screen_height);
 	bool InitShaders(HWND hwnd);
 	bool InitObjectShaders(HWND hwnd);
 	bool InitTextureShaders(HWND hwnd);
@@ -101,37 +99,38 @@ private:
 	void RunKernels();
 	void InitClouds();
 	void RunCloudKernals();
-private:
-	InputClass* m_Input;
-	CUDAD3D* m_Direct3D;
-	CameraClass* m_Camera;
-	
-	TimerClass* m_Timer;
-	PositionClass* m_Position;
-	FpsClass* m_Fps;
-	CpuClass* m_Cpu;
-	TextClass* m_Text;
-	LightClass* m_Light;
-	OrthoWindowClass *m_FullScreenWindow;
-	//the points for the different objects
-	TerrainClass* m_Terrain;
-	//textures to render to
-	RenderTextureClass *m_RenderFullSizeTexture, *m_FullSizeTexure, *m_DownSampleHalfSizeTexure, *m_HalfSizeTexture;
-	RenderTextureClass *m_FrontTexture, *m_BackTexure;
-	//the different shaders used
-	TextureShaderClass* m_TextureShader;
-	TextureToTextureShaderClass* m_TextureToTextureShader;
-	FontShaderClass* m_FontShader;
-	TerrainShaderClass* m_TerrainShader;
-	VolumeShader* mVolumeShader;
-	FaceShader* mFaceShader;
-	CloudClass* mCloud;
-
-	fluid_texture mVelocity;
-	fluid_texture mAdvectVelocity;
-	fluid_texture mPressureDivergence;
 	bool RenderClouds();
-	bool isDoneOnce;
+	
+private:
+	InputClass* input_;
+	CUDAD3D* direct_3d_;
+	CameraClass* camera_;
+	
+	TimerClass* timer_;
+	PositionClass* player_position_;
+	FpsClass* FPS_;
+	CpuClass* CPU_;
+	TextClass* text_;
+	LightClass* light_object_;
+	OrthoWindowClass *full_screen_window_;
+	//the points for the different objects
+	TerrainClass* terrain_object_;
+	CloudClass* cloud_object_;
+	//textures to render to
+	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *down_sample_halfsize_texture_, *halfsize_texture_;
+	//the different shaders used
+	TextureShaderClass* texture_shader_;
+	TextureToTextureShaderClass* texture_to_texture_shader_;
+	FontShaderClass* font_shader_;
+	TerrainShaderClass* terrain_shader_;
+	VolumeShader* volume_shader_;
+	FaceShader* face_shader_;
+	//cuda textures
+	fluid_texture velocity_cuda_;
+	fluid_texture advect_velocity_cuda_;
+	fluid_texture pressure_divergence_cuda_;
+
+	bool is_done_once_;
 };
 
 #endif

@@ -3,9 +3,9 @@
 /////////////
 cbuffer MatrixBuffer
 {
-	matrix worldMatrix;
-	matrix viewMatrix;
-	matrix projectionMatrix;
+	matrix world_matrix;
+	matrix view_matrix;
+	matrix projection_matrix;
 };
 cbuffer ScaleBuffer
 {
@@ -38,9 +38,9 @@ PixelShaderInput VolumeVS(VertexShaderInput input)
 	input.position = input.position * float4(1, 1, 1, 1) * scale;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output.position = mul(input.position/scale, worldMatrix);
-	output.position = mul(output.position, viewMatrix);
-	output.position = mul(output.position, projectionMatrix);
+	output.position = mul(input.position/scale, world_matrix);
+	output.position = mul(output.position, view_matrix);
+	output.position = mul(output.position, projection_matrix);
 
 	output.texC = input.position;
 	output.pos = output.position;

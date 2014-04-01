@@ -1,9 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: textureshaderclass.h
+// Filename: texturetotextureshaderclass.h
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef _TEXTURESHADERCLASS_H_
-#define _TEXTURESHADERCLASS_H_
-
+#ifndef _TEXTURETOTEXTURESHADERCLASS_H_
+#define _TEXTURETOTEXTURESHADERCLASS_H_
 
 //////////////
 // INCLUDES //
@@ -12,28 +11,30 @@
 #include <d3dx10math.h>
 #include <d3dx11async.h>
 #include <fstream>
-#include "ShaderClass.h"
+#include "shader.h"
 using namespace std;
 
-
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: TextureShaderClass
+// Class name: TextureToTextureShaderClass
 ////////////////////////////////////////////////////////////////////////////////
-class TextureShaderClass : public ShaderClass
+class TextureToTextureShaderClass : public ShaderClass
 {
 public:
 
-	TextureShaderClass();
-	TextureShaderClass(const TextureShaderClass&);
-	~TextureShaderClass();
+	TextureToTextureShaderClass();
+	TextureToTextureShaderClass(const TextureToTextureShaderClass&);
+	~TextureToTextureShaderClass();
 
-	bool Initialize(ID3D11Device*, HWND);
-	inline void Shutdown(){ShaderClass::Shutdown();}
-	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);
+	bool Initialize(ID3D11Device* device, HWND hwnd);
+	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, ID3D11ShaderResourceView*, float, float);
+	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture);
 protected:
+	struct MatrixBufferType2
+	{
+		D3DXMATRIX projection;
+	};
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight, float screenWidth);
 	void RenderShader(ID3D11DeviceContext*, int);

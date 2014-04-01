@@ -1,5 +1,5 @@
 #pragma once
-#include "shaderclass.h"
+#include "shader.h"
 class VolumeShader : public ShaderClass
 {
 public:

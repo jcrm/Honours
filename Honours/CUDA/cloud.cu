@@ -4,12 +4,12 @@
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
 
-__global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velocityInput,float3 sizeWHD, size_t pitch, size_t pitchSlice, int pressureIndex){
+__global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velocityInput,float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index){
 	int xIter = blockIdx.x*blockDim.x + threadIdx.x;
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
 
-	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
+	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
 		// Get pressure values from neighboring cells. 
 		unsigned char *pLeft = NULL;
 		unsigned char *pRight = NULL;
@@ -19,42 +19,42 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 		unsigned char *pTop = NULL;
 
 		if(xIter - 1 < 0){
-			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+			pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		}else{
-			pLeft = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter-1));
+			pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
 		}
-		if(xIter + 1 ==sizeWHD.x){
-			pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		if(xIter + 1 ==size_WHD.x){
+			pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		}else{
-			pRight = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter+1));
+			pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
 		}
 
 		if(yIter - 1 < 0){
-			pDown = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter); 
+			pDown = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter); 
 		}else{
-			pDown = pressure + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter); 
+			pDown = pressure + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
 		}
-		if(yIter + 1 ==sizeWHD.y){
-			pUp = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter); 
+		if(yIter + 1 ==size_WHD.y){
+			pUp = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter); 
 		}else{
-			pUp = pressure + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter); 
+			pUp = pressure + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
 		}
 
 		if(zIter - 1 < 0){
-			pTop = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+			pTop = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		}else{
-			pTop = pressure + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+			pTop = pressure + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
 		}
-		if(zIter + 1 ==sizeWHD.y){
-			pBottom = pressure + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		if(zIter + 1 ==size_WHD.y){
+			pBottom = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		}else{
-			pBottom = pressure + ((zIter+1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressure + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
 		}
 		float3 gradP;
-		gradP.x = 0.5 *(pRight[pressureIndex] - pLeft[pressureIndex]);
-		gradP.y = 0.5 *(pTop[pressureIndex] - pBottom[pressureIndex]);
-		gradP.z = 0.5 *(pUp[pressureIndex] - pDown[pressureIndex]);
-		unsigned char* cellVelocity = velocityInput + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		gradP.x = 0.5 *(pRight[pressure_index] - pLeft[pressure_index]);
+		gradP.y = 0.5 *(pTop[pressure_index] - pBottom[pressure_index]);
+		gradP.z = 0.5 *(pUp[pressure_index] - pDown[pressure_index]);
+		unsigned char* cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		// Project the velocity onto its divergence-free component by  
 		// subtracting the gradient of pressure.  
 		float3 vOld;  
@@ -68,13 +68,13 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 }
 
 extern "C"
-void cuda_fluid_project(void *pressure, void *velocityInput, float3 sizeWHD, size_t pitch, size_t pitchSlice, int pressureIndex){
+void cuda_fluid_project(void *pressure, void *velocityInput, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index){
 	cudaError_t error = cudaSuccess;
 
     dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
-    dim3 Dg = dim3((sizeWHD.x+Db.x-1)/Db.x, (sizeWHD.y+Db.y-1)/Db.y);
+    dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-    cuda_kernel_project<<<Dg,Db>>>((unsigned char *)pressure, (unsigned char *)velocityInput,sizeWHD, pitch, pitchSlice, pressureIndex);
+    cuda_kernel_project<<<Dg,Db>>>((unsigned char *)pressure, (unsigned char *)velocityInput,size_WHD, pitch, pitch_slice, pressure_index);
 
     error = cudaGetLastError();
     if (error != cudaSuccess){

@@ -8,38 +8,14 @@
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
 
-// Data structure for 2D texture shared between DX10 and CUDA
-struct texture_2d{
-	ID3D11Texture2D			*pTexture;
-	ID3D11ShaderResourceView *pSRView;
-	cudaGraphicsResource	*cudaResource;
-	void					*cudaLinearMemory;
-	size_t					pitch;
-	int						width;
-	int						height;
-};
-// Data structure for volume textures shared between DX10 and CUDA
-struct fluid_texture_3d{
-	ID3D11Texture3D			*pTexture;
-	ID3D11ShaderResourceView *pSRView;
-	cudaGraphicsResource	*cudaVelocityResource;
-	void					*cudaAdvectLinearMemory;
-	void					*cudaDivergenceLinearMemory;
-	void					*cudaPressureLinearMemory;
-	void					*cudaVelocityLinearMemory;
-	size_t					pitch;
-	int						width;
-	int						height;
-	int						depth;
-};
 // Data structure for volume textures shared between DX10 and CUDA
 struct fluid_texture{
-	ID3D11Texture3D			*pTexture;
-	ID3D11ShaderResourceView *pSRView;
-	cudaGraphicsResource	*cudaResource;
-	void					*cudaLinearMemory;
-	size_t					pitch;
-	int						width;
-	int						height;
-	int						depth;
+	ID3D11Texture3D			*texture_;
+	ID3D11ShaderResourceView *sr_view_;
+	cudaGraphicsResource	*cuda_resource_;
+	void					*cuda_linear_memory_;
+	size_t					pitch_;
+	int						width_;
+	int						height_;
+	int						depth_;
 };

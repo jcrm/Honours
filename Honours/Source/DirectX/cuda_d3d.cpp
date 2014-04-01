@@ -1,4 +1,4 @@
-#include "cudad3d.h"
+#include "cuda_d3d.h"
 // This header inclues all the necessary D3D11 and CUDA includes
 #include <dynlink_d3d11.h>
 #include <cuda.h>

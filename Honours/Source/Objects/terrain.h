@@ -16,7 +16,7 @@
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
-#include "../Textures/textureclass.h"
+#include "../Textures/texture.h"
 
 
 /////////////

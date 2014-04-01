@@ -4,36 +4,36 @@
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
 
-__global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char* velocityInput,float3 sizeWHD, size_t pitch, size_t pitchSlice, int divergenceIndex){
+__global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char* velocityInput,float3 size_WHD, size_t pitch, size_t pitch_slice, int divergence_index){
 	int xIter = blockIdx.x*blockDim.x + threadIdx.x;
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
 
-	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
+	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
 		// Get velocity values from neighboring cells.  
-		unsigned char *fieldLeft = velocityInput + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter-1));
-		unsigned char *fieldRight = velocityInput + (zIter*pitchSlice) + (yIter*pitch) + (4*(xIter+1));
+		unsigned char *fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+		unsigned char *fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
 
-		unsigned char *fieldUp = velocityInput + ((zIter+1)*pitchSlice) + (yIter*pitch) + (4*xIter);
-		unsigned char *fieldDown = velocityInput + ((zIter-1)*pitchSlice) + (yIter*pitch) + (4*xIter);
+		unsigned char *fieldUp = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+		unsigned char *fieldDown = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
 
-		unsigned char *fieldTop = velocityInput + (zIter*pitchSlice) + ((yIter-1)*pitch) + (4*xIter); 
-		unsigned char *fieldBottom = velocityInput + (zIter*pitchSlice) + ((yIter+1)*pitch) + (4*xIter);
+		unsigned char *fieldTop = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+		unsigned char *fieldBottom = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter);
 
-		unsigned char* cellDivergence = divergence + (zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
+		unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		// Compute the velocity's divergence using central differences.  
-		cellDivergence[divergenceIndex] =  0.5 * ((fieldRight[0] - fieldLeft[0])+  
+		cellDivergence[divergence_index] =  0.5 * ((fieldRight[0] - fieldLeft[0])+  
 				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
 	}
 }
 extern "C"
-void cuda_fluid_divergence(void *divergence, void *velocityInput, float3 sizeWHD, size_t pitch, size_t pitchSlice, int divergenceIndex){
+void cuda_fluid_divergence(void *divergence, void *velocityInput, float3 size_WHD, size_t pitch, size_t pitch_slice, int divergence_index){
 	cudaError_t error = cudaSuccess;
 
     dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
-    dim3 Dg = dim3((sizeWHD.x+Db.x-1)/Db.x, (sizeWHD.y+Db.y-1)/Db.y);
+    dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-    cuda_kernel_divergence<<<Dg,Db>>>((unsigned char *)divergence, (unsigned char *)velocityInput,sizeWHD, pitch, pitchSlice, divergenceIndex);
+    cuda_kernel_divergence<<<Dg,Db>>>((unsigned char *)divergence, (unsigned char *)velocityInput,size_WHD, pitch, pitch_slice, divergence_index);
 
     error = cudaGetLastError();
     if (error != cudaSuccess){

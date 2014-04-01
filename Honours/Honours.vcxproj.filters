@@ -169,49 +169,19 @@
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\applicationclass.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\CUDA\cuda_kernals.h">
       <Filter>Header Files\CUDA</Filter>
     </ClInclude>
     <ClInclude Include="Source\CUDA\cuda_structs.h">
       <Filter>Header Files\CUDA</Filter>
     </ClInclude>
-    <ClInclude Include="Source\DirectX\cudad3d.h">
-      <Filter>Header Files\DirectX Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\DirectX\d3dclass.h">
       <Filter>Header Files\DirectX Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Managers\cameraclass.h">
-      <Filter>Header Files\Manager Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Managers\inputclass.h">
-      <Filter>Header Files\Manager Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Managers\lightclass.h">
-      <Filter>Header Files\Manager Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Managers\orthowindowclass.h">
-      <Filter>Header Files\Manager Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Managers\positionclass.h">
-      <Filter>Header Files\Manager Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Managers\systemclass.h">
       <Filter>Header Files\Manager Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Objects\CloudBox.h">
-      <Filter>Header Files\Object Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Objects\terrainclass.h">
-      <Filter>Header Files\Object Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Shaders\fontshaderclass.h">
-      <Filter>Header Files\Shader Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shaders\ShaderClass.h">
       <Filter>Header Files\Shader Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Text\cpuclass.h">
@@ -229,67 +199,67 @@
     <ClInclude Include="Source\Text\timerclass.h">
       <Filter>Header Files\Text Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Textures\textureclass.h">
+    <ClInclude Include="Source\application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Textures\texture.h">
       <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Textures\rendertextureclass.h">
+    <ClInclude Include="Source\Textures\render_texture.h">
       <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\texturetotextureshaderclass .h">
+    <ClInclude Include="Source\Shaders\texture_to_texture_shader.h">
       <Filter>Header Files\Shader Files\Texture Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\textureshaderclass.h">
+    <ClInclude Include="Source\Shaders\texture_shader.h">
       <Filter>Header Files\Shader Files\Texture Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\VolumeShader.h">
+    <ClInclude Include="Source\Shaders\volume_shader.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\terrainshaderclass.h">
+    <ClInclude Include="Source\Shaders\terrain_shader.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\FaceShader.h">
+    <ClInclude Include="Source\Shaders\face_shader.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Objects\terrain.h">
+      <Filter>Header Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Objects\cloud_box.h">
+      <Filter>Header Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\ortho_window.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\position.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\light.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\input.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Managers\camera.h">
+      <Filter>Header Files\Manager Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DirectX\cuda_d3d.h">
+      <Filter>Header Files\DirectX Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shaders\shader.h">
+      <Filter>Header Files\Shader Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\applicationclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\DirectX\cudad3d.cpp">
-      <Filter>Source Files\DirectX Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DirectX\d3dclass.cpp">
       <Filter>Source Files\DirectX Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Managers\inputclass.cpp">
-      <Filter>Source Files\Manager Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Managers\lightclass.cpp">
-      <Filter>Source Files\Manager Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Managers\orthowindowclass.cpp">
-      <Filter>Source Files\Manager Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Managers\positionclass.cpp">
-      <Filter>Source Files\Manager Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Managers\systemclass.cpp">
       <Filter>Source Files\Manager Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Managers\cameraclass.cpp">
-      <Filter>Source Files\Manager Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Objects\terrainclass.cpp">
-      <Filter>Source Files\Object Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Objects\CloudBox.cpp">
-      <Filter>Source Files\Object Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shaders\ShaderClass.cpp">
-      <Filter>Source Files\Shader Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Shaders\fontshaderclass.cpp">
       <Filter>Source Files\Shader Files</Filter>
@@ -309,26 +279,56 @@
     <ClCompile Include="Source\Text\cpuclass.cpp">
       <Filter>Source Files\Text Filters</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Textures\rendertextureclass.cpp">
+    <ClCompile Include="Source\Textures\texture.cpp">
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Textures\textureclass.cpp">
+    <ClCompile Include="Source\application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Textures\render_texture.cpp">
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\VolumeShader.cpp">
-      <Filter>Source Files\Shader Files\Object Files</Filter>
+    <ClCompile Include="Source\Shaders\shader.cpp">
+      <Filter>Source Files\Shader Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\terrainshaderclass.cpp">
-      <Filter>Source Files\Shader Files\Object Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shaders\textureshaderclass.cpp">
+    <ClCompile Include="Source\Shaders\texture_to_texture_shader.cpp">
       <Filter>Source Files\Shader Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\texturetotextureshaderclass.cpp">
+    <ClCompile Include="Source\Shaders\texture_shader.cpp">
       <Filter>Source Files\Shader Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\FaceShader.cpp">
+    <ClCompile Include="Source\Shaders\volume_shader.cpp">
       <Filter>Source Files\Shader Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\terrain_shader.cpp">
+      <Filter>Source Files\Shader Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\face_shader.cpp">
+      <Filter>Source Files\Shader Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Objects\terrain.cpp">
+      <Filter>Source Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Objects\cloud_box.cpp">
+      <Filter>Source Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\position.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\ortho_window.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\light.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\input.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\camera.cpp">
+      <Filter>Source Files\Manager Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\DirectX\cuda_d3d.cpp">
+      <Filter>Source Files\DirectX Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

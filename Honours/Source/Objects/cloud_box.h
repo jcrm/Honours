@@ -10,7 +10,7 @@
 #include <d3d11.h>
 #include <d3dx10math.h>
 #include <stdio.h>
-#include "../Textures/rendertextureclass.h"
+#include "../Textures/render_texture.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: TerrainClass

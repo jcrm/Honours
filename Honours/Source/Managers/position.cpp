@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: positionclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
-#include "positionclass.h"
+#include "position.h"
 
 
 PositionClass::PositionClass()
@@ -80,13 +80,13 @@ void PositionClass::SetFrameTime(float time)
 }
 
 
-void PositionClass::MoveForward(bool keydown)
+void PositionClass::MoveForward(bool key_down)
 {
 	float radians;
 
 
 	// Update the forward speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_forwardSpeed += m_frameTime * 0.001f;
 
@@ -116,13 +116,13 @@ void PositionClass::MoveForward(bool keydown)
 }
 
 
-void PositionClass::MoveBackward(bool keydown)
+void PositionClass::MoveBackward(bool key_down)
 {
 	float radians;
 
 
 	// Update the backward speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_backwardSpeed += m_frameTime * 0.001f;
 
@@ -152,10 +152,10 @@ void PositionClass::MoveBackward(bool keydown)
 }
 
 
-void PositionClass::MoveUpward(bool keydown)
+void PositionClass::MoveUpward(bool key_down)
 {
 	// Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_upwardSpeed += m_frameTime * 0.003f;
 
@@ -181,10 +181,10 @@ void PositionClass::MoveUpward(bool keydown)
 }
 
 
-void PositionClass::MoveDownward(bool keydown)
+void PositionClass::MoveDownward(bool key_down)
 {
 	// Update the downward speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_downwardSpeed += m_frameTime * 0.003f;
 
@@ -210,10 +210,10 @@ void PositionClass::MoveDownward(bool keydown)
 }
 
 
-void PositionClass::TurnLeft(bool keydown)
+void PositionClass::TurnLeft(bool key_down)
 {
 	// Update the left turn speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_leftTurnSpeed += m_frameTime * 0.01f;
 
@@ -245,10 +245,10 @@ void PositionClass::TurnLeft(bool keydown)
 }
 
 
-void PositionClass::TurnRight(bool keydown)
+void PositionClass::TurnRight(bool key_down)
 {
 	// Update the right turn speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_rightTurnSpeed += m_frameTime * 0.01f;
 
@@ -280,10 +280,10 @@ void PositionClass::TurnRight(bool keydown)
 }
 
 
-void PositionClass::LookUpward(bool keydown)
+void PositionClass::LookUpward(bool key_down)
 {
 	// Update the upward rotation speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_lookUpSpeed += m_frameTime * 0.01f;
 
@@ -315,10 +315,10 @@ void PositionClass::LookUpward(bool keydown)
 }
 
 
-void PositionClass::LookDownward(bool keydown)
+void PositionClass::LookDownward(bool key_down)
 {
 	// Update the downward rotation speed movement based on the frame time and whether the user is holding the key down or not.
-	if(keydown)
+	if(key_down)
 	{
 		m_lookDownSpeed += m_frameTime * 0.01f;
 
