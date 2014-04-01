@@ -9,11 +9,6 @@ __global__ void cuda_kernel_initial(unsigned char *velocityInput, float3 sizeWHD
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
 
-	// in the case where, due to quantization into grids, we have
-	// more threads than pixels, skip the threads which don't
-	// correspond to valid pixels
-	if (xIter >= sizeWHD.x || yIter >= sizeWHD.y) return;
-
 	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
 		if(xIter > ((sizeWHD.x/2) - 10) && xIter < ((sizeWHD.x/2) + 10)){
 			if(yIter > ((sizeWHD.y/2) - 10) && yIter < ((sizeWHD.y/2) + 10)){

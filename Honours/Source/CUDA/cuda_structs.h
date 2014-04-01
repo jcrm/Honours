@@ -32,3 +32,14 @@ struct fluid_texture_3d{
 	int						height;
 	int						depth;
 };
+// Data structure for volume textures shared between DX10 and CUDA
+struct fluid_texture{
+	ID3D11Texture3D			*pTexture;
+	ID3D11ShaderResourceView *pSRView;
+	cudaGraphicsResource	*cudaResource;
+	void					*cudaLinearMemory;
+	size_t					pitch;
+	int						width;
+	int						height;
+	int						depth;
+};

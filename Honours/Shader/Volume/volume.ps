@@ -3,6 +3,8 @@ struct PixelShaderInput
     float4 position : SV_POSITION;
     float3 texC		: TEXCOORD0;
     float4 pos		: TEXCOORD1;
+	float3 StepSize : TEXCOORD2;
+	int Iterations: TEXCOORD3;
 };
 Texture2D Front;
 Texture2D Back;
@@ -11,8 +13,6 @@ SamplerState SampleType;
 
 float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 { 
-	float3 StepSize = float3(0.01f,0.01f,0.01f);
-	int Iterations = 100;
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
 	float2 texC = input.pos.xy /= input.pos.w;
@@ -29,8 +29,8 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	float4 src = 0;
 	float value = 0;
 	
-	float3 Step = dir * StepSize;
-	for(int i = 0; i < Iterations; i++){
+	float3 Step = dir * input.StepSize;
+	for(int i = 0; i < input.Iterations; i++){
 		pos.w = 0;
 		value = Volume.SampleLevel(SampleType, pos, 0).r;
 

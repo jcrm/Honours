@@ -8,45 +8,38 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocit
 	int xIter = blockIdx.x*blockDim.x + threadIdx.x;
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
-	float timeStep = 1.f;
-
-	 // in the case where, due to quantization into grids, we have
-    // more threads than pixels, skip the threads which don't
-    // correspond to valid pixels
-    if (xIter >= sizeWHD.x || yIter >= sizeWHD.y) return;
+	float timeStep = 0.01f;
 
 	for(zIter = 0; zIter < sizeWHD.z; ++zIter){ 
 		//location is z slide + y position + variable size time x position
 		int location =(zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
 		unsigned char* cellVelocity = velocityInput + location;
+		float3 cVelo;
+		cVelo.x = cellVelocity[0];
+		cVelo.y = cellVelocity[1];
+		cVelo.z = cellVelocity[2];
 		float3 pos;
-
-		pos.x = xIter;
-		pos.y = yIter;
-		pos.z = zIter;
-
-		pos.x -= (timeStep * cellVelocity[0]);
-		pos.y -= (timeStep * cellVelocity[1]);
-		pos.z -= (timeStep * cellVelocity[2]);
+		pos.x = xIter - (timeStep * cVelo.x);
+		pos.x = yIter - (timeStep * cVelo.y);
+		pos.x = zIter - (timeStep * cVelo.z);
 		
-		pos.x /= sizeWHD.x;
-		pos.y /= sizeWHD.y;
-		pos.z += 0.5;
-		pos.z /= sizeWHD.z;
+		pos.x = pos.x / sizeWHD.x;
+		pos.y = pos.y / sizeWHD.y;
+		pos.z = (pos.z +0.5)/ sizeWHD.z;
 
 		unsigned char* outputPixel = output + location;
-		outputPixel[0] = pos.x;
-		outputPixel[1] = pos.y;
-		outputPixel[2] = pos.z;
-		outputPixel[3] = 250; 
-
-		cellVelocity[0] = outputPixel[0];
-		cellVelocity[1] = outputPixel[1];
-		cellVelocity[2] = outputPixel[2];
-		cellVelocity[3] = outputPixel[3];
-
+		location =(pos.z*pitchSlice) + (pos.y*pitch) + (4*pos.x);
+		cellVelocity = velocityInput + location;
+		cVelo.x = cellVelocity[0];
+		cVelo.y = cellVelocity[1];
+		cVelo.z = cellVelocity[2];
+		outputPixel[0] = cVelo.x;
+		outputPixel[1] = cVelo.y;
+		outputPixel[2] = cVelo.z;
+		outputPixel[3] = 255; 
 	}
 }
+
 extern "C"
 void cuda_fluid_advect(void *output, void *velocityinput, float3 sizeWHD, size_t pitch, size_t pitchSlice){
 	cudaError_t error = cudaSuccess;

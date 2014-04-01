@@ -98,7 +98,7 @@ bool CloudClass::InitializeBuffers(ID3D11Device* device){
 
 	// Initialize the index to the vertex buffer.
 	index = 0;
-	size = 5.f;
+	size = 1.f;
 	// Load the vertex and index array with the terrain data using a quilt method.
 	//front -0
 	vertices[index].position = D3DXVECTOR3(0.f, 0.f, 0.f);

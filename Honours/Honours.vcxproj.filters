@@ -164,9 +164,6 @@
     <CudaCompile Include="CUDA\jacobi.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\texture_2d.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\inital.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>

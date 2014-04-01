@@ -127,9 +127,11 @@ private:
 	FaceShader* mFaceShader;
 	CloudClass* mCloud;
 
-	texture_2d g_texture_2d;
-	fluid_texture_3d g_texture_cloud;
+	fluid_texture mVelocity;
+	fluid_texture mAdvectVelocity;
+	fluid_texture mPressureDivergence;
 	bool RenderClouds();
+	bool isDoneOnce;
 };
 
 #endif

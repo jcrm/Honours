@@ -27,6 +27,8 @@ struct PixelShaderInput
     float4 position : SV_POSITION;
     float3 texC		: TEXCOORD0;
     float4 pos		: TEXCOORD1;
+	float3 StepSize : TEXCOORD2;
+	int Iterations: TEXCOORD3;
 };
 PixelShaderInput VolumeVS(VertexShaderInput input)
 {
@@ -42,6 +44,7 @@ PixelShaderInput VolumeVS(VertexShaderInput input)
 
 	output.texC = input.position;
 	output.pos = output.position;
-
+	output.StepSize = StepSize;
+	output.Iterations = Iterations;
 	return output;
 }

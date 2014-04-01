@@ -9,6 +9,7 @@ ApplicationClass::ApplicationClass(): m_Input(0), m_Direct3D(0), m_Camera(0), m_
 	m_RenderFullSizeTexture(0), m_DownSampleHalfSizeTexure(0), m_FullSizeTexure(0), m_FullScreenWindow(0),
 	m_HalfSizeTexture(0)
 {
+	isDoneOnce = false;
 }
 ApplicationClass::ApplicationClass(const ApplicationClass& other): m_Input(0), m_Direct3D(0), m_Camera(0), m_Terrain(0),
 	m_Timer(0), m_Position(0), m_Fps(0), m_Cpu(0), m_FontShader(0), m_Text(0),
@@ -86,49 +87,36 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		MessageBox(hwnd, L"Could not initialize cuda textures.", L"Error", MB_OK);
 		return false;
 	}
-	// 2D
-	// register the Direct3D resources that we'll use
-	// we'll read to and write from g_texture_2d, so don't set any special map flags for it
-	cudaGraphicsD3D11RegisterResource(&g_texture_2d.cudaResource, g_texture_2d.pTexture, cudaGraphicsRegisterFlagsNone);
-	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
-	// cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
-	// Create a buffer so that cuda can write into it
-	// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-	cudaMallocPitch(&g_texture_2d.cudaLinearMemory, &g_texture_2d.pitch, g_texture_2d.width * sizeof(float) * 4, g_texture_2d.height);
-	getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
-	cudaMemset(g_texture_2d.cudaLinearMemory, 1, g_texture_2d.pitch * g_texture_2d.height);
-
 	InitClouds();
 	return true;
 }
 void ApplicationClass::InitClouds(){
 	// 3D
-	cudaGraphicsD3D11RegisterResource(&g_texture_cloud.cudaVelocityResource, g_texture_cloud.pTexture, cudaGraphicsRegisterFlagsNone);
+	cudaGraphicsD3D11RegisterResource(&mVelocity.cudaResource, mVelocity.pTexture, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
-
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&g_texture_cloud.cudaVelocityLinearMemory, g_texture_cloud.width * 4 * g_texture_cloud.height * g_texture_cloud.depth);
-	g_texture_cloud.pitch = g_texture_cloud.width * 4;
+	cudaMalloc(&mVelocity.cudaLinearMemory, mVelocity.width * 4 * mVelocity.height * mVelocity.depth);
+	mVelocity.pitch = mVelocity.width * 4;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(g_texture_cloud.cudaVelocityLinearMemory, 1, g_texture_cloud.pitch * g_texture_cloud.height * g_texture_cloud.depth);
+	cudaMemset(mVelocity.cudaLinearMemory, 1, mVelocity.pitch * mVelocity.height * mVelocity.depth);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
-	//advect
-	cudaMalloc(&g_texture_cloud.cudaAdvectLinearMemory, g_texture_cloud.width * 4 * g_texture_cloud.height * g_texture_cloud.depth);
-	g_texture_cloud.pitch = g_texture_cloud.width * 4;
+
+	cudaGraphicsD3D11RegisterResource(&mAdvectVelocity.cudaResource, mAdvectVelocity.pTexture, cudaGraphicsRegisterFlagsNone);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
+	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+	cudaMalloc(&mAdvectVelocity.cudaLinearMemory, mAdvectVelocity.width * 4 * mAdvectVelocity.height * mAdvectVelocity.depth);
+	mAdvectVelocity.pitch = mAdvectVelocity.width * 4;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(g_texture_cloud.cudaAdvectLinearMemory, 1, g_texture_cloud.pitch * g_texture_cloud.height * g_texture_cloud.depth);
+	cudaMemset(mAdvectVelocity.cudaLinearMemory, 1, mAdvectVelocity.pitch * mAdvectVelocity.height * mAdvectVelocity.depth);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
-	//divergence
-	cudaMalloc(&g_texture_cloud.cudaDivergenceLinearMemory, g_texture_cloud.width * 4 * g_texture_cloud.height * g_texture_cloud.depth);
-	g_texture_cloud.pitch = g_texture_cloud.width * 4;
+
+	cudaGraphicsD3D11RegisterResource(&mPressureDivergence.cudaResource, mPressureDivergence.pTexture, cudaGraphicsRegisterFlagsNone);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
+	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+	cudaMalloc(&mPressureDivergence.cudaLinearMemory, mPressureDivergence.width * 4 * mPressureDivergence.height * mPressureDivergence.depth);
+	mPressureDivergence.pitch = mPressureDivergence.width * 4;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(g_texture_cloud.cudaDivergenceLinearMemory, 1, g_texture_cloud.pitch * g_texture_cloud.height * g_texture_cloud.depth);
-	getLastCudaError("cudaMemset (g_texture_cloud) failed");
-	//pressure
-	cudaMalloc(&g_texture_cloud.cudaPressureLinearMemory, g_texture_cloud.width * 4 * g_texture_cloud.height * g_texture_cloud.depth);
-	g_texture_cloud.pitch = g_texture_cloud.width * 4;
-	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(g_texture_cloud.cudaPressureLinearMemory, 1, g_texture_cloud.pitch * g_texture_cloud.height * g_texture_cloud.depth);
+	cudaMemset(mPressureDivergence.cudaLinearMemory, 1, mPressureDivergence.pitch * mPressureDivergence.height * mPressureDivergence.depth);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 }
 void ApplicationClass::Shutdown(){
@@ -309,7 +297,7 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write){
 
 	mCloud->Render(m_Direct3D->GetDeviceContext());
 	result = mVolumeShader->Render(m_Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
-		mCloud->GetFrontShaderResource(), mCloud->GetBackShaderResource(), g_texture_cloud.pSRView,mCloud->GetScale());
+		mCloud->GetFrontShaderResource(), mCloud->GetBackShaderResource(), mVelocity.pSRView,mCloud->GetScale());
 	if(!result){
 		return false;
 	}
@@ -800,58 +788,80 @@ void ApplicationClass::ShutdownShaders(){
 //-----------------------------------------------------------------------------
 bool ApplicationClass::InitCudaTextures(){
 	int offsetInShader = 0;
+	int3 sizeWHD = {64,64,64};
 	ID3D11Device* g_pd3dDevice = m_Direct3D->GetDevice();
 	ID3D11DeviceContext* g_pd3dDeviceContext = m_Direct3D->GetDeviceContext();
-	// create the D3D resources we'll be using
-	// 2D texture
-	{
-		g_texture_2d.width  = 256;
-		g_texture_2d.height = 256;
 
-		D3D11_TEXTURE2D_DESC desc;
-		ZeroMemory(&desc, sizeof(D3D11_TEXTURE2D_DESC));
-		desc.Width = g_texture_2d.width;
-		desc.Height = g_texture_2d.height;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		desc.SampleDesc.Count = 1;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-		if(FAILED(g_pd3dDevice->CreateTexture2D(&desc, NULL, &g_texture_2d.pTexture))){
-			return false;
-		}
-		if(FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_2d.pTexture, NULL, &g_texture_2d.pSRView))){
-			return false;
-		}
-		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_2d.pSRView);
-		offsetInShader++;
-	}
-
-	// CLoud texture
-	{
-		g_texture_cloud.width  = 64;
-		g_texture_cloud.height = 64;
-		g_texture_cloud.depth  = 64;
+	{// CLoud texture
+		mVelocity.width  = sizeWHD.x;
+		mVelocity.height = sizeWHD.y;
+		mVelocity.depth  = sizeWHD.z;
 
 		D3D11_TEXTURE3D_DESC desc;
 		ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
-		desc.Width = g_texture_cloud.width;
-		desc.Height = g_texture_cloud.height;
-		desc.Depth = g_texture_cloud.depth;
+		desc.Width = mVelocity.width;
+		desc.Height = mVelocity.height;
+		desc.Depth = mVelocity.depth;
 		desc.MipLevels = 1;
 		desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 		desc.Usage = D3D11_USAGE_DEFAULT;
 		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-		if (FAILED(g_pd3dDevice->CreateTexture3D(&desc, NULL, &g_texture_cloud.pTexture))){
+		if (FAILED(g_pd3dDevice->CreateTexture3D(&desc, NULL, &mVelocity.pTexture))){
 			return false;
 		}
-		if (FAILED(g_pd3dDevice->CreateShaderResourceView(g_texture_cloud.pTexture, NULL, &g_texture_cloud.pSRView))){
+		if (FAILED(g_pd3dDevice->CreateShaderResourceView(mVelocity.pTexture, NULL, &mVelocity.pSRView))){
 			return false;
 		}
-		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &g_texture_cloud.pSRView);
+		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &mVelocity.pSRView);
+	}
+	offsetInShader++;
+	{// CLoud texture
+		mAdvectVelocity.width  = sizeWHD.x;
+		mAdvectVelocity.height = sizeWHD.y;
+		mAdvectVelocity.depth  = sizeWHD.z;
+
+		D3D11_TEXTURE3D_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
+		desc.Width = mAdvectVelocity.width;
+		desc.Height = mAdvectVelocity.height;
+		desc.Depth = mAdvectVelocity.depth;
+		desc.MipLevels = 1;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		if (FAILED(g_pd3dDevice->CreateTexture3D(&desc, NULL, &mAdvectVelocity.pTexture))){
+			return false;
+		}
+		if (FAILED(g_pd3dDevice->CreateShaderResourceView(mAdvectVelocity.pTexture, NULL, &mAdvectVelocity.pSRView))){
+			return false;
+		}
+		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &mAdvectVelocity.pSRView);
+	}
+	offsetInShader++;
+	{// CLoud texture
+		mPressureDivergence.width  = sizeWHD.x;
+		mPressureDivergence.height = sizeWHD.y;
+		mPressureDivergence.depth  = sizeWHD.z;
+
+		D3D11_TEXTURE3D_DESC desc;
+		ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
+		desc.Width = mPressureDivergence.width;
+		desc.Height = mPressureDivergence.height;
+		desc.Depth = mPressureDivergence.depth;
+		desc.MipLevels = 1;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		if (FAILED(g_pd3dDevice->CreateTexture3D(&desc, NULL, &mPressureDivergence.pTexture))){
+			return false;
+		}
+		if (FAILED(g_pd3dDevice->CreateShaderResourceView(mPressureDivergence.pTexture, NULL, &mPressureDivergence.pSRView))){
+			return false;
+		}
+		g_pd3dDeviceContext->PSSetShaderResources(offsetInShader, 1, &mPressureDivergence.pSRView);
 	}
 	return true;
 }
@@ -866,117 +876,82 @@ void ApplicationClass::CudaRender(){
 	//for Direct3D and Cuda
 
 	cudaStream_t stream = 0;
-	const int nbResources = /*5;*/2;
+	const int nbResources = 3;
 	cudaGraphicsResource *ppResources[nbResources] ={
-		g_texture_2d.cudaResource,
-		g_texture_cloud.cudaVelocityResource/*,
-		g_texture_cloud.cudaAdvectResource,
-		g_texture_cloud.cudaDivergenceResource,
-		g_texture_cloud.cudaPressureResource*/
+		mVelocity.cudaResource,
+		mAdvectVelocity.cudaResource,
+		mPressureDivergence.cudaResource
 	};
 	cudaGraphicsMapResources(nbResources, ppResources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
 
 	// run kernels which will populate the contents of those textures
-	RunKernels();
+	RunCloudKernals();
 
 	// unmap the resources
 	cudaGraphicsUnmapResources(nbResources, ppResources, stream);
 	getLastCudaError("cudaGraphicsUnmapResources(3) failed");
 }
-////////////////////////////////////////////////////////////////////////////////
-//! Run the Cuda part of the computation
-////////////////////////////////////////////////////////////////////////////////
-void ApplicationClass::RunKernels(){
-	static float t = 0.0f;
-
-	// populate the 2d texture
-	cudaArray *cuArray;
-	cudaGraphicsSubResourceGetMappedArray(&cuArray, g_texture_2d.cudaResource, 0, 0);
-	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_2d) failed");
-
-	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_texture_2d(g_texture_2d.cudaLinearMemory, g_texture_2d.width, g_texture_2d.height, g_texture_2d.pitch, t);
-	getLastCudaError("cuda_texture_2d failed");
-
-	// then we want to copy cudaLinearMemory to the D3D texture, via its mapped form : cudaArray
-	cudaMemcpy2DToArray(
-		cuArray, // dst array
-		0, 0,    // offset
-		g_texture_2d.cudaLinearMemory, g_texture_2d.pitch,       // src
-		g_texture_2d.width*4*sizeof(float), g_texture_2d.height, // extent
-		cudaMemcpyDeviceToDevice); // kind
-	getLastCudaError("cudaMemcpy2DToArray failed");
-
-	RunCloudKernals();
-	t += 0.1f;
-}
 
 void ApplicationClass::RunCloudKernals(){
 	// populate the volume texture
-	size_t pitchSlice = g_texture_cloud.pitch * g_texture_cloud.height;
-	cudaArray *cuArray;
-	cudaGraphicsSubResourceGetMappedArray(&cuArray, g_texture_cloud.cudaVelocityResource, 0, 0);
+	int pressureIndex, divergenceIndex = 0;
+	size_t pitchSlice = mVelocity.pitch * mVelocity.height;
+	cudaArray *cuVelocityArray;
+	float3 sizeWHD ={mVelocity.width, mVelocity.height, mVelocity.depth};
+
+	cudaGraphicsSubResourceGetMappedArray(&cuVelocityArray, mVelocity.cudaResource, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 
-	float3 sizeWHD;
-	sizeWHD.x = g_texture_cloud.width;
-	sizeWHD.y = g_texture_cloud.height;
-	sizeWHD.z = g_texture_cloud.depth;
-	static bool isDoneOnce = false;
 	if(isDoneOnce == false){
-		cuda_fluid_initial(g_texture_cloud.cudaVelocityLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 55.f);
+		cuda_fluid_initial(mVelocity.cudaLinearMemory, sizeWHD, mVelocity.pitch, pitchSlice, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial(g_texture_cloud.cudaAdvectLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 200.f);
+		cuda_fluid_initial(mAdvectVelocity.cudaLinearMemory, sizeWHD, mAdvectVelocity.pitch, pitchSlice, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial(g_texture_cloud.cudaDivergenceLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 0.f);
+		cuda_fluid_initial(mPressureDivergence.cudaLinearMemory, sizeWHD, mPressureDivergence.pitch, pitchSlice, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial(g_texture_cloud.cudaPressureLinearMemory, sizeWHD,g_texture_cloud.pitch, pitchSlice, 0.f);
-		getLastCudaError("cuda_fluid_initial failed");
 		isDoneOnce = true;
 	}
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_advect(g_texture_cloud.cudaAdvectLinearMemory,
-		g_texture_cloud.cudaVelocityLinearMemory,
-		sizeWHD, g_texture_cloud.pitch, pitchSlice);
-
+	cuda_fluid_advect(mAdvectVelocity.cudaLinearMemory, mVelocity.cudaLinearMemory, sizeWHD, mVelocity.pitch, pitchSlice);
 	getLastCudaError("cuda_fluid_advect failed");
-	
-	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_divergence(g_texture_cloud.cudaDivergenceLinearMemory,
-		g_texture_cloud.cudaAdvectLinearMemory,
-		sizeWHD, g_texture_cloud.pitch, pitchSlice);
 
+	divergenceIndex = 1;
+	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+	cuda_fluid_divergence(mPressureDivergence.cudaLinearMemory, mAdvectVelocity.cudaLinearMemory, sizeWHD, mVelocity.pitch, pitchSlice, divergenceIndex);
 	getLastCudaError("cuda_fluid_divergence failed");
+
 	for(int i = 0; i < 10; i++){
+		if(i%2 == 0){
+			pressureIndex = 0;
+			divergenceIndex = 1;
+		}else{
+			pressureIndex = 1;
+			divergenceIndex = 0;
+		}
 		// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-		cuda_fluid_jacobi(g_texture_cloud.cudaPressureLinearMemory,
-			g_texture_cloud.cudaDivergenceLinearMemory,
-			sizeWHD, g_texture_cloud.pitch, pitchSlice);
+		cuda_fluid_jacobi(mPressureDivergence.cudaLinearMemory, sizeWHD, mVelocity.pitch, pitchSlice, pressureIndex, divergenceIndex);
 		getLastCudaError("cuda_fluid_jacobi failed");
 	}
-	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_project(g_texture_cloud.cudaPressureLinearMemory,
-		g_texture_cloud.cudaVelocityLinearMemory, 
-		sizeWHD, g_texture_cloud.pitch, pitchSlice);
 
+	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+	cuda_fluid_project(mPressureDivergence.cudaLinearMemory, mVelocity.cudaLinearMemory, sizeWHD, mVelocity.pitch, pitchSlice, pressureIndex);
 	getLastCudaError("cuda_fluid_project failed");
 
 	// then we want to copy cudaLinearMemory to the D3D texture, via its mapped form : cudaArray
 	struct cudaMemcpy3DParms memcpyParams = {0};
-	memcpyParams.dstArray = cuArray;
-	memcpyParams.srcPtr.ptr = g_texture_cloud.cudaVelocityLinearMemory;
-	memcpyParams.srcPtr.pitch = g_texture_cloud.pitch;
-	memcpyParams.srcPtr.xsize = g_texture_cloud.width;
-	memcpyParams.srcPtr.ysize = g_texture_cloud.height;
-	memcpyParams.extent.width = g_texture_cloud.width;
-	memcpyParams.extent.height = g_texture_cloud.height;
-	memcpyParams.extent.depth = g_texture_cloud.depth;
+	memcpyParams.dstArray = cuVelocityArray;
+	memcpyParams.srcPtr.ptr = mVelocity.cudaLinearMemory;
+	memcpyParams.srcPtr.pitch = mVelocity.pitch;
+	memcpyParams.srcPtr.xsize = mVelocity.width;
+	memcpyParams.srcPtr.ysize = mVelocity.height;
+	memcpyParams.extent.width = mVelocity.width;
+	memcpyParams.extent.height = mVelocity.height;
+	memcpyParams.extent.depth = mVelocity.depth;
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
-
 	getLastCudaError("cudaMemcpy3D failed");
 }
