@@ -14,29 +14,18 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocit
 		//location is z slide + y position + variable size time x position
 		int location =(zIter*pitchSlice) + (yIter*pitch) + (4*xIter);
 		unsigned char* cellVelocity = velocityInput + location;
-		float3 cVelo;
-		cVelo.x = cellVelocity[0];
-		cVelo.y = cellVelocity[1];
-		cVelo.z = cellVelocity[2];
 		float3 pos;
-		pos.x = xIter - (timeStep * cVelo.x);
-		pos.x = yIter - (timeStep * cVelo.y);
-		pos.x = zIter - (timeStep * cVelo.z);
-		
-		pos.x = pos.x / sizeWHD.x;
-		pos.y = pos.y / sizeWHD.y;
-		pos.z = (pos.z +0.5)/ sizeWHD.z;
+		pos.x = (xIter - (timeStep * cellVelocity[0]))/ sizeWHD.x;
+		pos.x = (yIter - (timeStep * cellVelocity[1]))/ sizeWHD.y;
+		pos.x = (zIter - (timeStep * cellVelocity[2])+0.5f)/ sizeWHD.z;
 
 		unsigned char* outputPixel = output + location;
 		location =(pos.z*pitchSlice) + (pos.y*pitch) + (4*pos.x);
 		cellVelocity = velocityInput + location;
-		cVelo.x = cellVelocity[0];
-		cVelo.y = cellVelocity[1];
-		cVelo.z = cellVelocity[2];
-		outputPixel[0] = cVelo.x;
-		outputPixel[1] = cVelo.y;
-		outputPixel[2] = cVelo.z;
-		outputPixel[3] = 255; 
+		outputPixel[0] = cellVelocity[0];
+		outputPixel[1] = cellVelocity[1];
+		outputPixel[2] = cellVelocity[2];
+		outputPixel[3] = 0; 
 	}
 }
 

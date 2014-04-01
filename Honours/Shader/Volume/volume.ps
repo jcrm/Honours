@@ -32,7 +32,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	float3 Step = dir * input.StepSize;
 	for(int i = 0; i < input.Iterations; i++){
 		pos.w = 0;
-		value = Volume.SampleLevel(SampleType, pos, 0).r;
+		value = Volume.SampleLevel(SampleType, pos,0).r;
 
 		src = (float4)value;
 		src.a *= .1f;
@@ -47,7 +47,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		dst = (1.0f - dst.a)*src + dst;		
 		
 		//break from the loop when alpha gets high enough
-		if(dst.a >= .95f){
+		if(dst.a >= 1.f){
 			break;
 		}
 

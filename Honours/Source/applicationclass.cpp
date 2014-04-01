@@ -435,8 +435,6 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* mRead){
 
 	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
 	result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, mRead->GetShaderResourceView());
-	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix, g_texture_2d.pSRView);
-	//result = m_TextureToTextureShader->Render(m_Direct3D->GetDeviceContext(), m_FullScreenWindow->GetIndexCount(), orthoMatrix,mCloud->GetFrontShaderResource());
 	if(!result){
 		return false;
 	}
