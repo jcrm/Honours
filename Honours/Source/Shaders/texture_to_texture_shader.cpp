@@ -19,17 +19,17 @@ bool TextureToTextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	}
 	return true;
 }
-bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, projectionMatrix, texture);
+	result = SetShaderParameters(device_context, projectionMatrix, texture);
 	if(!result)
 	{
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(device_context, indexCount);
 	return true;
 }
 bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
@@ -81,13 +81,13 @@ bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hw
 		return false;
 	}
     // Create the vertex shader from the buffer.
-    result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+    result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result))
 	{
 		return false;
 	}
     // Create the pixel shader from the buffer.
-    result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
+    result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
 	if(FAILED(result))
 	{
 		return false;
@@ -112,7 +112,7 @@ bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hw
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), 
-		                               &m_layout);
+		                               &layout_);
 	if(FAILED(result))
 	{
 		return false;
@@ -130,7 +130,7 @@ bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hw
     matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
+	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -150,41 +150,41 @@ bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hw
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Create the texture sampler state.
-    result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+    result = device->CreateSamplerState(&samplerDesc, &sample_state_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 	return true;
 }
-void TextureToTextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void TextureToTextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
 {
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	device_context->IASetInputLayout(layout_);
     // Set the vertex and pixel shaders that will be used to render this triangle.
-    deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-    deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+    device_context->VSSetShader(vertex_shader_, NULL, 0);
+    device_context->PSSetShader(pixel_shader_, NULL, 0);
 	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(indexCount, 0, 0);
 	return;
 }
-bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, 
+bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, 
 	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight, float screenWidth)
 {
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, projectionMatrix, texture, screenHeight, screenWidth);
+	result = SetShaderParameters(device_context, projectionMatrix, texture, screenHeight, screenWidth);
 	if(!result)
 	{
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(device_context, indexCount);
 	return true;
 }
-bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -192,7 +192,7 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	unsigned int bufferNumber;
 	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -202,16 +202,16 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	// Copy the matrices into the constant buffer.
 	dataPtr->projection = projectionMatrix;
 	// Unlock the constant buffer.
-	deviceContext->Unmap(m_matrixBuffer, 0);
+	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	device_context->PSSetShaderResources(0, 1, &texture);
 	return true;
 }
-bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
+bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, 
 	D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight, float screenWidth)
 {
 	HRESULT result;
@@ -220,7 +220,7 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	unsigned int bufferNumber;
 	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -230,12 +230,12 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	// Copy the matrices into the constant buffer.
 	dataPtr->projection = projectionMatrix;
 	// Unlock the constant buffer.
-	deviceContext->Unmap(m_matrixBuffer, 0);
+	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	device_context->PSSetShaderResources(0, 1, &texture);
 	return true;
 }

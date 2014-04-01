@@ -34,10 +34,10 @@ protected:
 	virtual bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);
 	virtual void RenderShader(ID3D11DeviceContext*, int);
 protected:
-	ID3D11VertexShader* m_vertexShader;
-	ID3D11PixelShader* m_pixelShader;
-	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer;
-	ID3D11SamplerState* m_sampleState;
+	ID3D11VertexShader* vertex_shader_;
+	ID3D11PixelShader* pixel_shader_;
+	ID3D11InputLayout* layout_;
+	ID3D11Buffer* matrix_buffer_;
+	ID3D11SamplerState* sample_state_;
 };
 #endif // _ShaderClass_h_

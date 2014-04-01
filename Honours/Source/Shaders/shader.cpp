@@ -1,10 +1,9 @@
 #include "shader.h"
-ShaderClass::ShaderClass(void): m_vertexShader(0), m_pixelShader(0), m_layout(0), 
-	m_sampleState(0), m_matrixBuffer(0)
+ShaderClass::ShaderClass(void): vertex_shader_(0), pixel_shader_(0), layout_(0), 
+	sample_state_(0), matrix_buffer_(0)
 {
 }
-ShaderClass::~ShaderClass(void)
-{
+ShaderClass::~ShaderClass(void){
 }
 bool ShaderClass::Initialize(ID3D11Device*, HWND){
 	return false;
@@ -25,34 +24,33 @@ bool ShaderClass::InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*){
 }
 void ShaderClass::ShutdownShader(){
 		// Release the sampler state.
-	if(m_sampleState){
-		m_sampleState->Release();
-		m_sampleState = 0;
+	if(sample_state_){
+		sample_state_->Release();
+		sample_state_ = 0;
 	}
 	// Release the matrix constant buffer.
-	if(m_matrixBuffer){
-		m_matrixBuffer->Release();
-		m_matrixBuffer = 0;
+	if(matrix_buffer_){
+		matrix_buffer_->Release();
+		matrix_buffer_ = 0;
 	}
 	// Release the layout.
-	if(m_layout){
-		m_layout->Release();
-		m_layout = 0;
+	if(layout_){
+		layout_->Release();
+		layout_ = 0;
 	}
 	// Release the pixel shader.
-	if(m_pixelShader){
-		m_pixelShader->Release();
-		m_pixelShader = 0;
+	if(pixel_shader_){
+		pixel_shader_->Release();
+		pixel_shader_ = 0;
 	}
 	// Release the vertex shader.
-	if(m_vertexShader){
-		m_vertexShader->Release();
-		m_vertexShader = 0;
+	if(vertex_shader_){
+		vertex_shader_->Release();
+		vertex_shader_ = 0;
 	}
 	return;
 }
-void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
-{
+void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename){
 	char* compileErrors;
 	unsigned long bufferSize, i;
 	ofstream fout;
@@ -63,8 +61,7 @@ void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 	// Open a file to write the error message to.
 	fout.open("shader-error.txt");
 	// Write out the error message.
-	for(i=0; i<bufferSize; i++)
-	{
+	for(i=0; i<bufferSize; i++)	{
 		fout << compileErrors[i];
 	}
 	// Close the file.

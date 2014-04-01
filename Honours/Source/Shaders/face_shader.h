@@ -11,7 +11,7 @@ public:
 	~FaceShader(void);
 	bool Initialize(ID3D11Device*, HWND);
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, float);
-	ID3D11Buffer* GetBuffer(){return m_matrixBuffer;}
+	ID3D11Buffer* GetBuffer(){return matrix_buffer_;}
 protected:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, float);

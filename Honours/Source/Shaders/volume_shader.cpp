@@ -12,17 +12,16 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool VolumeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool VolumeShader::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 						  D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* frontTexture , ID3D11ShaderResourceView* backTexture,
 						  ID3D11ShaderResourceView* volumeTexture, float scale){
-	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, frontTexture, backTexture, volumeTexture, scale);
+	bool result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, frontTexture, backTexture, volumeTexture, scale);
 	if(!result){
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(device_context, indexCount);
 	return true;
 }
 bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
@@ -65,12 +64,12 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 		return false;
 	}
 	// Create the vertex shader from the buffer.
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Create the pixel shader from the buffer.
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
+	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -93,7 +92,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), 
-		&m_layout);
+		&layout_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -110,7 +109,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
+	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -129,7 +128,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Create the texture sampler state.
-	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+	result = device->CreateSamplerState(&samplerDesc, &sample_state_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -142,13 +141,13 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	volumeBufferDesc.MiscFlags = 0;
 	volumeBufferDesc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&volumeBufferDesc, NULL, &mVolumeBuffer);
+	result = device->CreateBuffer(&volumeBufferDesc, NULL, &volume_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
 	return true;
 }
-bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 									   D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* frontTexture, 
 									   ID3D11ShaderResourceView* backTexture, ID3D11ShaderResourceView* volumeTexture, float scale){
 	HRESULT result;
@@ -161,7 +160,7 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXM
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
@@ -172,17 +171,17 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXM
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
 	// Unlock the constant buffer.
-	deviceContext->Unmap(m_matrixBuffer, 0);
+	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &frontTexture);
-	deviceContext->PSSetShaderResources(1, 1, &backTexture);
-	deviceContext->PSSetShaderResources(2, 1, &volumeTexture);
+	device_context->PSSetShaderResources(0, 1, &frontTexture);
+	device_context->PSSetShaderResources(1, 1, &backTexture);
+	device_context->PSSetShaderResources(2, 1, &volumeTexture);
 	
-	result = deviceContext->Map(mVolumeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(volume_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
@@ -196,22 +195,22 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXM
 	dataPtr2->StepSize = D3DXVECTOR3(1.0f / 64.f, 1.0f / 64.f, 1.0f / 64.f);;
 	
 	// Unlock the constant buffer.
-	deviceContext->Unmap(mVolumeBuffer, 0);
+	device_context->Unmap(volume_buffer_, 0);
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 1;
 	// Finally set the light constant buffer in the pixel shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &mVolumeBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &volume_buffer_);
 	return true;
 }
-void VolumeShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount){
+void VolumeShader::RenderShader(ID3D11DeviceContext* device_context, int indexCount){
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	device_context->IASetInputLayout(layout_);
 	// Set the vertex and pixel shaders that will be used to render this triangle.
-	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+	device_context->VSSetShader(vertex_shader_, NULL, 0);
+	device_context->PSSetShader(pixel_shader_, NULL, 0);
 	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(indexCount, 0, 0);
 	return;
 }

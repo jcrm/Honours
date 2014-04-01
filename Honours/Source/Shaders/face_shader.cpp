@@ -12,16 +12,16 @@ bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool FaceShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool FaceShader::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 						  D3DXMATRIX projectionMatrix, float scale){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, scale);
+	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, scale);
 	if(!result){
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(device_context, indexCount);
 	return true;
 }
 bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
@@ -64,12 +64,12 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 		return false;
 	}
 	// Create the vertex shader from the buffer.
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Create the pixel shader from the buffer.
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
+	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &pixel_shader_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -91,7 +91,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	// Get a count of the elements in the layout.
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 	// Create the vertex input layout.
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout);
+	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &layout_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -108,7 +108,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
+	result = device->CreateBuffer(&matrixBufferDesc, NULL, &matrix_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -127,7 +127,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Create the texture sampler state.
-	result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+	result = device->CreateSamplerState(&samplerDesc, &sample_state_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -146,7 +146,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	}
 	return true;
 }
-bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
 									   D3DXMATRIX projectionMatrix, float scale){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -158,7 +158,7 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
@@ -169,13 +169,13 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
 	// Unlock the constant buffer.
-	deviceContext->Unmap(m_matrixBuffer, 0);
+	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
 	
-	result = deviceContext->Map(m_scaleBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(m_scaleBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
@@ -184,22 +184,22 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMAT
 	// Copy the lighting variables into the constant buffer.
 	dataPtr2->scale = D3DXVECTOR4(scale,scale,scale,1.0f);
 	// Unlock the constant buffer.
-	deviceContext->Unmap(m_scaleBuffer, 0);
+	device_context->Unmap(m_scaleBuffer, 0);
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 1;
 	// Finally set the light constant buffer in the pixel shader with the updated values.
-	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_scaleBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &m_scaleBuffer);
 	return true;
 }
-void FaceShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount){
+void FaceShader::RenderShader(ID3D11DeviceContext* device_context, int indexCount){
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	device_context->IASetInputLayout(layout_);
 	// Set the vertex and pixel shaders that will be used to render this triangle.
-	deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-	deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+	device_context->VSSetShader(vertex_shader_, NULL, 0);
+	device_context->PSSetShader(pixel_shader_, NULL, 0);
 	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(indexCount, 0, 0);
 	return;
 }
