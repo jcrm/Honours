@@ -10,7 +10,7 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 	int zIter = 0;
 
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
-		// Get velocity values from neighboring cells.  
+		// Get velocity values from neighboring cells.
 		unsigned char *fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
 		unsigned char *fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
 
@@ -22,7 +22,7 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 
 		unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		// Compute the velocity's divergence using central differences.  
-		cellDivergence[divergence_index] =  0.5 * ((fieldRight[0] - fieldLeft[0])+  
+		cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
 				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
 	}
 }

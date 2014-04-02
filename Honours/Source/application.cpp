@@ -818,7 +818,7 @@ void ApplicationClass::RunCloudKernals(){
 	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_.cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 	if(is_done_once_ == false){
-		cuda_fluid_initial(velocity_cuda_.cuda_linear_memory_, size_WHD, velocity_cuda_.pitch_, pitch_slice, 0.f);
+		cuda_fluid_initial(velocity_cuda_.cuda_linear_memory_, size_WHD, velocity_cuda_.pitch_, pitch_slice, 120.f);
 		getLastCudaError("cuda_fluid_initial failed");
 		cuda_fluid_initial(advect_velocity_cuda_.cuda_linear_memory_, size_WHD, advect_velocity_cuda_.pitch_, pitch_slice, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
@@ -826,6 +826,7 @@ void ApplicationClass::RunCloudKernals(){
 		getLastCudaError("cuda_fluid_initial failed");
 		is_done_once_ = true;
 	}
+
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_advect(advect_velocity_cuda_.cuda_linear_memory_, velocity_cuda_.cuda_linear_memory_, size_WHD, velocity_cuda_.pitch_, pitch_slice);
 	getLastCudaError("cuda_fluid_advect failed");
