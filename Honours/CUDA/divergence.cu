@@ -24,6 +24,232 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 		// Compute the velocity's divergence using central differences.  
 		cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
 				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
+		if((xIter - 1 < 0) && (yIter - 1 < 0) && (zIter - 1 < 0)){
+
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellDivergence[divergence_index] = 0.5f * ((fieldRight[0]) + ( - fieldBottom[1]) + (fieldUp[2])); 
+
+		}else if((xIter + 1 ==size_WHD.x) && (yIter - 1 < 0) && (zIter - 1 < 0)){
+
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter - 1 < 0) && (yIter + 1 ==size_WHD.y) && (zIter - 1 < 0)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (yIter + 1 ==size_WHD.y) && (zIter - 1 < 0)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter - 1 < 0) && (yIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (yIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter - 1 < 0) && (yIter + 1 ==size_WHD.y) && (zIter + 1 ==size_WHD.y)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (yIter + 1 ==size_WHD.y) && (zIter + 1 ==size_WHD.y)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
+
+		}else if((xIter - 1 < 0) && (yIter - 1 < 0)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (yIter - 1 < 0)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter - 1 < 0) && (yIter + 1 ==size_WHD.y)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (yIter + 1 ==size_WHD.y)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter - 1 < 0) && (zIter - 1 < 0)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (zIter - 1 < 0)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((xIter + 1 ==size_WHD.x) && (zIter + 1 ==size_WHD.y)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((yIter - 1 < 0) && (zIter - 1 < 0)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
+
+		}else if((yIter + 1 ==size_WHD.y) && (zIter - 1 < 0)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if((yIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index]+ pTop[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
+		}else if((yIter + 1 ==size_WHD.y) && (zIter + 1 ==size_WHD.y)){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
+
+		}else if(xIter - 1 < 0){
+
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
+
+		}else if(xIter + 1 ==size_WHD.x){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
+
+		}else if(yIter - 1 < 0){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/5.f;
+
+		}else if(yIter + 1 ==size_WHD.y){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
+
+		}else if(zIter - 1 < 0){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
+
+		}else if(zIter + 1 ==size_WHD.y){
+
+			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
+
+		}else{
+			unsigned char *fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+		unsigned char *fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+
+		unsigned char *fieldUp = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+		unsigned char *fieldDown = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+
+		unsigned char *fieldTop = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+		unsigned char *fieldBottom = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter);
+
+		unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
+
+		}
 	}
 }
 extern "C"

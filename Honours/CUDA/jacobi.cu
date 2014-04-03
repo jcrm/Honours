@@ -20,7 +20,6 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 siz
 
 		// Compute the new pressure value for the center cell.
 		unsigned char* cellPressure = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-
 		if((xIter - 1 < 0) && (yIter - 1 < 0) && (zIter - 1 < 0)){
 
 			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
