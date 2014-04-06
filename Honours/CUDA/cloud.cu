@@ -18,39 +18,19 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 		unsigned char *pBottom = NULL;
 		unsigned char *pTop = NULL;
 
-		if(xIter - 1 < 0){
-			pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-		}else{
-			pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-		}
-		if(xIter + 1 ==size_WHD.x){
-			pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-		}else{
-			pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-		}
-
-		if(yIter - 1 < 0){
-			pDown = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter); 
-		}else{
-			pDown = pressure + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-		}
-		if(yIter + 1 ==size_WHD.y){
-			pUp = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter); 
-		}else{
-			pUp = pressure + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-		}
-
-		if(zIter - 1 < 0){
-			pTop = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-		}else{
-			pTop = pressure + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-		}
-		if(zIter + 1 ==size_WHD.y){
-			pBottom = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-		}else{
-			pBottom = pressure + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-		}
-		float3 gradP;
+		if(xIter +1 < size_WHD.x){
+			if(xIter - 1 > 0){
+				if(yIter + 1 < size_WHD.y){
+					if(yIter - 1 > 0){
+						if(zIter + 1 < size_WHD.z){
+							if(zIter - 1 > 0){
+								pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+								pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+								pDown = pressure + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+								pUp = pressure + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+								pTop = pressure + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+								pBottom = pressure + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+								float3 gradP;
 		gradP.x = 0.5 *(pRight[pressure_index] - pLeft[pressure_index]);
 		gradP.y = 0.5 *(pTop[pressure_index] - pBottom[pressure_index]);
 		gradP.z = 0.5 *(pUp[pressure_index] - pDown[pressure_index]);
@@ -64,6 +44,13 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 		cellVelocity[0] = vOld.x - gradP.x;
 		cellVelocity[1]= vOld.y - gradP.y;
 		cellVelocity[2] = vOld.z - gradP.z; 
+							}
+						}
+					}
+				}
+			}
+		}
+		
 	}
 }
 

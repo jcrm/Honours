@@ -11,19 +11,35 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
 		// Get velocity values from neighboring cells.
-		unsigned char *fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-		unsigned char *fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-
-		unsigned char *fieldUp = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-		unsigned char *fieldDown = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-
-		unsigned char *fieldTop = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-		unsigned char *fieldBottom = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter);
+		unsigned char *fieldLeft, *fieldRight;
+		unsigned char *fieldUp, *fieldDown;
+		unsigned char *fieldTop, *fieldBottom;
 
 		unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-		// Compute the velocity's divergence using central differences.  
-		cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
-				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
+		if(xIter +1 < size_WHD.x){
+			if(xIter - 1 > 0){
+				if(yIter + 1 < size_WHD.y){
+					if(yIter - 1 > 0){
+						if(zIter + 1 < size_WHD.z){
+							if(zIter - 1 > 0){
+								fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+								fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+								fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+								fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+								fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+								fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+								signed int temp = ((signed int(fieldRight[0]) - signed int(fieldLeft[0])) + 
+									(signed int(fieldTop[1]) - signed int(fieldBottom[1])) + (signed int(fieldUp[2]) - signed int(fieldDown[2])));
+								temp = 0.5f * temp;
+								// Compute the velocity's divergence using central differences.  
+								cellDivergence[divergence_index] =  temp; 
+							}
+						}
+					}
+				}
+			}
+		}
+		/*
 		if((xIter - 1 < 0) && (yIter - 1 < 0) && (zIter - 1 < 0)){
 
 			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
@@ -32,224 +48,214 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 			cellDivergence[divergence_index] = 0.5f * ((fieldRight[0]) + ( - fieldBottom[1]) + (fieldUp[2])); 
 
 		}else if((xIter + 1 ==size_WHD.x) && (yIter - 1 < 0) && (zIter - 1 < 0)){
-
 			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
 			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
 			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] - dCentre)/3.f;
-
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((- fieldLeft[0])+  
+				( - fieldBottom[1]) + (fieldUp[2])); 
 		}else if((xIter - 1 < 0) && (yIter + 1 ==size_WHD.y) && (zIter - 1 < 0)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldBottom[1]) + (fieldDown[2]));
 		}else if((xIter + 1 ==size_WHD.x) && (yIter + 1 ==size_WHD.y) && (zIter - 1 < 0)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((- fieldLeft[0])+  
+				(- fieldBottom[1]) + (- fieldDown[2]));
 		}else if((xIter - 1 < 0) && (yIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/3.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldTop[1]) + (fieldUp[2]));
 		}else if((xIter + 1 ==size_WHD.x) && (yIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/3.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((- fieldLeft[0])+  
+				(fieldTop[1]) + (fieldUp[2]));
 		}else if((xIter - 1 < 0) && (yIter + 1 ==size_WHD.y) && (zIter + 1 ==size_WHD.y)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldTop[1]) + (- fieldDown[2])); 
 		}else if((xIter + 1 ==size_WHD.x) && (yIter + 1 ==size_WHD.y) && (zIter + 1 ==size_WHD.y)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/3.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * (( - fieldLeft[0])+  
+				(fieldTop[1]) + ( - fieldDown[2])); 
 		}else if((xIter - 1 < 0) && (yIter - 1 < 0)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2]));
 		}else if((xIter + 1 ==size_WHD.x) && (yIter - 1 < 0)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * (( - fieldLeft[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2]));
 		}else if((xIter - 1 < 0) && (yIter + 1 ==size_WHD.y)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (- fieldDown[2])); 
 		}else if((xIter + 1 ==size_WHD.x) && (yIter + 1 ==size_WHD.y)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * (fieldLeft[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (- fieldDown[2]); 
 		}else if((xIter - 1 < 0) && (zIter - 1 < 0)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				( fieldBottom[1]) + (fieldUp[2] - fieldDown[2]));
 		}else if((xIter + 1 ==size_WHD.x) && (zIter - 1 < 0)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((- fieldLeft[0])+  
+				(- fieldBottom[1]) + (fieldUp[2] - fieldDown[2]));
 		}else if((xIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldTop[1]) + (fieldUp[2] - fieldDown[2]));
 		}else if((xIter + 1 ==size_WHD.x) && (zIter + 1 ==size_WHD.y)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * (( - fieldLeft[0])+  
+				(fieldTop[1]) + (fieldUp[2] - fieldDown[2])); 
 		}else if((yIter - 1 < 0) && (zIter - 1 < 0)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(-fieldBottom[1]) + (fieldUp[2])); 
 		}else if((yIter + 1 ==size_WHD.y) && (zIter - 1 < 0)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(fieldBottom[1]) + (fieldDown[2])); 
 		}else if((yIter - 1 < 0) && (zIter + 1 ==size_WHD.y)){
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index]+ pTop[pressure_index] + pUp[pressure_index] - dCentre)/4.f;
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(fieldTop[1]) + (fieldUp[2])); 
 		}else if((yIter + 1 ==size_WHD.y) && (zIter + 1 ==size_WHD.y)){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/4.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0]) + (fieldUp[2] - fieldDown[2]));
 		}else if(xIter - 1 < 0){
-
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
-
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
 		}else if(xIter + 1 ==size_WHD.x){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((- fieldLeft[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
 		}else if(yIter - 1 < 0){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] - dCentre)/5.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2])); 
 		}else if(yIter + 1 ==size_WHD.y){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(fieldTop[1] - fieldBottom[1]) + (- fieldDown[2])); 
 		}else if(zIter - 1 < 0){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(-fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
 		}else if(zIter + 1 ==size_WHD.y){
-
-			pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/5.f;
-
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			// Compute the velocity's divergence using central differences.  
+			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
+				(fieldTop[1]) + (fieldUp[2] - fieldDown[2])); 
 		}else{
-			unsigned char *fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-		unsigned char *fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-
-		unsigned char *fieldUp = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-		unsigned char *fieldDown = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-
-		unsigned char *fieldTop = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-		unsigned char *fieldBottom = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter);
-
-		unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-			fieldLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-			fieldRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-			fieldDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-			fieldUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-			fieldTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-			fieldBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+			fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+			fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+			fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+			fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+			fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
 			// Compute the velocity's divergence using central differences.  
 			cellDivergence[divergence_index] =  0.5f * ((fieldRight[0] - fieldLeft[0])+  
 				(fieldTop[1] - fieldBottom[1]) + (fieldUp[2] - fieldDown[2])); 
-
-		}
+		}*/
 	}
 }
 extern "C"
