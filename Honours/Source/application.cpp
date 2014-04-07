@@ -866,14 +866,14 @@ void ApplicationClass::ShutdownTextures(){
 		delete halfsize_texture_;
 		halfsize_texture_ = 0;
 	}
-	if (!velocity_cuda_){
+	if (velocity_cuda_){
 		delete velocity_cuda_;
 		velocity_cuda_ = NULL;
 	}
-	if (!advect_velocity_cuda_){
+	if (advect_velocity_cuda_){
 		delete advect_velocity_cuda_;
 		advect_velocity_cuda_ = NULL;	}
-	if (!pressure_divergence_cuda_){
+	if (pressure_divergence_cuda_){
 		delete pressure_divergence_cuda_;
 		pressure_divergence_cuda_ = NULL;;
 	}
