@@ -12,10 +12,10 @@ __global__ void cuda_kernel_initial(unsigned char *velocityInput, float3 size_WH
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
 		//location is z slide + y position + variable size time x position
 		unsigned char* cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-		cellVelocity[0] = signed int(0);
+		cellVelocity[0] = signed int(10);
 		cellVelocity[1] = signed int(0);
 		cellVelocity[2] = signed int(0);
-		cellVelocity[3] = signed int(0);
+		cellVelocity[3] = signed int(0);/*
 		if(xIter +1 < size_WHD.x){
 			if(xIter - 1 > 0){
 				if(yIter + 1 < size_WHD.y){
@@ -31,7 +31,7 @@ __global__ void cuda_kernel_initial(unsigned char *velocityInput, float3 size_WH
 					}
 				}
 			}
-		}
+		}*/
 	}
 }
 extern "C"

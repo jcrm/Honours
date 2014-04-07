@@ -4,16 +4,13 @@
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
 
+#define timeStep 1.f
+
 __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocityInput, float3 size_WHD, size_t pitch, size_t pitch_slice){ 
 	int xIter = blockIdx.x*blockDim.x + threadIdx.x;
 	int yIter = blockIdx.y*blockDim.y + threadIdx.y;
 	int zIter = 0;
-	float timeStep = 1.f;
-	unsigned int location = 0;
-	unsigned char* cellVelocity = NULL;
-	float cellVX, cellVY, cellVZ = 0.f;
-	float posX, posY, posZ = 0.f;
-	unsigned char* outputPixel = NULL;
+
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
 		if(xIter +1 < size_WHD.x){
 			if(xIter - 1 > 0){
@@ -22,27 +19,19 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocit
 						if(zIter + 1 < size_WHD.z){
 							if(zIter - 1 > 0){
 								//location is z slide + y position + variable size time x position
-								location =(zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+								unsigned char*cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+								unsigned char* outputPixel = output + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+
+								float posX = float((xIter +0.5f)- (timeStep * signed int(cellVelocity[0])))/ size_WHD.x;
+								float posY = float((yIter +0.5f) - (timeStep * signed int(cellVelocity[1])))/ size_WHD.y;
+								float posZ = float((zIter +0.5f) - (timeStep * signed int(cellVelocity[2]))+0.5f)/ size_WHD.z;
+
+								unsigned int location = (posZ*pitch_slice) + (posY*pitch) + (4*posX);
 								cellVelocity = velocityInput + location;
 
-								cellVX = signed int(cellVelocity[0]);
-								cellVY = signed int(cellVelocity[1]);
-								cellVZ = signed int(cellVelocity[2]);
-								float3 cell = {cellVX, cellVY, cellVZ};
-								posX = float((xIter +0.5f)- (timeStep * cellVX))/ size_WHD.x;
-								posY = float((yIter +0.5f) - (timeStep * cellVY))/ size_WHD.y;
-								posZ = float((zIter +0.5f) - (timeStep * cellVZ)+0.5f)/ size_WHD.z;
-								float3 pos = {posX, posY, posZ};
-								outputPixel = output + location;
-								location =(posZ*pitch_slice) + (posY*pitch) + (4*posX);
-								cellVelocity = velocityInput + location;
-								cellVX = signed int(cellVelocity[0]);
-								cellVY = signed int(cellVelocity[1]);
-								cellVZ = signed int(cellVelocity[2]);
-								float3 cellG = {cellVX, cellVY, cellVZ};
-								outputPixel[0] = cellVX;
-								outputPixel[1] = cellVY;
-								outputPixel[2] = cellVZ;
+								outputPixel[0] = signed int(cellVelocity[0]);
+								outputPixel[1] = signed int(cellVelocity[1]);
+								outputPixel[2] = signed int(cellVelocity[2]);
 							}
 						}
 					}

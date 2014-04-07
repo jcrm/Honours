@@ -10,29 +10,22 @@ __global__ void cuda_kernel_divergence(unsigned char* divergence, unsigned char*
 	int zIter = 0;
 
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
-		// Get velocity values from neighboring cells.
-		unsigned char *fieldLeft, *fieldRight;
-		unsigned char *fieldUp, *fieldDown;
-		unsigned char *fieldTop, *fieldBottom;
-
-		unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 		if(xIter +1 < size_WHD.x){
 			if(xIter - 1 > 0){
 				if(yIter + 1 < size_WHD.y){
 					if(yIter - 1 > 0){
 						if(zIter + 1 < size_WHD.z){
 							if(zIter - 1 > 0){
-								fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-								fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-								fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-								fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-								fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-								fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-								signed int temp = ((signed int(fieldRight[0]) - signed int(fieldLeft[0])) + 
-									(signed int(fieldTop[1]) - signed int(fieldBottom[1])) + (signed int(fieldUp[2]) - signed int(fieldDown[2])));
-								temp = 0.5f * temp;
+								unsigned char *fieldLeft = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+								unsigned char *fieldRight = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+								unsigned char *fieldDown = velocityInput + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+								unsigned char *fieldUp = velocityInput + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+								unsigned char *fieldTop = velocityInput + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+								unsigned char *fieldBottom = velocityInput + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+								unsigned char* cellDivergence = divergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+								cellDivergence[divergence_index] = signed int(0.5f * ((signed int(fieldRight[0]) - signed int(fieldLeft[0])) + 
+									(signed int(fieldTop[1]) - signed int(fieldBottom[1])) + (signed int(fieldUp[2]) - signed int(fieldDown[2]))));
 								// Compute the velocity's divergence using central differences.  
-								cellDivergence[divergence_index] =  temp; 
 							}
 						}
 					}
