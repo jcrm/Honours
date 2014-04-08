@@ -12,29 +12,23 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *velocit
 	int zIter = 0;
 
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
-		if(xIter +1 < size_WHD.x){
-			if(xIter - 1 > 0){
-				if(yIter + 1 < size_WHD.y){
-					if(yIter - 1 > 0){
-						if(zIter + 1 < size_WHD.z){
-							if(zIter - 1 > 0){
-								//location is z slide + y position + variable size time x position
-								unsigned char*cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-								unsigned char* outputPixel = output + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+		if(xIter +1 < size_WHD.x && xIter - 1 > 0){
+			if(yIter + 1 < size_WHD.y && yIter - 1 > 0){
+				if(zIter + 1 < size_WHD.z && zIter - 1 > 0){
+					//location is z slide + y position + variable size time x position
+					unsigned char*cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+					unsigned char* outputPixel = output + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
 
-								float posX = float((xIter +0.5f)- (timeStep * signed int(cellVelocity[0])))/ size_WHD.x;
-								float posY = float((yIter +0.5f) - (timeStep * signed int(cellVelocity[1])))/ size_WHD.y;
-								float posZ = float((zIter +0.5f) - (timeStep * signed int(cellVelocity[2]))+0.5f)/ size_WHD.z;
+					float posX = float((xIter +0.5f)- (timeStep * signed int(cellVelocity[0])))/ size_WHD.x;
+					float posY = float((yIter +0.5f) - (timeStep * signed int(cellVelocity[1])))/ size_WHD.y;
+					float posZ = float((zIter +0.5f) - (timeStep * signed int(cellVelocity[2]))+0.5f)/ size_WHD.z;
 
-								unsigned int location = (posZ*pitch_slice) + (posY*pitch) + (4*posX);
-								cellVelocity = velocityInput + location;
+					unsigned int location = (posZ*pitch_slice) + (posY*pitch) + (4*posX);
+					cellVelocity = velocityInput + location;
 
-								outputPixel[0] = signed int(cellVelocity[0]);
-								outputPixel[1] = signed int(cellVelocity[1]);
-								outputPixel[2] = signed int(cellVelocity[2]);
-							}
-						}
-					}
+					outputPixel[0] = signed int(cellVelocity[0]);
+					outputPixel[1] = signed int(cellVelocity[1]);
+					outputPixel[2] = signed int(cellVelocity[2]);
 				}
 			}
 		}

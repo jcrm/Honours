@@ -152,19 +152,22 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <CudaCompile Include="CUDA\advect.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
     <CudaCompile Include="CUDA\cloud.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
     <CudaCompile Include="CUDA\divergence.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\advect.cu">
+    <CudaCompile Include="CUDA\inital.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
     <CudaCompile Include="CUDA\jacobi.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\inital.cu">
+    <CudaCompile Include="CUDA\forces.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
   </ItemGroup>

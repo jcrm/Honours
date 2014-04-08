@@ -10,30 +10,23 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 	int zIter = 0;
 
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){ 
-		if(xIter +1 < size_WHD.x){
-			if(xIter - 1 > 0){
-				if(yIter + 1 < size_WHD.y){
-					if(yIter - 1 > 0){
-						if(zIter + 1 < size_WHD.z){
-							if(zIter - 1 > 0){
-								// Get pressure values from neighboring cells. 
-								unsigned char *pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-								unsigned char *pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-								unsigned char *pDown = pressure + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-								unsigned char *pUp = pressure + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-								unsigned char *pTop = pressure + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-								unsigned char *pBottom = pressure + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-								unsigned char* cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-								cellVelocity[0] = cellVelocity[0] - (0.5f *(pRight[pressure_index] - pLeft[pressure_index]));
-								cellVelocity[1]= cellVelocity[1] - (0.5f *(pTop[pressure_index] - pBottom[pressure_index]));
-								cellVelocity[2] = cellVelocity[2] - (0.5f *(pUp[pressure_index] - pDown[pressure_index])); 
-							}
-						}
-					}
+		if(xIter +1 < size_WHD.x && xIter - 1 > 0){
+			if(yIter + 1 < size_WHD.y && yIter - 1 > 0){
+				if(zIter + 1 < size_WHD.z && zIter - 1 > 0){
+					// Get pressure values from neighboring cells. 
+					unsigned char *pLeft = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+					unsigned char *pRight = pressure + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+					unsigned char *pDown = pressure + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+					unsigned char *pUp = pressure + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+					unsigned char *pTop = pressure + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+					unsigned char *pBottom = pressure + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+					unsigned char* cellVelocity = velocityInput + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+					cellVelocity[0] = cellVelocity[0] - (0.5f *(pRight[pressure_index] - pLeft[pressure_index]));
+					cellVelocity[1]= cellVelocity[1] - (0.5f *(pTop[pressure_index] - pBottom[pressure_index]));
+					cellVelocity[2] = cellVelocity[2] - (0.5f *(pUp[pressure_index] - pDown[pressure_index])); 
 				}
 			}
 		}
-		
 	}
 }
 

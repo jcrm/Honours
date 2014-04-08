@@ -743,7 +743,11 @@ void ApplicationClass::RunCloudKernals(){
 	cuda_fluid_advect(advect_velocity_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);
 	getLastCudaError("cuda_fluid_advect failed");
 	divergence_index = 1;
-	
+
+	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
+	cuda_fluid_forces(advect_velocity_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);
+	getLastCudaError("cuda_fluid_forces failed");
+
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, advect_velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, divergence_index);
 	getLastCudaError("cuda_fluid_divergence failed");

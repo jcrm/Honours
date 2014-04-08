@@ -10,29 +10,23 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 siz
 	int zIter = 0;
 
 	for(zIter = 0; zIter < size_WHD.z; ++zIter){
-		if(xIter +1 < size_WHD.x){
-			if(xIter - 1 > 0){
-				if(yIter + 1 < size_WHD.y){
-					if(yIter - 1 > 0){
-						if(zIter + 1 < size_WHD.z){
-							if(zIter - 1 > 0){
-								unsigned char* cellDivergence = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-								// Get the divergence at the current cell.  
-								float dCentre = cellDivergence[divergence_index];
+		if(xIter +1 < size_WHD.x && xIter - 1 > 0){
+			if(yIter + 1 < size_WHD.y && yIter - 1 > 0){
+				if(zIter + 1 < size_WHD.z && zIter - 1 > 0){
+					unsigned char* cellDivergence = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+					// Get the divergence at the current cell.  
+					float dCentre = cellDivergence[divergence_index];
 
-								unsigned char *pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
-								unsigned char *pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
-								unsigned char *pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
-								unsigned char *pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
-								unsigned char *pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
-								unsigned char *pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+					unsigned char *pLeft = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter-1));
+					unsigned char *pRight = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*(xIter+1));
+					unsigned char *pDown = pressuredivergence + (zIter*pitch_slice) + ((yIter-1)*pitch) + (4*xIter); 
+					unsigned char *pUp = pressuredivergence + (zIter*pitch_slice) + ((yIter+1)*pitch) + (4*xIter); 
+					unsigned char *pTop = pressuredivergence + ((zIter-1)*pitch_slice) + (yIter*pitch) + (4*xIter);
+					unsigned char *pBottom = pressuredivergence + ((zIter+1)*pitch_slice) + (yIter*pitch) + (4*xIter);
 
-								// Compute the new pressure value for the center cell.
-								unsigned char* cellPressure = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
-								cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/6.f;
-							}
-						}
-					}
+					// Compute the new pressure value for the center cell.
+					unsigned char* cellPressure = pressuredivergence + (zIter*pitch_slice) + (yIter*pitch) + (4*xIter);
+					cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/6.f;
 				}
 			}
 		}
