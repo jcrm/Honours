@@ -113,7 +113,7 @@ private:
 	FaceShader* face_shader_;
 	//cuda textures
 	fluid_texture *velocity_cuda_;
-	fluid_texture *advect_velocity_cuda_;
+	fluid_texture *velocity_derivative_cuda_;
 	fluid_texture *pressure_divergence_cuda_;
 	bool is_done_once_;
 };
