@@ -751,7 +751,7 @@ void ApplicationClass::RunCloudKernals(){
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, divergence_index);
 	getLastCudaError("cuda_fluid_divergence failed");
-	for(int i = 0; i < 10; i++){
+	for(int i = 0; i < 16; i++){
 		if(i%2 == 0){
 			pressure_index = 0;
 			divergence_index = 1;

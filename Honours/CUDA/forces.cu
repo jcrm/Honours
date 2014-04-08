@@ -42,6 +42,9 @@ __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, 
 					output_velocity[0] += ((norm_value.y * curl_value.z) - (norm_value.z * curl_value.y)) * dx * scalar * time_step;
 					output_velocity[1] += ((norm_value.z * curl_value.x) - (norm_value.x * curl_value.z)) * dx * scalar * time_step;
 					output_velocity[2] += ((norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)) * dx * scalar * time_step;
+
+					//buoyancy
+
 				}
 			}
 		}

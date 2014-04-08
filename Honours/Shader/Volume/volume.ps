@@ -35,7 +35,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		value = Volume.SampleLevel(SampleType, pos,0).r;
 
 		src = (float4)value;
-		src.a *= .1f;
+		src.a *= .05f;
 		//reduce the alpha to have a more transparent result
 		//this needs to be adjusted based on the step size
 		//i.e. the more steps we take, the faster the alpha will grow
