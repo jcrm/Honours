@@ -5,7 +5,7 @@
 ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0),
 	font_shader_(0), terrain_shader_(0),  texture_shader_(0), texture_to_texture_shader_(0), volume_shader_(0),
-	face_shader_(0), velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
+	face_shader_(0), velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), water_continuity_cuda_(0),
 	render_fullsize_texture_(0), down_sample_halfsize_texture_(0), fullsize_texture_(0), halfsize_texture_(0),
 	full_screen_window_(0), is_done_once_(false)
 {
@@ -13,7 +13,7 @@ ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), play
 ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0),
 	font_shader_(0), terrain_shader_(0),  texture_shader_(0), texture_to_texture_shader_(0), volume_shader_(0),
-	face_shader_(0), velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
+	face_shader_(0), velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), water_continuity_cuda_(0),
 	render_fullsize_texture_(0), down_sample_halfsize_texture_(0), fullsize_texture_(0), halfsize_texture_(0),
 	full_screen_window_(0), is_done_once_(false)
 {
@@ -114,6 +114,15 @@ void ApplicationClass::InitClouds(){
 	pressure_divergence_cuda_->pitch_ = pressure_divergence_cuda_->width_ * 4;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(pressure_divergence_cuda_->cuda_linear_memory_, 1, pressure_divergence_cuda_->pitch_ * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
+	getLastCudaError("cudaMemset (g_texture_cloud) failed");
+
+	cudaGraphicsD3D11RegisterResource(&water_continuity_cuda_->cuda_resource_, water_continuity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
+	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+	cudaMalloc(&water_continuity_cuda_->cuda_linear_memory_, water_continuity_cuda_->width_ * 4 * water_continuity_cuda_->height_ * water_continuity_cuda_->depth_);
+	water_continuity_cuda_->pitch_ = water_continuity_cuda_->width_ * 4;
+	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
+	cudaMemset(water_continuity_cuda_->cuda_linear_memory_, 1, water_continuity_cuda_->pitch_ * water_continuity_cuda_->height_ * water_continuity_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 }
 bool ApplicationClass::Frame(){
@@ -641,7 +650,10 @@ bool ApplicationClass::InitCudaTextures(){
 	if (!pressure_divergence_cuda_){
 		return false;
 	}
-
+	water_continuity_cuda_ = new fluid_texture;
+	if (!water_continuity_cuda_){
+		return false;
+	}
 	velocity_cuda_->width_  = size_WHD.x;
 	velocity_cuda_->height_ = size_WHD.y;
 	velocity_cuda_->depth_  = size_WHD.z;
@@ -693,7 +705,23 @@ bool ApplicationClass::InitCudaTextures(){
 	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_cuda_->texture_, NULL, &pressure_divergence_cuda_->sr_view_))){
 		return false;
 	}
-	d3d_device_context->PSSetShaderResources(offset_shader, 1, &pressure_divergence_cuda_->sr_view_);
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_cuda_->sr_view_);
+
+	water_continuity_cuda_->width_  = size_WHD.x;
+	water_continuity_cuda_->height_ = size_WHD.y;
+	water_continuity_cuda_->depth_  = size_WHD.z;
+
+	desc.Width = water_continuity_cuda_->width_;
+	desc.Height = water_continuity_cuda_->height_;
+	desc.Depth = water_continuity_cuda_->depth_;
+
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &water_continuity_cuda_->texture_))){
+		return false;
+	}
+	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_cuda_->texture_, NULL, &water_continuity_cuda_->sr_view_))){
+		return false;
+	}
+	d3d_device_context->PSSetShaderResources(offset_shader, 1, &water_continuity_cuda_->sr_view_);
 	return true;
 }
 //-----------------------------------------------------------------------------
@@ -706,11 +734,12 @@ void ApplicationClass::CudaRender(){
 	//and to have the map/unmap calls be the boundary between using the GPU
 	//for Direct3D and Cuda
 	cudaStream_t stream = 0;
-	const int num_resources = 3;
+	const int num_resources = 4;
 	cudaGraphicsResource *resources[num_resources] ={
 		velocity_cuda_->cuda_resource_,
 		velocity_derivative_cuda_->cuda_resource_,
-		pressure_divergence_cuda_->cuda_resource_
+		pressure_divergence_cuda_->cuda_resource_,
+		water_continuity_cuda_->cuda_resource_
 	};
 	cudaGraphicsMapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
@@ -880,6 +909,10 @@ void ApplicationClass::ShutdownTextures(){
 	if (pressure_divergence_cuda_){
 		delete pressure_divergence_cuda_;
 		pressure_divergence_cuda_ = NULL;;
+	}
+	if (water_continuity_cuda_){
+		delete water_continuity_cuda_;
+		water_continuity_cuda_ = NULL;;
 	}
 }
 void ApplicationClass::ShutdownCamera(){
