@@ -170,6 +170,9 @@
     <CudaCompile Include="CUDA\forces.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="CUDA\water_continuity.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CUDA\cuda_kernals.h">
