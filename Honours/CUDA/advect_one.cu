@@ -6,7 +6,7 @@
 
 #define timeStep 1.f
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_advect(unsigned char *output, unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice){ 
+__global__ void cuda_kernel_advect_one_texture(unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice, float4 advect_index){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -17,7 +17,7 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *input, 
 				if(z_iter + 1 < size_WHD.z && z_iter - 1 > 0){
 					//location is z slide + y position + variable size time x position
 					unsigned char *current_velocity = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
-					unsigned char *output_velocity = output + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+					unsigned char *output_velocity = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
 
 					float pos_x = float((x_iter +0.5f)- (timeStep * signed int(current_velocity[0])))/ size_WHD.x;
 					float pos_y = float((y_iter +0.5f) - (timeStep * signed int(current_velocity[1])))/ size_WHD.y;
@@ -37,13 +37,13 @@ __global__ void cuda_kernel_advect(unsigned char *output, unsigned char *input, 
 }
 
 extern "C"
-void cuda_fluid_advect(void *output, void *input, float3 size_WHD, size_t pitch, size_t pitch_slice){
+void cuda_fluid_advect_one_texture(void *output, void *input, float3 size_WHD, size_t pitch, size_t pitch_slice, float4 advect_index){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-	cuda_kernel_advect<<<Dg,Db>>>((unsigned char *)output, (unsigned char *)input, size_WHD, pitch, pitch_slice);
+	cuda_kernel_advect_one_texture<<<Dg,Db>>>((unsigned char *)input, size_WHD, pitch, pitch_slice, advect_index);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

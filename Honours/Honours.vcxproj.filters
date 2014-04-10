@@ -152,9 +152,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CUDA\advect.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\cloud.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
@@ -171,6 +168,12 @@
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
     <CudaCompile Include="CUDA\water_continuity.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\advect_two.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\advect_one.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
   </ItemGroup>

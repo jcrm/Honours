@@ -755,23 +755,42 @@ void ApplicationClass::RunCloudKernals(){
 	size_t pitch_slice = velocity_cuda_->pitch_ * velocity_cuda_->height_;
 	cudaArray *cuda_velocity_array;
 	float3 size_WHD ={velocity_cuda_->width_, velocity_cuda_->height_, velocity_cuda_->depth_};
-
+	float4 advect_index = {0.f,1.f,2.f,5.f};
 	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 	if(is_done_once_ == false){
-		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, 120.f);
+		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, 10.f);
 		getLastCudaError("cuda_fluid_initial failed");
 		cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size_WHD, velocity_derivative_cuda_->pitch_, pitch_slice, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
 		cuda_fluid_initial(pressure_divergence_cuda_->cuda_linear_memory_, size_WHD, pressure_divergence_cuda_->pitch_, pitch_slice, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
+		cuda_fluid_initial(water_continuity_cuda_->cuda_linear_memory_, size_WHD, water_continuity_cuda_->pitch_, pitch_slice, 0.f);
+		getLastCudaError("cuda_fluid_initial failed");
 		is_done_once_ = true;
 	}
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);
+	cuda_fluid_advect_two_texture(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);
 	getLastCudaError("cuda_fluid_advect failed");
 	divergence_index = 1;
+
+	/*
+	advect_index.x = advect_index.y = advect_index.z = advect_index.w =  5.f;
+	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
+	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, advect_index);
+	getLastCudaError("cuda_fluid_advect failed");
+
+	advect_index.x = advect_index.y = advect_index.z = advect_index.w =  5.f;
+	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
+	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, advect_index);
+	getLastCudaError("cuda_fluid_advect failed");
+	
+
+	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
+	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, advect_index);
+	getLastCudaError("cuda_fluid_advect failed");
+	*/
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_forces(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);

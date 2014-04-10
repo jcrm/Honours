@@ -12,7 +12,7 @@ __global__ void cuda_kernel_initial(unsigned char *input, float3 size_WHD, size_
 	for(z_iter = 0; z_iter < size_WHD.z; ++z_iter){ 
 		//location is z slide + y position + variable size time x position
 		unsigned char *cell_value = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
-		cell_value[0] = signed int(10);
+		cell_value[0] = signed int(value);
 		cell_value[1] = signed int(0);
 		cell_value[2] = signed int(0);
 		cell_value[3] = signed int(0);

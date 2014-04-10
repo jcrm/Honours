@@ -31,7 +31,8 @@
     <None Include="Shader\Volume\volume.vs" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CUDA\advect.cu" />
+    <CudaCompile Include="CUDA\advect_one.cu" />
+    <CudaCompile Include="CUDA\advect_two.cu" />
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\inital.cu" />
