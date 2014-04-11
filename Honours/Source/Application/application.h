@@ -24,29 +24,32 @@ const float SCREEN_NEAR = 0.1f;
 #include <rendercheck_d3d11.h>
 #include <helper_cuda.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
-#include "Managers/input.h"
-#include "Managers/camera.h"
-#include "Managers/position.h"
-#include "Managers/light.h"
-#include "Managers/ortho_window.h"
-#include "DirectX/d3dclass.h"
-#include "DirectX/cuda_d3d.h"
-#include "Objects/terrain.h"
-#include "Objects/cloud_box.h"
-#include "Text/timerclass.h"
-#include "Text/fpsclass.h"
-#include "Text/cpuclass.h"
-#include "Text/textclass.h"
-#include "Shaders/fontshaderclass.h"
-#include "Shaders/terrain_shader.h"
-#include "Shaders/texture_shader.h"
-#include "Shaders/texture_to_texture_shader.h"
-#include "Shaders/shader.h"
-#include "Shaders/volume_shader.h"
-#include "Shaders/face_shader.h"
-#include "Textures/render_texture.h"
-#include "CUDA/cuda_structs.h"
-#include "CUDA/cuda_kernals.h"
+#include "../Managers/input.h"
+#include "../Managers/camera.h"
+#include "../Managers/position.h"
+#include "../Managers/light.h"
+#include "../Managers/ortho_window.h"
+#include "../DirectX/d3dclass.h"
+#include "../DirectX/cuda_d3d.h"
+#include "../Objects/terrain.h"
+#include "../Objects/cloud_box.h"
+#include "../Objects/particlesystemclass.h"
+#include "../Text/timerclass.h"
+#include "../Text/fpsclass.h"
+#include "../Text/cpuclass.h"
+#include "../Text/textclass.h"
+#include "../Shaders/particleshaderclass.h"
+#include "../Shaders/fontshaderclass.h"
+#include "../Shaders/terrain_shader.h"
+#include "../Shaders/texture_shader.h"
+#include "../Shaders/texture_to_texture_shader.h"
+#include "../Shaders/shader.h"
+#include "../Shaders/volume_shader.h"
+#include "../Shaders/face_shader.h"
+#include "../Shaders/mergetextureshader.h"
+#include "../Textures/render_texture.h"
+#include "../CUDA/cuda_structs.h"
+#include "../CUDA/cuda_kernals.h"
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,6 +67,8 @@ private:
 	//Render Functions
 	bool Render();
 	bool RenderSceneToTexture(RenderTextureClass* write_texture);
+	bool RenderMergeTexture(RenderTextureClass *readTexture, RenderTextureClass *readTexture2, RenderTextureClass *writeTexture);
+	bool RenderParticlesToTexture(RenderTextureClass* write_texture);
 	bool RenderTexture(ShaderClass *shader, RenderTextureClass *read_texture, RenderTextureClass *write_texture, OrthoWindowClass *window);
 	bool Render2DTextureScene(RenderTextureClass* read_texture);
 	//Init functions
@@ -102,8 +107,9 @@ private:
 	//the points for the different objects
 	TerrainClass* terrain_object_;
 	CloudClass* cloud_object_;
+	ParticleSystemClass* particle_system_;
 	//textures to render to
-	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *down_sample_halfsize_texture_, *halfsize_texture_;
+	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *merge_texture_, *particle_texture_;
 	//the different shaders used
 	TextureShaderClass* texture_shader_;
 	TextureToTextureShaderClass* texture_to_texture_shader_;
@@ -111,6 +117,8 @@ private:
 	TerrainShaderClass* terrain_shader_;
 	VolumeShader* volume_shader_;
 	FaceShader* face_shader_;
+	ParticleShaderClass* particle_shader_;
+	MergeTextureShaderClass* merge_shader_;
 	//cuda textures
 	fluid_texture *velocity_cuda_;
 	fluid_texture *velocity_derivative_cuda_;

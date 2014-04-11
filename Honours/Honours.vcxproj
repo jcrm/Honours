@@ -17,10 +17,15 @@
     <None Include="Data\fontdata.txt" />
     <None Include="Data\ground.dds" />
     <None Include="Data\heightmap01.bmp" />
+    <None Include="Data\star.dds" />
     <None Include="Shader\Face\face.ps" />
     <None Include="Shader\Face\face.vs" />
     <None Include="Shader\Font\font.ps" />
     <None Include="Shader\Font\font.vs" />
+    <None Include="Shader\Merge\merge.ps" />
+    <None Include="Shader\Merge\merge.vs" />
+    <None Include="Shader\Particle\particle.ps" />
+    <None Include="Shader\Particle\particle.vs" />
     <None Include="Shader\Terrain\terrain.ps" />
     <None Include="Shader\Terrain\terrain.vs" />
     <None Include="Shader\TextureToTexture\texturetotexture.ps" />
@@ -41,7 +46,7 @@
     <CudaCompile Include="CUDA\water_continuity.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\application.h" />
+    <ClInclude Include="Source\Application\application.h" />
     <ClInclude Include="Source\CUDA\cuda_kernals.h" />
     <ClInclude Include="Source\CUDA\cuda_structs.h" />
     <ClInclude Include="Source\DirectX\cuda_d3d.h" />
@@ -53,9 +58,12 @@
     <ClInclude Include="Source\Managers\position.h" />
     <ClInclude Include="Source\Managers\systemclass.h" />
     <ClInclude Include="Source\Objects\cloud_box.h" />
+    <ClInclude Include="Source\Objects\particlesystemclass.h" />
     <ClInclude Include="Source\Objects\terrain.h" />
     <ClInclude Include="Source\Shaders\fontshaderclass.h" />
     <ClInclude Include="Source\Shaders\face_shader.h" />
+    <ClInclude Include="Source\Shaders\mergetextureshader.h" />
+    <ClInclude Include="Source\Shaders\particleshaderclass.h" />
     <ClInclude Include="Source\Shaders\shader.h" />
     <ClInclude Include="Source\Shaders\terrain_shader.h" />
     <ClInclude Include="Source\Shaders\texture_shader.h" />
@@ -70,10 +78,10 @@
     <ClInclude Include="Source\Text\timerclass.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\application.cpp" />
+    <ClCompile Include="Source\Application\application.cpp" />
+    <ClCompile Include="Source\Application\main.cpp" />
     <ClCompile Include="Source\DirectX\cuda_d3d.cpp" />
     <ClCompile Include="Source\DirectX\d3dclass.cpp" />
-    <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Managers\camera.cpp" />
     <ClCompile Include="Source\Managers\input.cpp" />
     <ClCompile Include="Source\Managers\light.cpp" />
@@ -81,9 +89,12 @@
     <ClCompile Include="Source\Managers\position.cpp" />
     <ClCompile Include="Source\Managers\systemclass.cpp" />
     <ClCompile Include="Source\Objects\cloud_box.cpp" />
+    <ClCompile Include="Source\Objects\particlesystemclass.cpp" />
     <ClCompile Include="Source\Objects\terrain.cpp" />
     <ClCompile Include="Source\Shaders\fontshaderclass.cpp" />
     <ClCompile Include="Source\Shaders\face_shader.cpp" />
+    <ClCompile Include="Source\Shaders\mergetextureshader.cpp" />
+    <ClCompile Include="Source\Shaders\particleshaderclass.cpp" />
     <ClCompile Include="Source\Shaders\shader.cpp" />
     <ClCompile Include="Source\Shaders\terrain_shader.cpp" />
     <ClCompile Include="Source\Shaders\texture_shader.cpp" />

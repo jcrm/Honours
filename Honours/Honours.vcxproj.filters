@@ -58,9 +58,6 @@
     <Filter Include="Source Files\DirectX Files">
       <UniqueIdentifier>{114717e5-14f8-4a51-8148-2685165ae8d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Manager Files">
-      <UniqueIdentifier>{6611ef7a-f986-4ffb-baf6-10afb10a5f68}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shader Files\Font Files">
       <UniqueIdentifier>{890a9dbd-9828-47bf-b8cf-fa3a3614b75a}</UniqueIdentifier>
     </Filter>
@@ -94,6 +91,21 @@
     <Filter Include="Header Files\Shader Files\Object Files">
       <UniqueIdentifier>{4bacd499-b9c0-4074-8abf-2e24cefb2ab0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Application">
+      <UniqueIdentifier>{3ce945cd-acfd-48db-bbec-876471a79753}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Manager Files">
+      <UniqueIdentifier>{6611ef7a-f986-4ffb-baf6-10afb10a5f68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application">
+      <UniqueIdentifier>{5584b015-0c72-4cc0-b85b-512c806e6761}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Particle Files">
+      <UniqueIdentifier>{68a532f2-1766-4d08-bf00-e209e33adcfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shader Files\Merge Files">
+      <UniqueIdentifier>{ad7acef6-2b42-4347-83fe-66cda7bb18ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\ground.dds">
@@ -115,9 +127,6 @@
       <Filter>Resource Files\Other Files</Filter>
     </None>
     <None Include="Shader\Volume\volume.ps">
-      <Filter>Resource Files\Shader Files\Volume Files</Filter>
-    </None>
-    <None Include="Shader\Volume\volume.vs">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>
     <None Include="Shader\Texture\texture.ps">
@@ -149,6 +158,24 @@
     </None>
     <None Include="Shader\TextureToTexture\texturetotexture.ps">
       <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
+    </None>
+    <None Include="Shader\Volume\volume.vs">
+      <Filter>Resource Files\Shader Files\Volume Files</Filter>
+    </None>
+    <None Include="Shader\Particle\particle.vs">
+      <Filter>Resource Files\Shader Files\Particle Files</Filter>
+    </None>
+    <None Include="Shader\Particle\particle.ps">
+      <Filter>Resource Files\Shader Files\Particle Files</Filter>
+    </None>
+    <None Include="Data\star.dds">
+      <Filter>Resource Files\Other Files</Filter>
+    </None>
+    <None Include="Shader\Merge\merge.vs">
+      <Filter>Resource Files\Shader Files\Merge Files</Filter>
+    </None>
+    <None Include="Shader\Merge\merge.ps">
+      <Filter>Resource Files\Shader Files\Merge Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -208,9 +235,6 @@
     <ClInclude Include="Source\Text\timerclass.h">
       <Filter>Header Files\Text Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Textures\texture.h">
       <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
@@ -259,11 +283,20 @@
     <ClInclude Include="Source\Shaders\shader.h">
       <Filter>Header Files\Shader Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Application\application.h">
+      <Filter>Header Files\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Objects\particlesystemclass.h">
+      <Filter>Header Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shaders\particleshaderclass.h">
+      <Filter>Header Files\Shader Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shaders\mergetextureshader.h">
+      <Filter>Header Files\Shader Files\Texture Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\DirectX\d3dclass.cpp">
       <Filter>Source Files\DirectX Files</Filter>
     </ClCompile>
@@ -290,9 +323,6 @@
     </ClCompile>
     <ClCompile Include="Source\Textures\texture.cpp">
       <Filter>Source Files\Texture Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\application.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Textures\render_texture.cpp">
       <Filter>Source Files\Texture Files</Filter>
@@ -338,6 +368,21 @@
     </ClCompile>
     <ClCompile Include="Source\DirectX\cuda_d3d.cpp">
       <Filter>Source Files\DirectX Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\main.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Application\application.cpp">
+      <Filter>Source Files\Application</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Objects\particlesystemclass.cpp">
+      <Filter>Source Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\particleshaderclass.cpp">
+      <Filter>Source Files\Shader Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\mergetextureshader.cpp">
+      <Filter>Source Files\Shader Files\Texture Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

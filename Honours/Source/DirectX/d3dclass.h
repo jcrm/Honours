@@ -44,6 +44,8 @@ public:
 	void ResetViewport();
 	bool CreateRaster();
 	bool CreateBackFaceRaster();
+	void EnableAlphaBlending();
+	void DisableAlphaBlending();
 protected:
 	virtual bool InitDisplayMode(int, int,unsigned int&, unsigned int&);
 	virtual bool InitSwapChain(HWND, int screenWidth, int screenHeight,unsigned int&, unsigned int&, bool fullscreen);
@@ -69,6 +71,8 @@ protected:
 	ID3D11DepthStencilState* m_depthDisabledStencilState;
 	ID3D11BlendState* m_alphaEnableBlendingState;
 	ID3D11BlendState* m_alphaDisableBlendingState;
+	ID3D11BlendState* m_alphaEnableAdditionBlendingState;
+	ID3D11BlendState* m_alphaDisableAdditionBlendingState;
 	D3D11_VIEWPORT m_viewport;
 };
 #endif
