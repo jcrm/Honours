@@ -14,6 +14,7 @@ const float SCREEN_NEAR = 0.1f;
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
+#include <vector>
 #include <windows.h>
 #include <mmsystem.h>
 // This header inclues all the necessary D3D11 and CUDA includes
@@ -107,7 +108,7 @@ private:
 	//the points for the different objects
 	TerrainClass* terrain_object_;
 	CloudClass* cloud_object_;
-	ParticleSystemClass* particle_system_;
+	std::vector<ParticleSystemClass*> rain_systems_;
 	//textures to render to
 	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *merge_texture_, *particle_texture_;
 	//the different shaders used

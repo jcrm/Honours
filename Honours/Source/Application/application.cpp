@@ -4,18 +4,18 @@
 #include "application.h"
 ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
-	cloud_object_(0), particle_system_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0),
-	texture_shader_(0), texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0),
-	face_shader_(0), velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
+	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
+	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
 	water_continuity_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
 	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
 {
 }
 ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
-	cloud_object_(0), particle_system_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0),
-	texture_shader_(0), texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0),
-	face_shader_(0), velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
+	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
+	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
 	water_continuity_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
 	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
 {
@@ -161,8 +161,11 @@ bool ApplicationClass::Frame(){
 			return false;
 		}
 	}
-	// Run the frame processing for the particle system.
-	particle_system_->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
+	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+		// Run the frame processing for the particle system.
+		(*iter)->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
+	}
+	
 	// Render the graphics scene.
 	result = Render();
 	if(!result){
@@ -344,15 +347,23 @@ bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_textur
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 
 	direct_3d_->EnableAlphaBlending();
-	// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	particle_system_->Render(direct_3d_->GetDeviceContext());
+	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+		//add code for rotating based upon the camera angle
 
-	// Render the model using the texture shader.
-	result = particle_shader_->Render(direct_3d_->GetDeviceContext(), particle_system_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, 
-					  particle_system_->GetTexture());
-	if(!result){
-		return false;
+
+		D3DXMATRIX modelWorldMatrix = world_matrix;
+		D3DXMATRIX translation = (*iter)->GetTranslation();
+		D3DXMatrixMultiply(&modelWorldMatrix,&modelWorldMatrix,&translation);
+		// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		(*iter)->Render(direct_3d_->GetDeviceContext());
+		// Render the model using the texture shader.
+		result = particle_shader_->Render(direct_3d_->GetDeviceContext(), (*iter)->GetIndexCount(), modelWorldMatrix, view_matrix, projection_matrix, 
+						  (*iter)->GetTexture());
+		if(!result){
+			return false;
+		}
 	}
+	
 	// Turn off alpha blending after rendering the text.
 	direct_3d_->DisableAlphaBlending();
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
@@ -560,16 +571,16 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
 		return false;
 	}
-	// Create the particle system object.
-	particle_system_ = new ParticleSystemClass;
-	if(!particle_system_){
-		return false;
+	for(int i = 0; i < 5; i++){
+		ParticleSystemClass* temp_system = new ParticleSystemClass;
+		// Initialize the particle system object.
+		result = temp_system->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
+		if(!result){
+			return false;
+		}
+		rain_systems_.push_back(temp_system);
 	}
-	// Initialize the particle system object.
-	result = particle_system_->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
-	if(!result){
-		return false;
-	}
+
 	return true;
 }
 bool ApplicationClass::InitTextures(HWND hwnd, int screen_width, int screen_height){
@@ -1006,12 +1017,10 @@ void ApplicationClass::ShutdownObjects(){
 		delete terrain_object_;
 		terrain_object_ = 0;
 	}
-	// Release the particle system object.
-	if(particle_system_){
-		particle_system_->Shutdown();
-		delete particle_system_;
-		particle_system_ = 0;
+	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+		(*iter)->Shutdown();
 	}
+	rain_systems_.clear();
 }
 void ApplicationClass::ShutdownTextures(){
 	// Release the up sample render to texture object.

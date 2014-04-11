@@ -11,6 +11,7 @@ ParticleSystemClass::ParticleSystemClass()
 	m_vertices = 0;
 	m_vertexBuffer = 0;
 	m_indexBuffer = 0;
+	D3DXMatrixTranslation(&translation_, float(rand()%129), float(rand()%10), float(rand()%129));
 }
 
 
@@ -158,8 +159,8 @@ bool ParticleSystemClass::InitializeParticleSystem()
 
 
 	// Set the random deviation of where the particles can be located when emitted.
-	m_particleDeviationX = 0.5f;
-	m_particleDeviationY = 0.1f;
+	m_particleDeviationX = 1.5f;
+	m_particleDeviationY = 1.1f;
 	m_particleDeviationZ = 2.0f;
 
 	// Set the speed and speed variation of particles.
@@ -429,7 +430,7 @@ void ParticleSystemClass::KillParticles()
 		{
 			m_particleList[i].active = false;
 			m_currentParticleCount--;
-
+			kill_count_++;
 			// Now shift all the live particles back up the array to erase the destroyed particle and keep the array sorted correctly.
 			for(j=i; j<m_maxParticles-1; j++)
 			{

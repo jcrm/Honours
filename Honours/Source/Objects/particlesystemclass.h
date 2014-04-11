@@ -51,7 +51,10 @@ public:
 
 	ID3D11ShaderResourceView* GetTexture();
 	int GetIndexCount();
-
+	inline int GetKillCount(){return kill_count_;}
+	inline D3DXMATRIX GetTranslation() {return translation_;}
+	inline void RandomizeTranslation() {D3DXMatrixTranslation(&translation_, float(rand()%129), float(rand()%10), float(rand()%129));}
+	inline void SetKillCount(int count){kill_count_ = count;}
 private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
@@ -84,6 +87,9 @@ private:
 	int m_vertexCount, m_indexCount;
 	VertexType* m_vertices;
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
+	int kill_count_;
+	//where the model is in 3d space
+	D3DXMATRIX translation_;
 };
 
 #endif
