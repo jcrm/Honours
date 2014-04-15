@@ -6,6 +6,8 @@
 #include <math.h>
 CloudClass::CloudClass(): m_vertexBuffer(0), m_indexBuffer(0)
 {
+	// Rotate the world matrix by the rotation value so that the cube will spin.
+	D3DXMatrixRotationZ(&transform_, 1.57f);
 }
 CloudClass::CloudClass(const CloudClass& other): m_vertexBuffer(0), m_indexBuffer(0)
 {
@@ -210,7 +212,7 @@ bool CloudClass::InitializeBuffers(ID3D11Device* device){
 	vertices[index].position = D3DXVECTOR3(0.f, 0.f, size);
 	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 1.f);
 	indices[index] = index++;
-	//Bottom -//1
+	//Top -//1
 	vertices[index].position = D3DXVECTOR3(0.f, size, 0.f);
 	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 0.f);
 	indices[index] = index++;

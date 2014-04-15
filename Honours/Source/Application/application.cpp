@@ -255,7 +255,7 @@ bool ApplicationClass::Render(){
 *	Renders the objects on screen to a texture ready for post-processing.
 */
 bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
-	D3DXMATRIX world_matrix, model_world_matrix, view_matrix, projection_matrix;
+	D3DXMATRIX world_matrix, view_matrix, projection_matrix;
 	bool result;
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
@@ -277,8 +277,12 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	}
 	// Turn on the alpha blending before rendering the text.
 	direct_3d_->TurnOnAlphaBlending();
+	D3DXMATRIX modelWorldMatrix = world_matrix;
+	D3DXMATRIX translation = cloud_object_->GetTranslation();
+	D3DXMatrixMultiply(&modelWorldMatrix,&modelWorldMatrix,&translation);
+
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
-	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), terrain_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, 
+	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, 
 		cloud_object_->GetFrontShaderResource(), cloud_object_->GetBackShaderResource(), velocity_cuda_->sr_view_,cloud_object_->GetScale());
 	if(!result){
 		return false;

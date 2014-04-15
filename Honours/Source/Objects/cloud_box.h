@@ -37,6 +37,7 @@ public:
 	inline ID3D11ShaderResourceView* GetFrontShaderResource(){return m_FrontTexture->GetShaderResourceView();}
 	inline ID3D11ShaderResourceView* GetBackShaderResource(){return m_BackTexture->GetShaderResourceView();}
 	inline float GetScale(){return 1/size;}
+	inline D3DXMATRIX GetTranslation() {return transform_;}
 private:
 	//buffer functions
 	bool InitializeBuffers(ID3D11Device*);
@@ -48,6 +49,7 @@ private:
 	int m_vertexCount, m_indexCount;
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
 	RenderTextureClass* m_FrontTexture, *m_BackTexture;
+	D3DXMATRIX transform_;
 	float size;
 };
 #endif
