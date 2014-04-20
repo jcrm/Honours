@@ -29,7 +29,7 @@ __global__ void cuda_kernel_water(unsigned char *input, float3 size_WHD, size_t 
 		if(x_iter +1 < size_WHD.x && x_iter - 1 > 0){
 			if(y_iter + 1 < size_WHD.y && y_iter - 1 > 0){
 				if(z_iter + 1 < size_WHD.z && z_iter - 1 > 0){
-
+					/*
 % Height range (m)
 z=[1000 10000];
 % Initial conditions
@@ -68,7 +68,7 @@ function es=es(T)
 % Saturation vapor pressure (Pa)
 % es=es(T)
 % T in Kelvin
-es=es0*exp(a*(T-273)./(T-b));
+es=es0*exp(a*(T-273)./(T-b));*/
 				}
 			}
 		}
