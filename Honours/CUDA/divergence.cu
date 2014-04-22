@@ -29,13 +29,13 @@ __global__ void cuda_kernel_divergence(unsigned char* output, unsigned char* inp
 	}
 }
 extern "C"
-void cuda_fluid_divergence(void *divergence, void *velocityInput, float3 size_WHD, size_t pitch, size_t pitch_slice, int divergence_index){
+void cuda_fluid_divergence(void *divergence, void *input, float3 size_WHD, size_t pitch, size_t pitch_slice, int divergence_index){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-	cuda_kernel_divergence<<<Dg,Db>>>((unsigned char *)divergence, (unsigned char *)velocityInput,size_WHD, pitch, pitch_slice, divergence_index);
+	cuda_kernel_divergence<<<Dg,Db>>>((unsigned char *)divergence, (unsigned char *)input,size_WHD, pitch, pitch_slice, divergence_index);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

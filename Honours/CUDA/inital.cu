@@ -29,13 +29,13 @@ __global__ void cuda_kernel_initial(unsigned char *input, float3 size_WHD, size_
 	}
 }
 extern "C"
-void cuda_fluid_initial(void *velocityinput, float3 size_WHD, size_t pitch, size_t pitch_slice, float value){
+void cuda_fluid_initial(void *velocity_input, float3 size_WHD, size_t pitch, size_t pitch_slice, float value){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-	cuda_kernel_initial<<<Dg,Db>>>((unsigned char *)velocityinput, size_WHD, pitch, pitch_slice, value);
+	cuda_kernel_initial<<<Dg,Db>>>((unsigned char *)velocity_input, size_WHD, pitch, pitch_slice, value);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

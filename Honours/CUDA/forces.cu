@@ -52,13 +52,13 @@ __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, 
 }
 
 extern "C"
-void cuda_fluid_forces(void *output, void *velocityinput, float3 size_WHD, size_t pitch, size_t pitch_slice){
+void cuda_fluid_forces(void *output, void *input, float3 size_WHD, size_t pitch, size_t pitch_slice){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-	cuda_kernel_forces<<<Dg,Db>>>((unsigned char *)output, (unsigned char *)velocityinput, size_WHD, pitch, pitch_slice);
+	cuda_kernel_forces<<<Dg,Db>>>((unsigned char *)output, (unsigned char *)input, size_WHD, pitch, pitch_slice);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

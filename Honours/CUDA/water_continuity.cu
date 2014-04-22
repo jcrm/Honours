@@ -75,13 +75,13 @@ es=es0*exp(a*(T-273)./(T-b));*/
 	}
 }
 extern "C"
-void cuda_fluid_water(void *pressuredivergence, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){
+void cuda_fluid_water(void *input, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
 
-	cuda_kernel_water<<<Dg,Db>>>((unsigned char *)pressuredivergence,size_WHD, pitch, pitch_slice, pressure_index, divergence_index);
+	cuda_kernel_water<<<Dg,Db>>>((unsigned char *)input,size_WHD, pitch, pitch_slice, pressure_index, divergence_index);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){
