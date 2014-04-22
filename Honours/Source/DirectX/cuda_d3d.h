@@ -8,10 +8,10 @@ public:
 	~CUDAD3D(void);
 	bool Initialize(int, int, bool, HWND, bool, float, float);
 	bool findCUDADevice();
-	bool findDXDevice( char* dev_name );
+	bool findDXDevice(char*);
 protected:
-	bool InitDisplayMode(int, int,unsigned int&, unsigned int&);
-	bool InitSwapChain(HWND, int screenWidth, int screenHeight,unsigned int&, unsigned int&, bool fullscreen);
+	bool InitDisplayMode(int, int, unsigned int&, unsigned int&);
+	bool InitSwapChain(HWND, int, int,unsigned int&, unsigned int&, bool);
 private:
-	IDXGIAdapter *g_pCudaCapableAdapter;  // Adapter to use
+	IDXGIAdapter *cuda_capable_adapter_;  // Adapter to use
 };

@@ -14,13 +14,13 @@ SystemClass::~SystemClass()
 }
 bool SystemClass::Initialize()
 {
-	int screenWidth, screenHeight;
+	int screen_width, screen_height;
 	bool result;
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
-	screenWidth = 0;
-	screenHeight = 0;
+	screen_width = 0;
+	screen_height = 0;
 	// Initialize the windows api.
-	InitializeWindows(screenWidth, screenHeight);
+	InitializeWindows(screen_width, screen_height);
 	// Create the application wrapper object.
 	m_Application = new ApplicationClass;
 	if(!m_Application)
@@ -28,7 +28,7 @@ bool SystemClass::Initialize()
 		return false;
 	}
 	// Initialize the application wrapper object.
-	result = m_Application->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight);
+	result = m_Application->Initialize(m_hinstance, m_hwnd, screen_width, screen_height);
 	if(!result)
 	{
 		return false;
@@ -98,7 +98,7 @@ LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam
 {
 	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
-void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
+void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
 {
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
@@ -126,16 +126,16 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	// Register the window class.
 	RegisterClassEx(&wc);
 	// Determine the resolution of the clients desktop screen.
-	screenWidth  = GetSystemMetrics(SM_CXSCREEN);
-	screenHeight = GetSystemMetrics(SM_CYSCREEN);
+	screen_width  = GetSystemMetrics(SM_CXSCREEN);
+	screen_height = GetSystemMetrics(SM_CYSCREEN);
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
 	if(FULL_SCREEN)
 	{
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth  = (unsigned long)screenWidth;
-		dmScreenSettings.dmPelsHeight = (unsigned long)screenHeight;
+		dmScreenSettings.dmPelsWidth  = (unsigned long)screen_width;
+		dmScreenSettings.dmPelsHeight = (unsigned long)screen_height;
 		dmScreenSettings.dmBitsPerPel = 32;			
 		dmScreenSettings.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		// Change the display settings to full screen.
@@ -146,16 +146,16 @@ void SystemClass::InitializeWindows(int& screenWidth, int& screenHeight)
 	else
 	{
 		// If windowed then set it to 800x600 resolution.
-		screenWidth  = 800;
-		screenHeight = 600;
+		screen_width  = 800;
+		screen_height = 600;
 		// Place the window in the middle of the screen.
-		posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth)  / 2;
-		posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
+		posX = (GetSystemMetrics(SM_CXSCREEN) - screen_width)  / 2;
+		posY = (GetSystemMetrics(SM_CYSCREEN) - screen_height) / 2;
 	}
 	// Create the window with the screen settings and get the handle to it.
 	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName, 
 						    WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-						    posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+						    posX, posY, screen_width, screen_height, NULL, NULL, m_hinstance, NULL);
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(m_hwnd, SW_SHOW);
 	SetForegroundWindow(m_hwnd);

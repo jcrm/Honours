@@ -11,11 +11,11 @@ InputClass::InputClass(const InputClass& other){
 }
 InputClass::~InputClass(){
 }
-bool InputClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight){
+bool InputClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height){
 	HRESULT result;
 	// Store the screen size which will be used for positioning the mouse cursor.
-	m_screenWidth = screenWidth;
-	m_screenHeight = screenHeight;
+	m_screen_width = screen_width;
+	m_screen_height = screen_height;
 	// Initialize the location of the mouse on the screen.
 	m_mouseX = 0;
 	m_mouseY = 0;
@@ -143,11 +143,11 @@ void InputClass::ProcessInput(){
 	if(m_mouseY < 0){
 		m_mouseY = 0;
 	}
-	if(m_mouseX > m_screenWidth){
-		m_mouseX = m_screenWidth;
+	if(m_mouseX > m_screen_width){
+		m_mouseX = m_screen_width;
 	}
-	if(m_mouseY > m_screenHeight){
-		m_mouseY = m_screenHeight;
+	if(m_mouseY > m_screen_height){
+		m_mouseY = m_screen_height;
 	}
 	return;
 }

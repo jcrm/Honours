@@ -8,7 +8,7 @@
 /////////////
 cbuffer MatrixBuffer
 {
-	matrix projectionMatrix;
+	matrix projection_matrix;
 };
 
 

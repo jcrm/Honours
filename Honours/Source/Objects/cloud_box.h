@@ -26,7 +26,7 @@ public:
 	CloudClass();
 	CloudClass(const CloudClass&);
 	~CloudClass();
-	bool Initialize(ID3D11Device* device, int screenWidth, int screenHeight, float SCREEN_DEPTH, float SCREEN_NEAR);
+	bool Initialize(ID3D11Device* device, int screen_width, int screen_height, float SCREEN_DEPTH, float SCREEN_NEAR);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 	//getters

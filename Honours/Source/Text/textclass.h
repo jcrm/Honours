@@ -43,7 +43,7 @@ private:
 	void ReleaseSentence(SentenceType**);
 	bool RenderSentence(SentenceType*, ID3D11DeviceContext*, FontShaderClass*, D3DXMATRIX, D3DXMATRIX);
 private:
-	int m_screenWidth, m_screenHeight;
+	int m_screen_width, m_screen_height;
 	D3DXMATRIX m_baseViewMatrix;
 	FontClass* m_Font;
 	SentenceType *m_sentence1, *m_sentence2, *m_sentence3, *m_sentence4, *m_sentence5;

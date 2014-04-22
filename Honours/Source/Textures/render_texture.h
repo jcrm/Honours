@@ -29,12 +29,12 @@ public:
 private:
 	int m_textureWidth, m_textureHeight;
 	ID3D11Texture2D* m_renderTargetTexture;
-	ID3D11RenderTargetView* m_renderTargetView;
+	ID3D11RenderTargetView* render_target_view_;
 	ID3D11ShaderResourceView* m_shaderResourceView;
-	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11DepthStencilView* m_depthStencilView;
-	D3D11_VIEWPORT m_viewport;
-	D3DXMATRIX m_projectionMatrix;
-	D3DXMATRIX m_orthoMatrix;
+	ID3D11Texture2D* depth_stencil_buffer_;
+	ID3D11DepthStencilView* depth_stencil_view_;
+	D3D11_VIEWPORT viewport_;
+	D3DXMATRIX projection_matrix_;
+	D3DXMATRIX ortho_matrix_;
 };
 #endif

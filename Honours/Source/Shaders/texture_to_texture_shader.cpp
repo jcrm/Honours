@@ -17,10 +17,10 @@ bool TextureToTextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(device_context, projectionMatrix, texture);
+	result = SetShaderParameters(device_context, projection_matrix, texture);
 	if(!result){
 		return false;
 	}
@@ -151,10 +151,10 @@ void TextureToTextureShaderClass::RenderShader(ID3D11DeviceContext* device_conte
 	device_context->DrawIndexed(indexCount, 0, 0);
 	return;
 }
-bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight, float screenWidth){
+bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, float screen_height, float screen_width){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(device_context, projectionMatrix, texture, screenHeight, screenWidth);
+	result = SetShaderParameters(device_context, projection_matrix, texture, screen_height, screen_width);
 	if(!result){
 		return false;
 	}
@@ -162,12 +162,12 @@ bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, in
 	RenderShader(device_context, indexCount);
 	return true;
 }
-bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture){
+bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType2* dataPtr;
 	unsigned int bufferNumber;
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 	// Lock the constant buffer so it can be written to.
 	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
@@ -176,7 +176,7 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType2*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->projection = projectionMatrix;
+	dataPtr->projection = projection_matrix;
 	// Unlock the constant buffer.
 	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
@@ -187,12 +187,12 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	device_context->PSSetShaderResources(0, 1, &texture);
 	return true;
 }
-bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, float screenHeight, float screenWidth){
+bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, float screen_height, float screen_width){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType2* dataPtr;
 	unsigned int bufferNumber;
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 	// Lock the constant buffer so it can be written to.
 	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
@@ -201,7 +201,7 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType2*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->projection = projectionMatrix;
+	dataPtr->projection = projection_matrix;
 	// Unlock the constant buffer.
 	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.

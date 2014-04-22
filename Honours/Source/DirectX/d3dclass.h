@@ -30,8 +30,8 @@ public:
 	
 	void BeginScene(float, float, float, float);
 	void EndScene();
-	inline ID3D11Device* GetDevice(){return m_device;}
-	inline ID3D11DeviceContext* GetDeviceContext(){return m_deviceContext;}
+	inline ID3D11Device* GetDevice(){return device_;}
+	inline ID3D11DeviceContext* GetDeviceContext(){return device_context_;}
 	void GetProjectionMatrix(D3DXMATRIX&);
 	void GetWorldMatrix(D3DXMATRIX&);
 	void GetOrthoMatrix(D3DXMATRIX&);
@@ -48,31 +48,31 @@ public:
 	void DisableAlphaBlending();
 protected:
 	virtual bool InitDisplayMode(int, int,unsigned int&, unsigned int&);
-	virtual bool InitSwapChain(HWND, int screenWidth, int screenHeight,unsigned int&, unsigned int&, bool fullscreen);
-	bool InitDepthBuffer(int screenWidth, int screenHeight);
+	virtual bool InitSwapChain(HWND, int, int, unsigned int&, unsigned int&, bool);
+	bool InitDepthBuffer(int, int);
 	bool InitDepthStencil();
 	bool InitDepthDisableStencil();
 	bool InitBlendState();
 protected:
-	bool m_vsync_enabled;
-	int m_videoCardMemory;
-	char m_videoCardDescription[128];
-	IDXGISwapChain* m_swapChain;
-	ID3D11Device* m_device;
-	ID3D11DeviceContext* m_deviceContext;
-	ID3D11RenderTargetView* m_renderTargetView;
-	ID3D11Texture2D* m_depthStencilBuffer;
-	ID3D11DepthStencilState* m_depthStencilState;
-	ID3D11DepthStencilView* m_depthStencilView;
-	ID3D11RasterizerState* m_rasterState;
-	D3DXMATRIX m_projectionMatrix;
-	D3DXMATRIX m_worldMatrix;
-	D3DXMATRIX m_orthoMatrix;
-	ID3D11DepthStencilState* m_depthDisabledStencilState;
-	ID3D11BlendState* m_alphaEnableBlendingState;
-	ID3D11BlendState* m_alphaDisableBlendingState;
-	ID3D11BlendState* m_alphaEnableAdditionBlendingState;
-	ID3D11BlendState* m_alphaDisableAdditionBlendingState;
-	D3D11_VIEWPORT m_viewport;
+	bool vsync_enabled_;
+	int video_card_memory_;
+	char video_card_description_[128];
+	IDXGISwapChain* swap_chain_;
+	ID3D11Device* device_;
+	ID3D11DeviceContext* device_context_;
+	ID3D11RenderTargetView* render_target_view_;
+	ID3D11Texture2D* depth_stencil_buffer_;
+	ID3D11DepthStencilState* depth_stencil_state_;
+	ID3D11DepthStencilView* depth_stencil_view_;
+	ID3D11RasterizerState* raster_state_;
+	D3DXMATRIX projection_matrix_;
+	D3DXMATRIX world_matrix_;
+	D3DXMATRIX ortho_matrix_;
+	ID3D11DepthStencilState* depth_disabled_stencil_state_;
+	ID3D11BlendState* alpha_enable_blending_state_;
+	ID3D11BlendState* alpha_disable_blending_state_;
+	ID3D11BlendState* alpha_enable_additional_blending_state_;
+	ID3D11BlendState* alpha_disable_additional_blending_state_;
+	D3D11_VIEWPORT viewport_;
 };
 #endif

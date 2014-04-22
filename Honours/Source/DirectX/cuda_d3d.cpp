@@ -7,222 +7,201 @@
 // includes, project
 #include <helper_functions.h>
 #define NAME_LEN	512
-CUDAD3D::CUDAD3D(void):D3DClass(), g_pCudaCapableAdapter(0){
-	m_swapChain = 0;
-	m_device = 0;
-	m_deviceContext = 0;
-	m_renderTargetView = 0;
-	m_depthStencilBuffer = 0;
-	m_depthStencilState = 0;
-	m_depthStencilView = 0;
-	m_rasterState = 0;
-	m_depthDisabledStencilState = 0;
-	m_alphaEnableBlendingState = 0;
-	m_alphaDisableBlendingState = 0;
+CUDAD3D::CUDAD3D(void):D3DClass(), cuda_capable_adapter_(0)
+{
 }
-CUDAD3D::CUDAD3D(const D3DClass& other):D3DClass(other){
-	m_swapChain = 0;
-	m_device = 0;
-	m_deviceContext = 0;
-	m_renderTargetView = 0;
-	m_depthStencilBuffer = 0;
-	m_depthStencilState = 0;
-	m_depthStencilView = 0;
-	m_rasterState = 0;
-	m_depthDisabledStencilState = 0;
-	m_alphaEnableBlendingState = 0;
-	m_alphaDisableBlendingState = 0;
+CUDAD3D::CUDAD3D(const D3DClass& other):D3DClass(other), cuda_capable_adapter_(0)
+{
 }
 CUDAD3D::~CUDAD3D(void){
 }
-bool CUDAD3D::InitDisplayMode(int screenWidth, int screenHeight, unsigned int &numerator, unsigned int &denominator){
+bool CUDAD3D::InitDisplayMode(int screen_width, int screen_height, unsigned int &numerator, unsigned int &denominator){
 	HRESULT result;
-	IDXGIOutput* adapterOutput;
-	unsigned int numModes;
-	DXGI_MODE_DESC* displayModeList;
+	IDXGIOutput* adapter_output;
+	unsigned int num_modes;
+	DXGI_MODE_DESC* display_mode_list;
 	// Enumerate the primary adapter output (monitor).
-	result = g_pCudaCapableAdapter->EnumOutputs(0, &adapterOutput);
+	result = cuda_capable_adapter_->EnumOutputs(0, &adapter_output);
 	if(FAILED(result)){
 		return false;
 	}
 	// Get the number of modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, NULL);
+	result = adapter_output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &num_modes, NULL);
 	if(FAILED(result)){
 		return false;
 	}
 	// Create a list to hold all the possible display modes for this monitor/video card combination.
-	displayModeList = new DXGI_MODE_DESC[numModes];
-	if(!displayModeList){
+	display_mode_list = new DXGI_MODE_DESC[num_modes];
+	if(!display_mode_list){
 		return false;
 	}
 	// Now fill the display mode list structures.
-	result = adapterOutput->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &numModes, displayModeList);
+	result = adapter_output->GetDisplayModeList(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_INTERLACED, &num_modes, display_mode_list);
 	if(FAILED(result)){
 		return false;
 	}
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for(int i=0; i<(int)numModes; i++){
-		if(displayModeList[i].Width == (unsigned int)screenWidth){
-			if(displayModeList[i].Height == (unsigned int)screenHeight){
-				numerator = displayModeList[i].RefreshRate.Numerator;
-				denominator = displayModeList[i].RefreshRate.Denominator;
+	for(int i=0; i<(int)num_modes; i++){
+		if(display_mode_list[i].Width == (unsigned int)screen_width){
+			if(display_mode_list[i].Height == (unsigned int)screen_height){
+				numerator = display_mode_list[i].RefreshRate.Numerator;
+				denominator = display_mode_list[i].RefreshRate.Denominator;
 			}
 		}
 	}
 	// Release the display mode list.
-	delete [] displayModeList;
-	displayModeList = 0;
+	delete [] display_mode_list;
+	display_mode_list = 0;
 	// Release the adapter output.
-	adapterOutput->Release();
-	adapterOutput = 0;
+	adapter_output->Release();
+	adapter_output = 0;
 	return true;
 }
-bool CUDAD3D::InitSwapChain(HWND hwnd, int screenWidth, int screenHeight, unsigned int& numerator, unsigned int& denominator, bool fullscreen){
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+bool CUDAD3D::InitSwapChain(HWND hwnd, int screen_width, int screen_height, unsigned int& numerator, unsigned int& denominator, bool fullscreen){
+	DXGI_SWAP_CHAIN_DESC swap_chain_desc;
 	HRESULT result;
 	// Initialize the swap chain description.
-	ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+	ZeroMemory(&swap_chain_desc, sizeof(swap_chain_desc));
 	// Set to a single back buffer.
-	swapChainDesc.BufferCount = 1;
+	swap_chain_desc.BufferCount = 1;
 	// Set the width and height of the back buffer.
-	swapChainDesc.BufferDesc.Width = screenWidth;
-	swapChainDesc.BufferDesc.Height = screenHeight;
+	swap_chain_desc.BufferDesc.Width = screen_width;
+	swap_chain_desc.BufferDesc.Height = screen_height;
 	// Set regular 32-bit surface for the back buffer.
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	// Set the refresh rate of the back buffer.
-	if(m_vsync_enabled){
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = numerator;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = denominator;
+	if(vsync_enabled_){
+		swap_chain_desc.BufferDesc.RefreshRate.Numerator = numerator;
+		swap_chain_desc.BufferDesc.RefreshRate.Denominator = denominator;
 	}else{
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+		swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
+		swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
 	}
 	// Set the usage of the back buffer.
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	// Set the handle for the window to render to.
-	swapChainDesc.OutputWindow = hwnd;
+	swap_chain_desc.OutputWindow = hwnd;
 	// Turn multisampling off.
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
+	swap_chain_desc.SampleDesc.Count = 1;
+	swap_chain_desc.SampleDesc.Quality = 0;
 	// Set to full screen or windowed mode.
 	if(fullscreen){
-		swapChainDesc.Windowed = false;
+		swap_chain_desc.Windowed = false;
 	}else{
-		swapChainDesc.Windowed = true;
+		swap_chain_desc.Windowed = true;
 	}
 	// Set the scan line ordering and scaling to unspecified.
-	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	swap_chain_desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	// Discard the back buffer contents after presenting.
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	// Don't set the advanced flags.
-	swapChainDesc.Flags = 0;
+	swap_chain_desc.Flags = 0;
 	// Set the feature level to DirectX 11.
-	D3D_FEATURE_LEVEL featureLevel[] =
+	D3D_FEATURE_LEVEL feature_level[] =
 	{
 		D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL_10_1,
 		D3D_FEATURE_LEVEL_10_0
 	};
-	if ( !g_pCudaCapableAdapter ){
+	if ( !cuda_capable_adapter_ ){
 		MessageBox(NULL,L"errorcuda",NULL,NULL);
 		return false;
 	}
-	D3D_FEATURE_LEVEL flRes;
+	D3D_FEATURE_LEVEL feature_level_resource;
 	result = D3D11CreateDeviceAndSwapChain(
-		g_pCudaCapableAdapter,
+		cuda_capable_adapter_,
 		D3D_DRIVER_TYPE_UNKNOWN,
-		NULL, 0, featureLevel,
+		NULL, 0, feature_level,
 		3, D3D11_SDK_VERSION,
-		&swapChainDesc,
-		&m_swapChain, &m_device,
-		&flRes, &m_deviceContext);
+		&swap_chain_desc,
+		&swap_chain_, &device_,
+		&feature_level_resource, &device_context_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Release the adapter.
-	g_pCudaCapableAdapter->Release();
-	g_pCudaCapableAdapter = 0;
+	cuda_capable_adapter_->Release();
+	cuda_capable_adapter_ = 0;
 	return true;
 }
-bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, 
-						 float screenDepth, float screenNear){
+bool CUDAD3D::Initialize(int screen_width, int screen_height, bool vsync, HWND hwnd, bool fullscreen, float screen_depth, float screen_near){
 	HRESULT result;
-	ID3D11Texture2D* backBufferPtr;
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	ID3D11Texture2D* back_buffer_ptr;
+	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
 	unsigned int numerator, denominator;
 	D3D11_VIEWPORT viewport;
-	float fieldOfView, screenAspect;
+	float field_of_view, screen_aspect;
 	char device_name[256];
 	
 	// Store the vsync setting.
-	m_vsync_enabled = vsync;
+	vsync_enabled_ = vsync;
 	if (!findCUDADevice() ){				// Search for CUDA GPU 
 		exit(EXIT_SUCCESS);
 	}
 	if (!findDXDevice(device_name)){		// Search for D3D Hardware Device
 		exit(EXIT_SUCCESS);
 	}
-	if(!InitDisplayMode(screenWidth, screenHeight, numerator, denominator)){
+	if(!InitDisplayMode(screen_width, screen_height, numerator, denominator)){
 		exit(EXIT_SUCCESS);
 	}
-	if(!InitSwapChain(hwnd, screenWidth, screenHeight, numerator, denominator, fullscreen)){
+	if(!InitSwapChain(hwnd, screen_width, screen_height, numerator, denominator, fullscreen)){
 		exit(EXIT_SUCCESS);
 	}
 	// Get the immediate DeviceContext
-	m_device->GetImmediateContext(&m_deviceContext);
+	device_->GetImmediateContext(&device_context_);
 	// Get the pointer to the back buffer.
-	result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
+	result = swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&back_buffer_ptr);
 	if(FAILED(result)){
 		return false;
 	}
 	// Create the render target view with the back buffer pointer.
-	result = m_device->CreateRenderTargetView(backBufferPtr, NULL, &m_renderTargetView);
+	result = device_->CreateRenderTargetView(back_buffer_ptr, NULL, &render_target_view_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Release pointer to the back buffer as we no longer need it.
-	backBufferPtr->Release();
-	backBufferPtr = 0;
-	if(!InitDepthBuffer(screenWidth, screenHeight)){
+	back_buffer_ptr->Release();
+	back_buffer_ptr = 0;
+	if(!InitDepthBuffer(screen_width, screen_height)){
 		exit(EXIT_SUCCESS);
 	}
 	if(!InitDepthStencil()){
 		exit(EXIT_SUCCESS);
 	}
 	// Initialize the depth stencil view.
-	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
+	ZeroMemory(&depth_stencil_view_desc, sizeof(depth_stencil_view_desc));
 	// Set up the depth stencil view description.
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	depth_stencil_view_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depth_stencil_view_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depth_stencil_view_desc.Texture2D.MipSlice = 0;
 	// Create the depth stencil view.
-	result = m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
+	result = device_->CreateDepthStencilView(depth_stencil_buffer_, &depth_stencil_view_desc, &depth_stencil_view_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Bind the render target view and depth stencil buffer to the output render pipeline.
-	m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	device_context_->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
 	CreateRaster();
 	// Setup the viewport for rendering.
-	viewport.Width = (float)screenWidth;
-	viewport.Height = (float)screenHeight;
+	viewport.Width = (float)screen_width;
+	viewport.Height = (float)screen_height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 	// Create the viewport.
-	m_deviceContext->RSSetViewports(1, &viewport);
+	device_context_->RSSetViewports(1, &viewport);
 	// Setup the projection matrix.
-	fieldOfView = (float)D3DX_PI / 4.0f;
-	screenAspect = (float)screenWidth / (float)screenHeight;
+	field_of_view = (float)D3DX_PI / 4.0f;
+	screen_aspect = (float)screen_width / (float)screen_height;
 	// Create the projection matrix for 3D rendering.
-	D3DXMatrixPerspectiveFovLH(&m_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
+	D3DXMatrixPerspectiveFovLH(&projection_matrix_, field_of_view, screen_aspect, screen_near, screen_depth);
 	// Initialize the world matrix to the identity matrix.
-	D3DXMatrixIdentity(&m_worldMatrix);
+	D3DXMatrixIdentity(&world_matrix_);
 	// Create an orthographic projection matrix for 2D rendering.
-	D3DXMatrixOrthoLH(&m_orthoMatrix, (float)screenWidth, (float)screenHeight, screenNear, screenDepth);
+	D3DXMatrixOrthoLH(&ortho_matrix_, (float)screen_width, (float)screen_height, screen_near, screen_depth);
 	if(!InitDepthDisableStencil()){
 		exit(EXIT_SUCCESS);
 	}
@@ -232,17 +211,17 @@ bool CUDAD3D::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwn
 	return true;
 }
 bool CUDAD3D::findCUDADevice(){
-	int nGraphicsGPU = 0;
-	int deviceCount = 0;
-	bool bFoundGraphics = false;
-	char firstGraphicsName[NAME_LEN], devname[NAME_LEN];
+	int num_graphics_GPU = 0;
+	int device_count = 0;
+	bool is_graphics_found = false;
+	char first_graphics_name[NAME_LEN], dev_name[NAME_LEN];
 	// This function call returns 0 if there are no CUDA capable devices.
-	cudaError_t error_id = cudaGetDeviceCount(&deviceCount);
+	cudaError_t error_id = cudaGetDeviceCount(&device_count);
 	if(error_id != cudaSuccess){
 		//printf("cudaGetDeviceCount returned %d\n-> %s\n", (int)error_id, cudaGetErrorString(error_id));
 		exit(EXIT_FAILURE);
 	}
-	if(deviceCount == 0){
+	if(device_count == 0){
 		//printf("> There are no device(s) supporting CUDA\n");
 		return false;
 	}else{
@@ -250,52 +229,52 @@ bool CUDAD3D::findCUDADevice(){
 	}
 	// Get CUDA device properties
 	cudaDeviceProp deviceProp;
-	for (int dev = 0; dev < deviceCount; ++dev){
+	for (int dev = 0; dev < device_count; ++dev){
 		cudaGetDeviceProperties (&deviceProp, dev);
-		STRCPY ( devname, NAME_LEN, deviceProp.name );
+		STRCPY ( dev_name, NAME_LEN, deviceProp.name );
 		//printf("> GPU %d: %s\n", dev, devname );
 	}
 	return true;
 }
 bool CUDAD3D::findDXDevice( char* dev_name ){
 	HRESULT hr = S_OK;
-	cudaError cuStatus;
+	cudaError cuda_status;
 	bool error;
 	// Iterate through the candidate adapters
-	IDXGIFactory *pFactory;
+	IDXGIFactory *factory;
 	// Create a DirectX graphics interface factory.
-	hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&pFactory);
+	hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(hr)){
 		return false;
 	}
 	UINT adapter = 0;
-	for (; !g_pCudaCapableAdapter; ++adapter){
+	for (; !cuda_capable_adapter_; ++adapter){
 		// Get a candidate DXGI adapter
 		IDXGIAdapter *pAdapter = NULL;
-		hr = pFactory->EnumAdapters(adapter, &pAdapter);
+		hr = factory->EnumAdapters(adapter, &pAdapter);
 		if (FAILED(hr)) { break; }		// no compatible adapters found
 		// Query to see if there exists a corresponding compute device
 		int cuDevice;
-		cuStatus = cudaD3D11GetDevice(&cuDevice, pAdapter);
-		if (cudaSuccess == cuStatus){
+		cuda_status = cudaD3D11GetDevice(&cuDevice, pAdapter);
+		if (cudaSuccess == cuda_status){
 			// If so, mark it as the one against which to create our d3d10 device
-			g_pCudaCapableAdapter = pAdapter;
-			g_pCudaCapableAdapter->AddRef();
+			cuda_capable_adapter_ = pAdapter;
+			cuda_capable_adapter_->AddRef();
 		}
 		pAdapter->Release();
 	}
-	pFactory->Release();
-	if(!g_pCudaCapableAdapter){
+	factory->Release();
+	if(!cuda_capable_adapter_){
 		return false;
 	}
-	DXGI_ADAPTER_DESC adapterDesc;
-	g_pCudaCapableAdapter->GetDesc (&adapterDesc);
-	wcstombs (dev_name, adapterDesc.Description, 128);
+	DXGI_ADAPTER_DESC adapter_desc;
+	cuda_capable_adapter_->GetDesc (&adapter_desc);
+	wcstombs (dev_name, adapter_desc.Description, 128);
 	// Store the dedicated video card memory in megabytes.
-	m_videoCardMemory = (int)(adapterDesc.DedicatedVideoMemory / 1024 / 1024);
-	unsigned int stringLength;
+	video_card_memory_ = (int)(adapter_desc.DedicatedVideoMemory / 1024 / 1024);
+	unsigned int string_length;
 	// Convert the name of the video card to a character array and store it.
-	error = wcstombs_s(&stringLength, m_videoCardDescription, 128, adapterDesc.Description, 128);
+	error = wcstombs_s(&string_length, video_card_description_, 128, adapter_desc.Description, 128);
 	if(error){
 		return false;
 	}

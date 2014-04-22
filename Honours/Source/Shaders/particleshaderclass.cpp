@@ -50,13 +50,13 @@ void ParticleShaderClass::Shutdown()
 
 
 bool ParticleShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-								D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+								D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projection_matrix, texture);
 	if(!result)
 	{
 		return false;
@@ -300,7 +300,7 @@ void ParticleShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 
 
 bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-											 D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+											 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -311,7 +311,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 	// Transpose the matrices to prepare them for the shader.
 	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 
 	// Lock the constant buffer so it can be written to.
 	result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -326,7 +326,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 	// Copy the matrices into the constant buffer.
 	dataPtr->world = worldMatrix;
 	dataPtr->view = viewMatrix;
-	dataPtr->projection = projectionMatrix;
+	dataPtr->projection = projection_matrix;
 
 	// Unlock the constant buffer.
     deviceContext->Unmap(m_matrixBuffer, 0);

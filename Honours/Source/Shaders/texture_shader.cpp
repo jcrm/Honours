@@ -20,11 +20,11 @@ bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	return true;
 }
 bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-								D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+								D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projectionMatrix, texture);
+	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projection_matrix, texture);
 	if(!result)
 	{
 		return false;
@@ -159,7 +159,7 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	return true;
 }
 bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
-											 D3DXMATRIX projectionMatrix, ID3D11ShaderResourceView* texture)
+											 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -168,7 +168,7 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	// Transpose the matrices to prepare them for the shader.
 	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
-	D3DXMatrixTranspose(&projectionMatrix, &projectionMatrix);
+	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 	// Lock the constant buffer so it can be written to.
 	result = device_context->Map(matrix_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
@@ -180,7 +180,7 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	// Copy the matrices into the constant buffer.
 	dataPtr->world = worldMatrix;
 	dataPtr->view = viewMatrix;
-	dataPtr->projection = projectionMatrix;
+	dataPtr->projection = projection_matrix;
 	// Unlock the constant buffer.
     device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
