@@ -2,38 +2,30 @@
 // Filename: textureclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "texture.h"
-TextureClass::TextureClass()
-{
+TextureClass::TextureClass(){
 	texture_ = 0;
 }
-TextureClass::TextureClass(const TextureClass& other)
-{
+TextureClass::TextureClass(const TextureClass& other){
 }
-TextureClass::~TextureClass()
-{
+TextureClass::~TextureClass(){
 }
-bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
-{
+bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename){
 	HRESULT result;
 	// Load the texture in.
 	result = D3DX11CreateShaderResourceViewFromFile(device, filename, NULL, NULL, &texture_, NULL);
-	if(FAILED(result))
-	{
+	if(FAILED(result)){
 		return false;
 	}
 	return true;
 }
-void TextureClass::Shutdown()
-{
+void TextureClass::Shutdown(){
 	// Release the texture resource.
-	if(texture_)
-	{
+	if(texture_){
 		texture_->Release();
 		texture_ = 0;
 	}
 	return;
 }
-ID3D11ShaderResourceView* TextureClass::GetTexture()
-{
+ID3D11ShaderResourceView* TextureClass::GetTexture(){
 	return texture_;
 }
