@@ -1,26 +1,26 @@
 struct PixelShaderInput
 {
     float4 position_ : SV_POSITION;
-    float3 texC		: TEXCOORD0;
-    float4 pos		: TEXCOORD1;
+    float3 tex_		: TEXCOORD0;
+    float4 pos_		: TEXCOORD1;
 	float3 step_size_ : TEXCOORD2;
 	int iterations_: TEXCOORD3;
 };
-Texture2D Front;
-Texture2D Back;
-Texture3D Volume;
+Texture2D front_;
+Texture2D back_;
+Texture3D volume_;
 SamplerState sample_type_;
 
 float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 { 
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
-	float2 texC = input.pos.xy /= input.pos.w;
-	texC.x =  0.5f*texC.x + 0.5f; 
-	texC.y = -0.5f*texC.y + 0.5f;  
+	float2 tex = input.pos_.xy /= input.pos_.w;
+	tex.x =  0.5f*tex.x + 0.5f; 
+	tex.y = -0.5f*tex.y + 0.5f;  
 
-	float3 front = Front.Sample(sample_type_, texC);
-	float3 back = Back.Sample(sample_type_, texC);
+	float3 front = front_.Sample(sample_type_, tex);
+	float3 back = back_.Sample(sample_type_, tex);
 	
 	float3 dir = normalize(back - front);
 	float4 pos = float4(front, 0);
@@ -29,10 +29,10 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	float4 src = 0;
 	float value = 0;
 	
-	float3 Step = dir * input.step_size_;
+	float3 step = dir * input.step_size_;
 	for(int i = 0; i < input.iterations_; i++){
 		pos.w = 0;
-		value = Volume.SampleLevel(sample_type_, pos,0).r;
+		value = volume_.SampleLevel(sample_type_, pos,0).r;
 
 		src = (float4)value;
 		src.a *= .05f;
@@ -52,7 +52,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		}
 
 		//advance the current position
-		pos.xyz += Step;
+		pos.xyz += step;
 
 		//break if the position is greater than <1, 1, 1>
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)

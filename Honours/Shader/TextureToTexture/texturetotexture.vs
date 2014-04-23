@@ -2,15 +2,13 @@
 // Filename: texture.vs
 ////////////////////////////////////////////////////////////////////////////////
 
-
 /////////////
 // GLOBALS //
 /////////////
 cbuffer MatrixBuffer
 {
-	matrix projection_matrix;
+	matrix projection_matrix_;
 };
-
 
 //////////////
 // TYPEDEFS //
@@ -18,13 +16,13 @@ cbuffer MatrixBuffer
 struct VertexInputType
 {
     float4 position_ : POSITION;
-    float2 tex : TEXCOORD0;
+    float2 tex_ : TEXCOORD0;
 };
 
 struct PixelInputType
 {
     float4 position_ : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float2 tex_ : TEXCOORD0;
 };
 
 
@@ -43,7 +41,7 @@ PixelInputType TextureVertexShader(VertexInputType input)
 	output.position_.z = 0;
 	
 	// Store the texture coordinates for the pixel shader.
-	output.tex = input.tex;
+	output.tex_ = input.tex_;
     
     return output;
 }
