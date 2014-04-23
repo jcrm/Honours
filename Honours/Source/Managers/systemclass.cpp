@@ -2,18 +2,14 @@
 // Filename: systemclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "systemclass.h"
-SystemClass::SystemClass()
-{
+SystemClass::SystemClass(){
 	application_ = 0;
 }
-SystemClass::SystemClass(const SystemClass& other)
-{
+SystemClass::SystemClass(const SystemClass& other){
 }
-SystemClass::~SystemClass()
-{
+SystemClass::~SystemClass(){
 }
-bool SystemClass::Initialize()
-{
+bool SystemClass::Initialize(){
 	int screen_width, screen_height;
 	bool result;
 	// Initialize the width and height of the screen to zero before sending the variables into the function.
@@ -23,23 +19,19 @@ bool SystemClass::Initialize()
 	InitializeWindows(screen_width, screen_height);
 	// Create the application wrapper object.
 	application_ = new ApplicationClass;
-	if(!application_)
-	{
+	if(!application_){
 		return false;
 	}
 	// Initialize the application wrapper object.
 	result = application_->Initialize(hinstance_, hwnd_, screen_width, screen_height);
-	if(!result)
-	{
+	if(!result){
 		return false;
 	}
 	return true;
 }
-void SystemClass::Shutdown()
-{
+void SystemClass::Shutdown(){
 	// Release the application wrapper object.
-	if(application_)
-	{
+	if(application_){
 		application_->Shutdown();
 		delete application_;
 		application_ = 0;
@@ -49,8 +41,7 @@ void SystemClass::Shutdown()
 	
 	return;
 }
-void SystemClass::Run()
-{
+void SystemClass::Run(){
 	MSG msg;
 	bool done, result;
 	// Initialize the message structure.
@@ -58,48 +49,38 @@ void SystemClass::Run()
 	
 	// Loop until there is a quit message from the window or the user.
 	done = false;
-	while(!done)
-	{
+	while(!done){
 		// Handle the windows messages.
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
+		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 		// If windows signals to end the application then exit out.
-		if(msg.message == WM_QUIT)
-		{
+		if(msg.message == WM_QUIT){
 			done = true;
-		}
-		else
-		{
+		}else{
 			// Otherwise do the frame processing.
 			result = Frame();
-			if(!result)
-			{
+			if(!result){
 				done = true;
 			}
 		}
 	}
 	return;
 }
-bool SystemClass::Frame()
-{
+bool SystemClass::Frame(){
 	bool result;
 	// Do the frame processing for the application object.
 	result = application_->Frame();
-	if(!result)
-	{
+	if(!result){
 		return false;
 	}
 	return true;
 }
-LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
-{
+LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam){
 	return DefWindowProc(hwnd, umsg, wparam, lparam);
 }
-void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
-{
+void SystemClass::InitializeWindows(int& screen_width, int& screen_height){
 	WNDCLASSEX wc;
 	DEVMODE dmScreenSettings;
 	int posX, posY;
@@ -129,8 +110,7 @@ void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
 	screen_width  = GetSystemMetrics(SM_CXSCREEN);
 	screen_height = GetSystemMetrics(SM_CYSCREEN);
 	// Setup the screen settings depending on whether it is running in full screen or in windowed mode.
-	if(FULL_SCREEN)
-	{
+	if(FULL_SCREEN){
 		// If full screen set the screen to maximum size of the users desktop and 32bit.
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
@@ -142,9 +122,7 @@ void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 		// Set the position of the window to the top left corner.
 		posX = posY = 0;
-	}
-	else
-	{
+	}else{
 		// If windowed then set it to 800x600 resolution.
 		screen_width  = 800;
 		screen_height = 600;
@@ -164,13 +142,11 @@ void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
 	ShowCursor(false);
 	return;
 }
-void SystemClass::ShutdownWindows()
-{
+void SystemClass::ShutdownWindows(){
 	// Show the mouse cursor.
 	ShowCursor(true);
 	// Fix the display settings if leaving full screen mode.
-	if(FULL_SCREEN)
-	{
+	if(FULL_SCREEN){
 		ChangeDisplaySettings(NULL, 0);
 	}
 	// Remove the window.
@@ -183,25 +159,20 @@ void SystemClass::ShutdownWindows()
 	application_handle_ = NULL;
 	return;
 }
-LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
-{
-	switch(umessage)
-	{
+LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam){
+	switch(umessage){
 		// Check if the window is being destroyed.
-		case WM_DESTROY:
-		{
+		case WM_DESTROY:{
 			PostQuitMessage(0);
 			return 0;
 		}
 		// Check if the window is being closed.
-		case WM_CLOSE:
-		{
-			PostQuitMessage(0);		
+		case WM_CLOSE:{
+			PostQuitMessage(0);
 			return 0;
 		}
 		// All other messages pass to the message handler in the system class.
-		default:
-		{
+		default:{
 			return application_handle_->MessageHandler(hwnd, umessage, wparam, lparam);
 		}
 	}
