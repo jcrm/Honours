@@ -37,12 +37,12 @@ float4 TerrainPixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 	float3 lightDir;
 	float lightIntensity;
-	float4 color;
+	float4 color_;
 
 	//get the texture color
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
 	// Set the default output color to the ambient light value for all pixels.
-    color = ambientColor;
+    color_ = ambientColor;
 
 	// Invert the light direction for calculations.
     lightDir = -lightDirection;
@@ -52,11 +52,11 @@ float4 TerrainPixelShader(PixelInputType input) : SV_TARGET
 
 	if(lightIntensity > 0.0f){
         // Determine the final diffuse color based on the diffuse color and the amount of light intensity.
-        color += (diffuseColor * lightIntensity);
+        color_ += (diffuseColor * lightIntensity);
     }
     // Saturate the final light color.
-    color = saturate(color);
+    color_ = saturate(color_);
 	//multiple the colour by the texture colour to get the final colour.
-	color *= textureColor;
-    return color;
+	color_ *= textureColor;
+    return color_;
 }

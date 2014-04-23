@@ -21,14 +21,14 @@ struct VertexInputType
 {
     float4 position_ : POSITION;
     float2 tex : TEXCOORD0;
-	float4 color : COLOR;
+	float4 color_ : COLOR;
 };
 
 struct PixelInputType
 {
     float4 position_ : SV_POSITION;
     float2 tex : TEXCOORD0;
-	float4 color : COLOR;
+	float4 color_ : COLOR;
 };
 
 
@@ -52,7 +52,7 @@ PixelInputType ParticleVertexShader(VertexInputType input)
 	output.tex = input.tex;
     
 	// Store the particle color for the pixel shader. 
-    output.color = input.color;
+    output.color_ = input.color_;
 
     return output;
 }

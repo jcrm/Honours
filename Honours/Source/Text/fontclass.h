@@ -23,7 +23,7 @@ private:
 	struct FontType
 	{
 		float left, right;
-		int size;
+		int size_;
 	};
 	struct VertexType
 	{

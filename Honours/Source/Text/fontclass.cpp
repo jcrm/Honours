@@ -70,7 +70,7 @@ bool FontClass::LoadFontData(char* filename)
 		}
 		fin >> m_Font[i].left;
 		fin >> m_Font[i].right;
-		fin >> m_Font[i].size;
+		fin >> m_Font[i].size_;
 	}
 	// Close the file.
 	fin.close();
@@ -143,7 +143,7 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 			vertexPtr[index].position = D3DXVECTOR3(drawX, drawY, 0.0f);  // Top left.
 			vertexPtr[index].texture = D3DXVECTOR2(m_Font[letter].left, 0.0f);
 			index++;
-			vertexPtr[index].position = D3DXVECTOR3((drawX + m_Font[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+			vertexPtr[index].position = D3DXVECTOR3((drawX + m_Font[letter].size_), (drawY - 16), 0.0f);  // Bottom right.
 			vertexPtr[index].texture = D3DXVECTOR2(m_Font[letter].right, 1.0f);
 			index++;
 			vertexPtr[index].position = D3DXVECTOR3(drawX, (drawY - 16), 0.0f);  // Bottom left.
@@ -153,14 +153,14 @@ void FontClass::BuildVertexArray(void* vertices, char* sentence, float drawX, fl
 			vertexPtr[index].position = D3DXVECTOR3(drawX, drawY, 0.0f);  // Top left.
 			vertexPtr[index].texture = D3DXVECTOR2(m_Font[letter].left, 0.0f);
 			index++;
-			vertexPtr[index].position = D3DXVECTOR3(drawX + m_Font[letter].size, drawY, 0.0f);  // Top right.
+			vertexPtr[index].position = D3DXVECTOR3(drawX + m_Font[letter].size_, drawY, 0.0f);  // Top right.
 			vertexPtr[index].texture = D3DXVECTOR2(m_Font[letter].right, 0.0f);
 			index++;
-			vertexPtr[index].position = D3DXVECTOR3((drawX + m_Font[letter].size), (drawY - 16), 0.0f);  // Bottom right.
+			vertexPtr[index].position = D3DXVECTOR3((drawX + m_Font[letter].size_), (drawY - 16), 0.0f);  // Bottom right.
 			vertexPtr[index].texture = D3DXVECTOR2(m_Font[letter].right, 1.0f);
 			index++;
 			// Update the x location for drawing by the size of the letter and one pixel.
-			drawX = drawX + m_Font[letter].size + 1.0f;
+			drawX = drawX + m_Font[letter].size_ + 1.0f;
 		}
 	}
 	return;

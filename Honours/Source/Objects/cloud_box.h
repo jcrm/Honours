@@ -26,17 +26,17 @@ public:
 	CloudClass();
 	CloudClass(const CloudClass&);
 	~CloudClass();
-	bool Initialize(ID3D11Device* device, int screen_width, int screen_height, float SCREEN_DEPTH, float SCREEN_NEAR);
+	bool Initialize(ID3D11Device*, int, int, float, float);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 	//getters
 	inline int  GetIndexCount() const {return index_count_;}
-	inline RenderTextureClass* GetFrontTexture(){return m_FrontTexture;}
-	inline RenderTextureClass* GetBackTexture(){return m_BackTexture;}
+	inline RenderTextureClass* GetFrontTexture(){return front_texture_;}
+	inline RenderTextureClass* GetBackTexture(){return back_texture_;}
 	
-	inline ID3D11ShaderResourceView* GetFrontShaderResource(){return m_FrontTexture->GetShaderResourceView();}
-	inline ID3D11ShaderResourceView* GetBackShaderResource(){return m_BackTexture->GetShaderResourceView();}
-	inline float GetScale(){return 1/size;}
+	inline ID3D11ShaderResourceView* GetFrontShaderResource(){return front_texture_->GetShaderResourceView();}
+	inline ID3D11ShaderResourceView* GetBackShaderResource(){return back_texture_->GetShaderResourceView();}
+	inline float GetScale(){return 1/size_;}
 	inline D3DXMATRIX GetTranslation() {return transform_;}
 private:
 	//buffer functions
@@ -48,8 +48,8 @@ private:
 private:
 	int vertex_count_, index_count_;
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	RenderTextureClass* m_FrontTexture, *m_BackTexture;
+	RenderTextureClass *front_texture_, *back_texture_;
 	D3DXMATRIX transform_;
-	float size;
+	float size_;
 };
 #endif
