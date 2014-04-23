@@ -60,25 +60,25 @@ public:
 	ApplicationClass();
 	ApplicationClass(const ApplicationClass&);
 	~ApplicationClass();
-	bool Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height);
+	bool Initialize(HINSTANCE, HWND, int, int);
 	void Shutdown();
 	bool Frame();
 private:
 	bool HandleInput(float);
 	//Render Functions
 	bool Render();
-	bool RenderSceneToTexture(RenderTextureClass* write_texture);
-	bool RenderMergeTexture(RenderTextureClass *readTexture, RenderTextureClass *readTexture2, RenderTextureClass *writeTexture);
-	bool RenderParticlesToTexture(RenderTextureClass* write_texture);
-	bool RenderTexture(ShaderClass *shader, RenderTextureClass *read_texture, RenderTextureClass *write_texture, OrthoWindowClass *window);
-	bool Render2DTextureScene(RenderTextureClass* read_texture);
+	bool RenderSceneToTexture(RenderTextureClass* );
+	bool RenderMergeTexture(RenderTextureClass*, RenderTextureClass*, RenderTextureClass*);
+	bool RenderParticlesToTexture(RenderTextureClass* );
+	bool RenderTexture(ShaderClass*, RenderTextureClass*, RenderTextureClass*, OrthoWindowClass*);
+	bool Render2DTextureScene(RenderTextureClass*);
 	//Init functions
-	bool InitObjects(HWND hwnd);
-	bool InitTextures(HWND hwnd, int screen_width, int screen_height);
-	bool InitText(HWND hwnd, int screen_width , int screen_height);
-	bool InitShaders(HWND hwnd);
-	bool InitObjectShaders(HWND hwnd);
-	bool InitTextureShaders(HWND hwnd);
+	bool InitObjects(HWND);
+	bool InitTextures(HWND, int, int);
+	bool InitText(HWND, int, int);
+	bool InitShaders(HWND);
+	bool InitObjectShaders(HWND);
+	bool InitTextureShaders(HWND);
 	bool InitCamera();
 	//Shutdown functions
 	void ShutdownObjects();
