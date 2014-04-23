@@ -7,9 +7,9 @@ FontShaderClass::FontShaderClass()
 	vertex_shader_ = 0;
 	pixel_shader_ = 0;
 	layout_ = 0;
-	m_constantBuffer = 0;
+	constant_buffer_ = 0;
 	sample_state_ = 0;
-	m_pixelBuffer = 0;
+	pixel_buffer_ = 0;
 }
 FontShaderClass::FontShaderClass(const FontShaderClass& other)
 {
@@ -149,7 +149,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     constantBufferDesc.MiscFlags = 0;
 	constantBufferDesc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&constantBufferDesc, NULL, &m_constantBuffer);
+	result = device->CreateBuffer(&constantBufferDesc, NULL, &constant_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -182,7 +182,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     pixelBufferDesc.MiscFlags = 0;
 	pixelBufferDesc.StructureByteStride = 0;
 	// Create the pixel constant buffer pointer so we can access the pixel shader constant buffer from within this class.
-	result = device->CreateBuffer(&pixelBufferDesc, NULL, &m_pixelBuffer);
+	result = device->CreateBuffer(&pixelBufferDesc, NULL, &pixel_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -192,10 +192,10 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 void FontShaderClass::ShutdownShader()
 {
 	// Release the pixel constant buffer.
-	if(m_pixelBuffer)
+	if(pixel_buffer_)
 	{
-		m_pixelBuffer->Release();
-		m_pixelBuffer = 0;
+		pixel_buffer_->Release();
+		pixel_buffer_ = 0;
 	}
 	// Release the sampler state.
 	if(sample_state_)
@@ -204,10 +204,10 @@ void FontShaderClass::ShutdownShader()
 		sample_state_ = 0;
 	}
 	// Release the constant buffer.
-	if(m_constantBuffer)
+	if(constant_buffer_)
 	{
-		m_constantBuffer->Release();
-		m_constantBuffer = 0;
+		constant_buffer_->Release();
+		constant_buffer_ = 0;
 	}
 	// Release the layout.
 	if(layout_)
@@ -263,7 +263,7 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	unsigned int bufferNumber;
 	PixelBufferType* dataPtr2;
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(m_constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -279,15 +279,15 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	dataPtr->view_ = viewMatrix;
 	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
-    deviceContext->Unmap(m_constantBuffer, 0);
+    deviceContext->Unmap(constant_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_constantBuffer);
+    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &constant_buffer_);
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 	// Lock the pixel constant buffer so it can be written to.
-	result = deviceContext->Map(m_pixelBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(pixel_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -295,13 +295,13 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	// Get a pointer to the data in the pixel constant buffer.
 	dataPtr2 = (PixelBufferType*)mappedResource.pData;
 	// Copy the pixel color into the pixel constant buffer.
-	dataPtr2->pixelColor = pixelColor;
+	dataPtr2->pixel_color_ = pixelColor;
 	// Unlock the pixel constant buffer.
-    deviceContext->Unmap(m_pixelBuffer, 0);
+    deviceContext->Unmap(pixel_buffer_, 0);
 	// Set the position of the pixel constant buffer in the pixel shader.
 	bufferNumber = 0;
 	// Now set the pixel constant buffer in the pixel shader with the updated value.
-    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_pixelBuffer);
+    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &pixel_buffer_);
 	return true;
 }
 void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)

@@ -25,7 +25,7 @@ private:
 	};
 	struct PixelBufferType
 	{
-		D3DXVECTOR4 pixelColor;
+		D3DXVECTOR4 pixel_color_;
 	};
 public:
 	FontShaderClass();
@@ -44,8 +44,8 @@ private:
 	ID3D11VertexShader* vertex_shader_;
 	ID3D11PixelShader* pixel_shader_;
 	ID3D11InputLayout* layout_;
-	ID3D11Buffer* m_constantBuffer;
+	ID3D11Buffer* constant_buffer_;
 	ID3D11SamplerState* sample_state_;
-	ID3D11Buffer* m_pixelBuffer;
+	ID3D11Buffer* pixel_buffer_;
 };
 #endif

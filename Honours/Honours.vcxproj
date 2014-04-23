@@ -93,7 +93,7 @@
     <ClCompile Include="Source\Objects\terrain.cpp" />
     <ClCompile Include="Source\Shaders\fontshaderclass.cpp" />
     <ClCompile Include="Source\Shaders\face_shader.cpp" />
-    <ClCompile Include="Source\Shaders\mergetextureshader.cpp" />
+    <ClCompile Include="Source\Shaders\merge_texture_shader.cpp" />
     <ClCompile Include="Source\Shaders\particle_shader.cpp" />
     <ClCompile Include="Source\Shaders\shader.cpp" />
     <ClCompile Include="Source\Shaders\terrain_shader.cpp" />

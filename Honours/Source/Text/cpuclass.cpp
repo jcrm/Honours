@@ -15,45 +15,45 @@ void CpuClass::Initialize()
 {
 	PDH_STATUS status;
 	// Initialize the flag indicating whether this object can read the system cpu usage or not.
-	m_canReadCpu = true;
+	can_read_cpu_ = true;
 	// Create a query object to poll cpu usage.
-	status = PdhOpenQuery(NULL, 0, &m_queryHandle);
+	status = PdhOpenQuery(NULL, 0, &query_handle_);
 	if(status != ERROR_SUCCESS)
 	{
-		m_canReadCpu = false;
+		can_read_cpu_ = false;
 	}
 	// Set query object to poll all cpus in the system.
-	status = PdhAddCounter(m_queryHandle, TEXT("\\Processor(_Total)\\% processor time"), 0, &m_counterHandle);
+	status = PdhAddCounter(query_handle_, TEXT("\\Processor(_Total)\\% processor time"), 0, &counter_handle_);
 	if(status != ERROR_SUCCESS)
 	{
-		m_canReadCpu = false;
+		can_read_cpu_ = false;
 	}
 	// Initialize the start time and cpu usage.
-	m_lastSampleTime = GetTickCount(); 
-	m_cpuUsage = 0;
+	last_sample_time_ = GetTickCount(); 
+	cpu_usage_ = 0;
 	return;
 }
 void CpuClass::Shutdown()
 {
-	if(m_canReadCpu)
+	if(can_read_cpu_)
 	{
-		PdhCloseQuery(m_queryHandle);
+		PdhCloseQuery(query_handle_);
 	}
 	return;
 }
 void CpuClass::Frame()
 {
 	PDH_FMT_COUNTERVALUE value; 
-	if(m_canReadCpu)
+	if(can_read_cpu_)
 	{
 		// If it has been 1 second then update the current cpu usage and reset the 1 second timer again.
-		if((m_lastSampleTime + 1000) < GetTickCount())
+		if((last_sample_time_ + 1000) < GetTickCount())
 		{
-			m_lastSampleTime = GetTickCount(); 
-			PdhCollectQueryData(m_queryHandle);
+			last_sample_time_ = GetTickCount(); 
+			PdhCollectQueryData(query_handle_);
         
-			PdhGetFormattedCounterValue(m_counterHandle, PDH_FMT_LONG, NULL, &value);
-			m_cpuUsage = value.longValue;
+			PdhGetFormattedCounterValue(counter_handle_, PDH_FMT_LONG, NULL, &value);
+			cpu_usage_ = value.longValue;
 		}
 	}
 	return;
@@ -62,9 +62,9 @@ int CpuClass::GetCpuPercentage()
 {
 	int usage;
 	// If the class can read the cpu from the operating system then return the current usage.  If not then return zero.
-	if(m_canReadCpu)
+	if(can_read_cpu_)
 	{
-		usage = (int)m_cpuUsage;
+		usage = (int)cpu_usage_;
 	}
 	else
 	{
