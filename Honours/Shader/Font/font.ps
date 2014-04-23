@@ -2,7 +2,6 @@
 // Filename: font.ps
 ////////////////////////////////////////////////////////////////////////////////
 
-
 /////////////
 // GLOBALS //
 /////////////
@@ -11,17 +10,16 @@ SamplerState SampleType;
 
 cbuffer PixelBuffer
 {
-    float4 pixel_color_;
+	float4 pixelColor;
 };
-
 
 //////////////
 // TYPEDEFS //
 //////////////
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
-    float2 tex : TEXCOORD0;
+    float4 position_ : SV_POSITION;
+    float2 tex_ : TEXCOORD0;
 };
 
 
@@ -30,24 +28,19 @@ struct PixelInputType
 ////////////////////////////////////////////////////////////////////////////////
 float4 FontPixelShader(PixelInputType input) : SV_TARGET
 {
-	float4 color_;
-	
-	
+	float4 color;
+
 	// Sample the texture pixel at this location.
-	color_ = shaderTexture.Sample(SampleType, input.tex);
-	
+	color = shaderTexture.Sample(SampleType, input.tex_);
+
 	// If the color is black on the texture then treat this pixel as transparent.
-	if(color_.r == 0.0f)
-	{
-		color_.a = 0.0f;
-	}
-	
+	if(color.r == 0.0f){
+		color.a = 0.0f;
+	}else{
 	// If the color is other than black on the texture then this is a pixel in the font so draw it using the font pixel color.
-	else
-	{
-		color_.a = 1.0f;
-		color_ = color_ * pixel_color_;
+		color.a = 1.0f;
+		color = color * pixelColor;
 	}
 
-    return color_;
+	return color;
 }
