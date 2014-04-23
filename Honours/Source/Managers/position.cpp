@@ -4,13 +4,13 @@
 #include "position.h"
 PositionClass::PositionClass()
 {
-	m_positionX = 0.0f;
-	m_positionY = 0.0f;
-	m_positionZ = 0.0f;
+	position_x_ = 0.0f;
+	position_y_ = 0.0f;
+	position_z_ = 0.0f;
 	
-	m_rotationX = 0.0f;
-	m_rotationY = 0.0f;
-	m_rotationZ = 0.0f;
+	rotation_x_ = 0.0f;
+	rotation_y_ = 0.0f;
+	rotation_z_ = 0.0f;
 	m_frameTime = 0.0f;
 	m_forwardSpeed   = 0.0f;
 	m_backwardSpeed  = 0.0f;
@@ -29,30 +29,30 @@ PositionClass::~PositionClass()
 }
 void PositionClass::SetPosition(float x, float y, float z)
 {
-	m_positionX = x;
-	m_positionY = y;
-	m_positionZ = z;
+	position_x_ = x;
+	position_y_ = y;
+	position_z_ = z;
 	return;
 }
 void PositionClass::SetRotation(float x, float y, float z)
 {
-	m_rotationX = x;
-	m_rotationY = y;
-	m_rotationZ = z;
+	rotation_x_ = x;
+	rotation_y_ = y;
+	rotation_z_ = z;
 	return;
 }
 void PositionClass::GetPosition(float& x, float& y, float& z)
 {
-	x = m_positionX;
-	y = m_positionY;
-	z = m_positionZ;
+	x = position_x_;
+	y = position_y_;
+	z = position_z_;
 	return;
 }
 void PositionClass::GetRotation(float& x, float& y, float& z)
 {
-	x = m_rotationX;
-	y = m_rotationY;
-	z = m_rotationZ;
+	x = rotation_x_;
+	y = rotation_y_;
+	z = rotation_z_;
 	return;
 }
 void PositionClass::SetFrameTime(float time)
@@ -81,10 +81,10 @@ void PositionClass::MoveForward(bool key_down)
 		}
 	}
 	// Convert degrees to radians.
-	radians = m_rotationY * 0.0174532925f;
+	radians = rotation_y_ * 0.0174532925f;
 	// Update the position.
-	m_positionX += sinf(radians) * m_forwardSpeed;
-	m_positionZ += cosf(radians) * m_forwardSpeed;
+	position_x_ += sinf(radians) * m_forwardSpeed;
+	position_z_ += cosf(radians) * m_forwardSpeed;
 	return;
 }
 void PositionClass::MoveBackward(bool key_down)
@@ -109,10 +109,10 @@ void PositionClass::MoveBackward(bool key_down)
 		}
 	}
 	// Convert degrees to radians.
-	radians = m_rotationY * 0.0174532925f;
+	radians = rotation_y_ * 0.0174532925f;
 	// Update the position.
-	m_positionX -= sinf(radians) * m_backwardSpeed;
-	m_positionZ -= cosf(radians) * m_backwardSpeed;
+	position_x_ -= sinf(radians) * m_backwardSpeed;
+	position_z_ -= cosf(radians) * m_backwardSpeed;
 	return;
 }
 void PositionClass::MoveUpward(bool key_down)
@@ -135,7 +135,7 @@ void PositionClass::MoveUpward(bool key_down)
 		}
 	}
 	// Update the height position.
-	m_positionY += m_upwardSpeed;
+	position_y_ += m_upwardSpeed;
 	return;
 }
 void PositionClass::MoveDownward(bool key_down)
@@ -158,7 +158,7 @@ void PositionClass::MoveDownward(bool key_down)
 		}
 	}
 	// Update the height position.
-	m_positionY -= m_downwardSpeed;
+	position_y_ -= m_downwardSpeed;
 	return;
 }
 void PositionClass::TurnLeft(bool key_down)
@@ -181,11 +181,11 @@ void PositionClass::TurnLeft(bool key_down)
 		}
 	}
 	// Update the rotation.
-	m_rotationY -= m_leftTurnSpeed;
+	rotation_y_ -= m_leftTurnSpeed;
 	// Keep the rotation in the 0 to 360 range.
-	if(m_rotationY < 0.0f)
+	if(rotation_y_ < 0.0f)
 	{
-		m_rotationY += 360.0f;
+		rotation_y_ += 360.0f;
 	}
 	return;
 }
@@ -209,11 +209,11 @@ void PositionClass::TurnRight(bool key_down)
 		}
 	}
 	// Update the rotation.
-	m_rotationY += m_rightTurnSpeed;
+	rotation_y_ += m_rightTurnSpeed;
 	// Keep the rotation in the 0 to 360 range.
-	if(m_rotationY > 360.0f)
+	if(rotation_y_ > 360.0f)
 	{
-		m_rotationY -= 360.0f;
+		rotation_y_ -= 360.0f;
 	}
 	return;
 }
@@ -237,11 +237,11 @@ void PositionClass::LookUpward(bool key_down)
 		}
 	}
 	// Update the rotation.
-	m_rotationX -= m_lookUpSpeed;
+	rotation_x_ -= m_lookUpSpeed;
 	// Keep the rotation maximum 90 degrees.
-	if(m_rotationX > 90.0f)
+	if(rotation_x_ > 90.0f)
 	{
-		m_rotationX = 90.0f;
+		rotation_x_ = 90.0f;
 	}
 	return;
 }
@@ -265,11 +265,11 @@ void PositionClass::LookDownward(bool key_down)
 		}
 	}
 	// Update the rotation.
-	m_rotationX += m_lookDownSpeed;
+	rotation_x_ += m_lookDownSpeed;
 	// Keep the rotation maximum 90 degrees.
-	if(m_rotationX < -90.0f)
+	if(rotation_x_ < -90.0f)
 	{
-		m_rotationX = -90.0f;
+		rotation_x_ = -90.0f;
 	}
 	return;
 }
