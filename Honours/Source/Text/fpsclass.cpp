@@ -14,25 +14,25 @@ FpsClass::~FpsClass()
 void FpsClass::Initialize()
 {
 	// Initialize the counters and the start time.
-	m_fps = 0;
-	m_count = 0;
-	m_startTime = timeGetTime();
+	fps_ = 0;
+	count_ = 0;
+	start_time_ = timeGetTime();
 	
 	return;
 }
 void FpsClass::Frame()
 {
-	m_count++;
+	count_++;
 	// If one second has passed then update the frame per second speed.
-	if(timeGetTime() >= (m_startTime + 1000))
+	if(timeGetTime() >= (start_time_ + 1000))
 	{
-		m_fps = m_count;
-		m_count = 0;
+		fps_ = count_;
+		count_ = 0;
 		
-		m_startTime = timeGetTime();
+		start_time_ = timeGetTime();
 	}
 }
 int FpsClass::GetFps()
 {
-	return m_fps;
+	return fps_;
 }

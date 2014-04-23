@@ -114,16 +114,7 @@
     <None Include="Data\font.dds">
       <Filter>Resource Files\Texture Files</Filter>
     </None>
-    <None Include="Data\cubeTexture.dds">
-      <Filter>Resource Files\Texture Files</Filter>
-    </None>
     <None Include="Data\cube.txt">
-      <Filter>Resource Files\Other Files</Filter>
-    </None>
-    <None Include="Data\heightmap01.bmp">
-      <Filter>Resource Files\Other Files</Filter>
-    </None>
-    <None Include="Data\fontdata.txt">
       <Filter>Resource Files\Other Files</Filter>
     </None>
     <None Include="Shader\Volume\volume.ps">
@@ -176,6 +167,12 @@
     </None>
     <None Include="Shader\Merge\merge.ps">
       <Filter>Resource Files\Shader Files\Merge Files</Filter>
+    </None>
+    <None Include="Data\font_data.txt">
+      <Filter>Resource Files\Other Files</Filter>
+    </None>
+    <None Include="Data\height_map.bmp">
+      <Filter>Resource Files\Other Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

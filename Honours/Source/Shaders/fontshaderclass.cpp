@@ -34,7 +34,7 @@ void FontShaderClass::Shutdown()
 	ShutdownShader();
 	return;
 }
-bool FontShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool FontShaderClass::Render(ID3D11DeviceContext* deviceContext, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 							 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
 {
 	bool result;
@@ -45,7 +45,7 @@ bool FontShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount,
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(deviceContext, index_count_);
 	return true;
 }
 bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
@@ -304,7 +304,7 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
     deviceContext->PSSetConstantBuffers(bufferNumber, 1, &pixel_buffer_);
 	return true;
 }
-void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int index_count_)
 {
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(layout_);
@@ -314,6 +314,6 @@ void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int index
 	// Set the sampler state in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangles.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	deviceContext->DrawIndexed(index_count_, 0, 0);
 	return;
 }

@@ -560,7 +560,7 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		return false;
 	}
 	// Initialize the terrain object.
-	result = terrain_object_->Initialize(direct_3d_->GetDevice(),"Data/heightmap01.bmp" ,L"Data/ground.dds");
+	result = terrain_object_->Initialize(direct_3d_->GetDevice(),"Data/height_map.bmp" ,L"Data/ground.dds");
 	if(!result){
 		MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
 		return false;

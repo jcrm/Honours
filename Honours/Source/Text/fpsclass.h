@@ -25,7 +25,7 @@ public:
 	void Frame();
 	int GetFps();
 private:
-	int m_fps, m_count;
-	unsigned long m_startTime;
+	int fps_, count_;
+	unsigned long start_time_;
 };
 #endif

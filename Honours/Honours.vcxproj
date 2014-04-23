@@ -12,11 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\cube.txt" />
-    <None Include="Data\cubeTexture.dds" />
     <None Include="Data\font.dds" />
-    <None Include="Data\fontdata.txt" />
+    <None Include="Data\font_data.txt" />
     <None Include="Data\ground.dds" />
-    <None Include="Data\heightmap01.bmp" />
+    <None Include="Data\height_map.bmp" />
     <None Include="Data\star.dds" />
     <None Include="Shader\Face\face.ps" />
     <None Include="Shader\Face\face.vs" />

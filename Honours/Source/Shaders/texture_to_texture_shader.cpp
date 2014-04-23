@@ -17,7 +17,7 @@ bool TextureToTextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture){
+bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
 	result = SetShaderParameters(device_context, projection_matrix, texture);
@@ -25,7 +25,7 @@ bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, in
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(device_context, indexCount);
+	RenderShader(device_context, index_count_);
 	return true;
 }
 bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
@@ -139,7 +139,7 @@ bool TextureToTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hw
 	}
 	return true;
 }
-void TextureToTextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount){
+void TextureToTextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int index_count_){
 	// Set the vertex input layout.
 	device_context->IASetInputLayout(layout_);
     // Set the vertex and pixel shaders that will be used to render this triangle.
@@ -148,10 +148,10 @@ void TextureToTextureShaderClass::RenderShader(ID3D11DeviceContext* device_conte
 	// Set the sampler state in the pixel shader.
 	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	device_context->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(index_count_, 0, 0);
 	return;
 }
-bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, float screen_height, float screen_width){
+bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, float screen_height, float screen_width){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
 	result = SetShaderParameters(device_context, projection_matrix, texture, screen_height, screen_width);
@@ -159,7 +159,7 @@ bool TextureToTextureShaderClass::Render(ID3D11DeviceContext* device_context, in
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(device_context, indexCount);
+	RenderShader(device_context, index_count_);
 	return true;
 }
 bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture){

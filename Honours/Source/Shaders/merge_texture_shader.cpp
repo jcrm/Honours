@@ -41,7 +41,7 @@ void MergeTextureShaderClass::Shutdown()
 
 	return;
 }
-bool MergeTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2)
+bool MergeTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int index_count_, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2)
 {
 	bool result;
 
@@ -54,7 +54,7 @@ bool MergeTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int ind
 	}
 
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(deviceContext, index_count_);
 
 	return true;
 }
@@ -259,7 +259,7 @@ void MergeTextureShaderClass::ShutdownShader()
 
 
 
-void MergeTextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void MergeTextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int index_count_)
 {
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(layout_);
@@ -272,7 +272,7 @@ void MergeTextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, i
 	deviceContext->PSSetSamplers(0, 1, &sample_state_);
 
 	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	deviceContext->DrawIndexed(index_count_, 0, 0);
 
 	return;
 }

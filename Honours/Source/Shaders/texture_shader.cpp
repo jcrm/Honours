@@ -19,7 +19,7 @@ bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	}
 	return true;
 }
-bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 								D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
@@ -30,7 +30,7 @@ bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCo
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(device_context, indexCount);
+	RenderShader(device_context, index_count_);
 	return true;
 }
 bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
@@ -192,7 +192,7 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	
 	return true;
 }
-void TextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void TextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int index_count_)
 {
 	// Set the vertex input layout.
 	device_context->IASetInputLayout(layout_);
@@ -202,6 +202,6 @@ void TextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int i
 	// Set the sampler state in the pixel shader.
 	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	device_context->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(index_count_, 0, 0);
 	return;
 }

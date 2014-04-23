@@ -20,9 +20,9 @@ public:
 	void Frame();
 	float GetTime();
 private:
-	INT64 m_frequency;
-	float m_ticksPerMs;
-	INT64 m_startTime;
+	INT64 frequency_;
+	float ticks_per_mins_;
+	INT64 start_time_;
 	float frame_time_;
 };
 #endif

@@ -12,7 +12,7 @@ bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool FaceShader::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool FaceShader::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 						  D3DXMATRIX projection_matrix, float scale){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
@@ -21,7 +21,7 @@ bool FaceShader::Render(ID3D11DeviceContext* device_context, int indexCount, D3D
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(device_context, indexCount);
+	RenderShader(device_context, index_count_);
 	return true;
 }
 bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename){
@@ -191,7 +191,7 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMA
 	device_context->VSSetConstantBuffers(bufferNumber, 1, &scale_buffer_);
 	return true;
 }
-void FaceShader::RenderShader(ID3D11DeviceContext* device_context, int indexCount){
+void FaceShader::RenderShader(ID3D11DeviceContext* device_context, int index_count_){
 	// Set the vertex input layout.
 	device_context->IASetInputLayout(layout_);
 	// Set the vertex and pixel shaders that will be used to render this triangle.
@@ -200,6 +200,6 @@ void FaceShader::RenderShader(ID3D11DeviceContext* device_context, int indexCoun
 	// Set the sampler state in the pixel shader.
 	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	device_context->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(index_count_, 0, 0);
 	return;
 }

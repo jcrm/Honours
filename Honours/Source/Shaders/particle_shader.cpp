@@ -49,7 +49,7 @@ void ParticleShaderClass::Shutdown()
 }
 
 
-bool ParticleShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool ParticleShaderClass::Render(ID3D11DeviceContext* deviceContext, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 								D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
@@ -63,7 +63,7 @@ bool ParticleShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCo
 	}
 
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, indexCount);
+	RenderShader(deviceContext, index_count_);
 
 	return true;
 }
@@ -344,7 +344,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 }
 
 
-void ParticleShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
+void ParticleShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int index_count_)
 {
 	// Set the vertex input layout.
 	deviceContext->IASetInputLayout(layout_);
@@ -357,7 +357,7 @@ void ParticleShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int i
 	deviceContext->PSSetSamplers(0, 1, &sample_state_);
 
 	// Render the triangle.
-	deviceContext->DrawIndexed(indexCount, 0, 0);
+	deviceContext->DrawIndexed(index_count_, 0, 0);
 
 	return;
 }

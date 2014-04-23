@@ -26,7 +26,7 @@ void TerrainShaderClass::Shutdown()
 	ShutdownShader();
 	return;
 }
-bool TerrainShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool TerrainShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 								D3DXMATRIX projection_matrix, D3DXVECTOR4 ambient_color_, D3DXVECTOR4 diffuse_color_, D3DXVECTOR3 light_direction_,
 								ID3D11ShaderResourceView* texture)
 {
@@ -38,7 +38,7 @@ bool TerrainShaderClass::Render(ID3D11DeviceContext* device_context, int indexCo
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(device_context, indexCount);
+	RenderShader(device_context, index_count_);
 	return true;
 }
 bool TerrainShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
@@ -305,7 +305,7 @@ bool TerrainShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	device_context->PSSetShaderResources(0,1,&texture);
 	return true;
 }
-void TerrainShaderClass::RenderShader(ID3D11DeviceContext* device_context, int indexCount)
+void TerrainShaderClass::RenderShader(ID3D11DeviceContext* device_context, int index_count_)
 {
 	// Set the vertex input layout.
 	device_context->IASetInputLayout(layout_);
@@ -315,6 +315,6 @@ void TerrainShaderClass::RenderShader(ID3D11DeviceContext* device_context, int i
 	// Set the sampler state in the pixel shader.
 	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.
-	device_context->DrawIndexed(indexCount, 0, 0);
+	device_context->DrawIndexed(index_count_, 0, 0);
 	return;
 }

@@ -1,13 +1,13 @@
 struct PixelShaderInput
 {
-    float4 position : SV_POSITION;
-    float3 texC		: TEXCOORD0;
-    float4 pos		: TEXCOORD1;
+    float4 position_ : SV_POSITION;
+    float3 tex_coord_		: TEXCOORD0;
+    float4 pos_		: TEXCOORD1;
 };
 
 SamplerState SampleType;
 
 float4 FacePS(PixelShaderInput input) : SV_TARGET
 {
-	return float4(input.texC, 1.0f);
+	return float4(input.tex_coord_, 1.0f);
 }

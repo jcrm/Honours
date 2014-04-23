@@ -27,8 +27,8 @@ private:
 	};
 	struct VertexType
 	{
-		D3DXVECTOR3 position;
-	    D3DXVECTOR2 texture;
+		D3DXVECTOR3 position_;
+	    D3DXVECTOR2 texture_;
 	};
 public:
 	FontClass();
@@ -44,7 +44,7 @@ private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
 private:
-	FontType* m_Font;
+	FontType* font_;
 	TextureClass* texture_;
 };
 #endif

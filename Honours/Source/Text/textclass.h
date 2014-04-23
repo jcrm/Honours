@@ -16,14 +16,14 @@ class TextClass
 private:
 	struct SentenceType
 	{
-		ID3D11Buffer *vertexBuffer, *indexBuffer;
-		int vertexCount, indexCount, maxLength;
+		ID3D11Buffer *vertex_buffer_, *index_buffer_;
+		int vertex_count_, index_count_, max_length_;
 		float red_, green_, blue_;
 	};
 	struct VertexType
 	{
 		D3DXVECTOR3 position_;
-	    D3DXVECTOR2 texture;
+	    D3DXVECTOR2 texture_;
 	};
 public:
 	TextClass();
@@ -44,9 +44,9 @@ private:
 	bool RenderSentence(SentenceType*, ID3D11DeviceContext*, FontShaderClass*, D3DXMATRIX, D3DXMATRIX);
 private:
 	int screen_width_, screen_height_;
-	D3DXMATRIX m_baseViewMatrix;
-	FontClass* m_Font;
-	SentenceType *m_sentence1, *m_sentence2, *m_sentence3, *m_sentence4, *m_sentence5;
-	SentenceType *m_sentence6, *m_sentence7, *m_sentence8, *m_sentence9, *m_sentence10;
+	D3DXMATRIX base_view_matrix_;
+	FontClass* font_;
+	SentenceType *sentence_one_, *sentence_two_, *sentence_three_, *sentence_four_, *sentence_five_;
+	SentenceType *sentence_six_, *sentence_seven_, *sentence_eight_, *sentence_nine_, *sentence_tem_;
 };
 #endif
