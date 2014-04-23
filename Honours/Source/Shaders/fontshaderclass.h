@@ -25,7 +25,7 @@ private:
 	};
 	struct PixelBufferType
 	{
-		D3DXVECTOR4 pixel_color_;
+		D3DXVECTOR4 num_letters_;
 	};
 public:
 	FontShaderClass();

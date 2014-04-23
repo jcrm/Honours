@@ -10,7 +10,7 @@ SamplerState sample_type_;
 
 cbuffer PixelBuffer
 {
-	float4 pixelColor;
+	float4 pixel_color;
 };
 
 //////////////
@@ -39,7 +39,7 @@ float4 FontPixelShader(PixelInputType input) : SV_TARGET
 	}else{
 	// If the color is other than black on the texture then this is a pixel in the font so draw it using the font pixel color.
 		color.a = 1.0f;
-		color = color * pixelColor;
+		color = color * pixel_color;
 	}
 
 	return color;

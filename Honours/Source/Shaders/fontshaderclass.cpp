@@ -35,11 +35,11 @@ void FontShaderClass::Shutdown()
 	return;
 }
 bool FontShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
-							 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
+							 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixel_color)
 {
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, texture, pixelColor);
+	result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, texture, pixel_color);
 	if(!result)
 	{
 		return false;
@@ -251,7 +251,7 @@ void FontShaderClass::OutputShaderErrorMessage(ID3D10Blob* error_message, HWND h
 	return;
 }
 bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
-										  D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
+										  D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixel_color)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mapped_resource;
@@ -291,7 +291,7 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D
 	// Get a pointer to the data in the pixel constant buffer.
 	data_ptr_two = (PixelBufferType*)mapped_resource.pData;
 	// Copy the pixel color into the pixel constant buffer.
-	data_ptr_two->pixel_color_ = pixelColor;
+	data_ptr_two->num_letters_ = pixel_color;
 	// Unlock the pixel constant buffer.
     device_context->Unmap(pixel_buffer_, 0);
 	// Set the position of the pixel constant buffer in the pixel shader.
