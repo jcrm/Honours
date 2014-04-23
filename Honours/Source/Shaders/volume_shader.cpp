@@ -167,9 +167,9 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->world = world_matrix;
-	dataPtr->view = viewMatrix;
-	dataPtr->projection = projection_matrix;
+	dataPtr->world_ = world_matrix;
+	dataPtr->view_ = viewMatrix;
+	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
 	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.

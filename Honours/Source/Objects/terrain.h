@@ -23,20 +23,17 @@ const int TEXTURE_REPEAT = 8;
 class TerrainClass
 {
 private:
-	struct VertexType
-	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR2 texture;
-	    D3DXVECTOR3 normal;
+	struct VertexType{
+		D3DXVECTOR3 position_;
+		D3DXVECTOR2 texture_;
+	    D3DXVECTOR3 normal_;
 	};
-	struct HeightMapType 
-	{ 
+	struct HeightMapType{ 
 		float x, y, z;
 		float tu, tv;
 		float nx, ny, nz;
 	};
-	struct VectorType 
-	{ 
+	struct VectorType{ 
 		float x, y, z;
 	};
 public:
@@ -61,10 +58,10 @@ private:
 	void RenderBuffers(ID3D11DeviceContext*);
 	
 private:
-	int m_terrainWidth, m_terrainHeight;
+	int terrain_width_, terrain_height_;
 	int vertex_count_, index_count_;
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
-	HeightMapType* m_heightMap;
+	HeightMapType* height_map_;
 	TextureClass* texture_;
 };
 #endif

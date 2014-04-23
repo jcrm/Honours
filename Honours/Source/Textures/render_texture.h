@@ -27,10 +27,10 @@ public:
 	int GetTextureWidth();
 	int GetTextureHeight();
 private:
-	int m_textureWidth, m_textureHeight;
-	ID3D11Texture2D* m_renderTargetTexture;
+	int texture_width_, texture_height_;
+	ID3D11Texture2D* render_target_texture_;
 	ID3D11RenderTargetView* render_target_view_;
-	ID3D11ShaderResourceView* m_shaderResourceView;
+	ID3D11ShaderResourceView* shader_resource_view_;
 	ID3D11Texture2D* depth_stencil_buffer_;
 	ID3D11DepthStencilView* depth_stencil_view_;
 	D3D11_VIEWPORT viewport_;

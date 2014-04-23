@@ -4,11 +4,11 @@
 #include "fontshaderclass.h"
 FontShaderClass::FontShaderClass()
 {
-	m_vertexShader = 0;
-	m_pixelShader = 0;
-	m_layout = 0;
+	vertex_shader_ = 0;
+	pixel_shader_ = 0;
+	layout_ = 0;
 	m_constantBuffer = 0;
-	m_sampleState = 0;
+	sample_state_ = 0;
 	m_pixelBuffer = 0;
 }
 FontShaderClass::FontShaderClass(const FontShaderClass& other)
@@ -99,14 +99,14 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
 	}
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, 
-										&m_vertexShader);
+										&vertex_shader_);
 	if(FAILED(result))
 	{
 		return false;
 	}
     // Create the vertex shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, 
-									   &m_pixelShader);
+									   &pixel_shader_);
 	if(FAILED(result))
 	{
 		return false;
@@ -131,7 +131,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), 
-									   vertexShaderBuffer->GetBufferSize(), &m_layout);
+									   vertexShaderBuffer->GetBufferSize(), &layout_);
 	if(FAILED(result))
 	{
 		return false;
@@ -169,7 +169,7 @@ bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* v
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Create the texture sampler state.
-    result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+    result = device->CreateSamplerState(&samplerDesc, &sample_state_);
 	if(FAILED(result))
 	{
 		return false;
@@ -198,10 +198,10 @@ void FontShaderClass::ShutdownShader()
 		m_pixelBuffer = 0;
 	}
 	// Release the sampler state.
-	if(m_sampleState)
+	if(sample_state_)
 	{
-		m_sampleState->Release();
-		m_sampleState = 0;
+		sample_state_->Release();
+		sample_state_ = 0;
 	}
 	// Release the constant buffer.
 	if(m_constantBuffer)
@@ -210,22 +210,22 @@ void FontShaderClass::ShutdownShader()
 		m_constantBuffer = 0;
 	}
 	// Release the layout.
-	if(m_layout)
+	if(layout_)
 	{
-		m_layout->Release();
-		m_layout = 0;
+		layout_->Release();
+		layout_ = 0;
 	}
 	// Release the pixel shader.
-	if(m_pixelShader)
+	if(pixel_shader_)
 	{
-		m_pixelShader->Release();
-		m_pixelShader = 0;
+		pixel_shader_->Release();
+		pixel_shader_ = 0;
 	}
 	// Release the vertex shader.
-	if(m_vertexShader)
+	if(vertex_shader_)
 	{
-		m_vertexShader->Release();
-		m_vertexShader = 0;
+		vertex_shader_->Release();
+		vertex_shader_ = 0;
 	}
 	return;
 }
@@ -275,9 +275,9 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 	// Copy the matrices into the constant buffer.
-	dataPtr->world = world_matrix;
-	dataPtr->view = viewMatrix;
-	dataPtr->projection = projection_matrix;
+	dataPtr->world_ = world_matrix;
+	dataPtr->view_ = viewMatrix;
+	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
     deviceContext->Unmap(m_constantBuffer, 0);
 	// Set the position of the constant buffer in the vertex shader.
@@ -307,12 +307,12 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(m_layout);
+	deviceContext->IASetInputLayout(layout_);
     // Set the vertex and pixel shaders that will be used to render the triangles.
-    deviceContext->VSSetShader(m_vertexShader, NULL, 0);
-    deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+    deviceContext->VSSetShader(vertex_shader_, NULL, 0);
+    deviceContext->PSSetShader(pixel_shader_, NULL, 0);
 	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+	deviceContext->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangles.
 	deviceContext->DrawIndexed(indexCount, 0, 0);
 	return;

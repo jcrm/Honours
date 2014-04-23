@@ -15,9 +15,9 @@ class ShaderClass
 {
 protected:
 	struct MatrixBufferType{
-		D3DXMATRIX world;
-		D3DXMATRIX view;
-		D3DXMATRIX projection;
+		D3DXMATRIX world_;
+		D3DXMATRIX view_;
+		D3DXMATRIX projection_;
 	};
 public:
 	ShaderClass(void);

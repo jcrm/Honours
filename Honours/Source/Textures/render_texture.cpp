@@ -4,9 +4,9 @@
 #include "render_texture.h"
 RenderTextureClass::RenderTextureClass()
 {
-	m_renderTargetTexture = 0;
+	render_target_texture_ = 0;
 	render_target_view_ = 0;
-	m_shaderResourceView = 0;
+	shader_resource_view_ = 0;
 	depth_stencil_buffer_ = 0;
 	depth_stencil_view_ = 0;
 }
@@ -25,8 +25,8 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	D3D11_TEXTURE2D_DESC depth_buffer_desc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
 	// Store the width and height of the render texture.
-	m_textureWidth = textureWidth;
-	m_textureHeight = textureHeight;
+	texture_width_ = textureWidth;
+	texture_height_ = textureHeight;
 	// Initialize the render target texture description.
 	ZeroMemory(&textureDesc, sizeof(textureDesc));
 	// Setup the render target texture description.
@@ -41,7 +41,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	textureDesc.CPUAccessFlags = 0;
     textureDesc.MiscFlags = 0;
 	// Create the render target texture.
-	result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
+	result = device->CreateTexture2D(&textureDesc, NULL, &render_target_texture_);
 	if(FAILED(result))
 	{
 		return false;
@@ -51,7 +51,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 	// Create the render target view.
-	result = device->CreateRenderTargetView(m_renderTargetTexture, &renderTargetViewDesc, &render_target_view_);
+	result = device->CreateRenderTargetView(render_target_texture_, &renderTargetViewDesc, &render_target_view_);
 	if(FAILED(result))
 	{
 		return false;
@@ -62,7 +62,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 	// Create the shader resource view.
-	result = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &m_shaderResourceView);
+	result = device->CreateShaderResourceView(render_target_texture_, &shaderResourceViewDesc, &shader_resource_view_);
 	if(FAILED(result))
 	{
 		return false;
@@ -124,20 +124,20 @@ void RenderTextureClass::Shutdown()
 		depth_stencil_buffer_->Release();
 		depth_stencil_buffer_ = 0;
 	}
-	if(m_shaderResourceView)
+	if(shader_resource_view_)
 	{
-		m_shaderResourceView->Release();
-		m_shaderResourceView = 0;
+		shader_resource_view_->Release();
+		shader_resource_view_ = 0;
 	}
 	if(render_target_view_)
 	{
 		render_target_view_->Release();
 		render_target_view_ = 0;
 	}
-	if(m_renderTargetTexture)
+	if(render_target_texture_)
 	{
-		m_renderTargetTexture->Release();
-		m_renderTargetTexture = 0;
+		render_target_texture_->Release();
+		render_target_texture_ = 0;
 	}
 	return;
 }
@@ -167,7 +167,7 @@ void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* deviceContext, f
 }
 ID3D11ShaderResourceView* RenderTextureClass::GetShaderResourceView()
 {
-	return m_shaderResourceView;
+	return shader_resource_view_;
 }
 void RenderTextureClass::GetProjectionMatrix(D3DXMATRIX& projection_matrix)
 {
@@ -181,9 +181,9 @@ void RenderTextureClass::GetOrthoMatrix(D3DXMATRIX& ortho_matrix)
 }
 int RenderTextureClass::GetTextureWidth()
 {
-	return m_textureWidth;
+	return texture_width_;
 }
 int RenderTextureClass::GetTextureHeight()
 {
-	return m_textureHeight;
+	return texture_height_;
 }

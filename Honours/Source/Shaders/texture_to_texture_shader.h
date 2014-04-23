@@ -27,7 +27,7 @@ public:
 protected:
 	struct MatrixBufferType2
 	{
-		D3DXMATRIX projection;
+		D3DXMATRIX projection_;
 	};
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture);

@@ -21,6 +21,6 @@ public:
 	void Shutdown();
 	ID3D11ShaderResourceView* GetTexture();
 private:
-	ID3D11ShaderResourceView* m_texture;
+	ID3D11ShaderResourceView* texture_;
 };
 #endif

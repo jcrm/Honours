@@ -4,7 +4,7 @@
 #include "texture.h"
 TextureClass::TextureClass()
 {
-	m_texture = 0;
+	texture_ = 0;
 }
 TextureClass::TextureClass(const TextureClass& other)
 {
@@ -16,7 +16,7 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
 {
 	HRESULT result;
 	// Load the texture in.
-	result = D3DX11CreateShaderResourceViewFromFile(device, filename, NULL, NULL, &m_texture, NULL);
+	result = D3DX11CreateShaderResourceViewFromFile(device, filename, NULL, NULL, &texture_, NULL);
 	if(FAILED(result))
 	{
 		return false;
@@ -26,14 +26,14 @@ bool TextureClass::Initialize(ID3D11Device* device, WCHAR* filename)
 void TextureClass::Shutdown()
 {
 	// Release the texture resource.
-	if(m_texture)
+	if(texture_)
 	{
-		m_texture->Release();
-		m_texture = 0;
+		texture_->Release();
+		texture_ = 0;
 	}
 	return;
 }
 ID3D11ShaderResourceView* TextureClass::GetTexture()
 {
-	return m_texture;
+	return texture_;
 }

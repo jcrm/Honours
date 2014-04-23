@@ -176,7 +176,7 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType2*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->projection = projection_matrix;
+	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
 	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
@@ -201,7 +201,7 @@ bool TextureToTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* devic
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType2*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->projection = projection_matrix;
+	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
 	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.

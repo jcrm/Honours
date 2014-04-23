@@ -16,5 +16,5 @@ protected:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, float);
 	void RenderShader(ID3D11DeviceContext*, int);
-	ID3D11Buffer* m_scaleBuffer;
+	ID3D11Buffer* scale_buffer_;
 };

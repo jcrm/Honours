@@ -140,7 +140,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFile
 	scaleBufferDesc.MiscFlags = 0;
 	scaleBufferDesc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&scaleBufferDesc, NULL, &m_scaleBuffer);
+	result = device->CreateBuffer(&scaleBufferDesc, NULL, &scale_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -165,9 +165,9 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMA
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->world = world_matrix;
-	dataPtr->view = viewMatrix;
-	dataPtr->projection = projection_matrix;
+	dataPtr->world_ = world_matrix;
+	dataPtr->view_ = viewMatrix;
+	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
 	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
@@ -175,7 +175,7 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMA
 	// Now set the constant buffer in the vertex shader with the updated values.
 	device_context->VSSetConstantBuffers(bufferNumber, 1, &matrix_buffer_);
 	
-	result = device_context->Map(m_scaleBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(scale_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
@@ -184,11 +184,11 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMA
 	// Copy the lighting variables into the constant buffer.
 	dataPtr2->scale = D3DXVECTOR4(scale,scale,scale,1.0f);
 	// Unlock the constant buffer.
-	device_context->Unmap(m_scaleBuffer, 0);
+	device_context->Unmap(scale_buffer_, 0);
 	// Set the position of the light constant buffer in the pixel shader.
 	bufferNumber = 1;
 	// Finally set the light constant buffer in the pixel shader with the updated values.
-	device_context->VSSetConstantBuffers(bufferNumber, 1, &m_scaleBuffer);
+	device_context->VSSetConstantBuffers(bufferNumber, 1, &scale_buffer_);
 	return true;
 }
 void FaceShader::RenderShader(ID3D11DeviceContext* device_context, int indexCount){

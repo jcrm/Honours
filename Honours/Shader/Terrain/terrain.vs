@@ -19,14 +19,14 @@ struct VertexInputType
 {
 	float4 position_ : POSITION;
 	float2 tex: TEXCOORD0;
-	float3 normal : NORMAL;
+	float3 normal_ : NORMAL;
 };
 
 struct PixelInputType
 {
 	float4 position_ : SV_POSITION;
 	float2 tex: TEXCOORD0;
-	float3 normal : NORMAL;
+	float3 normal_ : NORMAL;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ PixelInputType TerrainVertexShader(VertexInputType input)
     
 	output.tex = input.tex;
 	// Calculate the normal vector against the world matrix only.
-    output.normal = mul(input.normal, (float3x3)world_matrix);
+    output.normal_ = mul(input.normal_, (float3x3)world_matrix);
     // Normalize the normal vector.
-    output.normal = normalize(output.normal);
+    output.normal_ = normalize(output.normal_);
     return output;
 }
