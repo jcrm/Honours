@@ -7,7 +7,7 @@
 /////////////
 cbuffer MatrixBuffer
 {
-	matrix worldMatrix;
+	matrix world_matrix;
 	matrix viewMatrix;
 	matrix projection_matrix;
 };
@@ -40,13 +40,13 @@ PixelInputType TerrainVertexShader(VertexInputType input)
     input.position.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(input.position, worldMatrix);
+    output.position = mul(input.position, world_matrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projection_matrix);
     
 	output.tex = input.tex;
 	// Calculate the normal vector against the world matrix only.
-    output.normal = mul(input.normal, (float3x3)worldMatrix);
+    output.normal = mul(input.normal, (float3x3)world_matrix);
     // Normalize the normal vector.
     output.normal = normalize(output.normal);
     return output;

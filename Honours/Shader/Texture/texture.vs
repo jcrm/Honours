@@ -7,7 +7,7 @@
 /////////////
 cbuffer MatrixBuffer
 {
-	matrix worldMatrix;
+	matrix world_matrix;
 	matrix viewMatrix;
 	matrix projection_matrix;
 };
@@ -40,7 +40,7 @@ PixelInputType TextureVertexShader(VertexInputType input)
     input.position.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(input.position, worldMatrix);
+    output.position = mul(input.position, world_matrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projection_matrix);
     

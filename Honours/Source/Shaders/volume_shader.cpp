@@ -12,11 +12,11 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool VolumeShader::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool VolumeShader::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 						  D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* frontTexture , ID3D11ShaderResourceView* backTexture,
 						  ID3D11ShaderResourceView* volumeTexture, float scale){
 	// Set the shader parameters that it will use for rendering.
-	bool result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projection_matrix, frontTexture, backTexture, volumeTexture, scale);
+	bool result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, frontTexture, backTexture, volumeTexture, scale);
 	if(!result){
 		return false;
 	}
@@ -147,7 +147,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFi
 	}
 	return true;
 }
-bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 									   D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* frontTexture, 
 									   ID3D11ShaderResourceView* backTexture, ID3D11ShaderResourceView* volumeTexture, float scale){
 	HRESULT result;
@@ -156,7 +156,7 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	VolumeBufferType* dataPtr2;
 	unsigned int bufferNumber;
 	// Transpose the matrices to prepare them for the shader.
-	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
+	D3DXMatrixTranspose(&world_matrix, &world_matrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 	// Lock the constant buffer so it can be written to.
@@ -167,7 +167,7 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->world = worldMatrix;
+	dataPtr->world = world_matrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projection_matrix;
 	// Unlock the constant buffer.

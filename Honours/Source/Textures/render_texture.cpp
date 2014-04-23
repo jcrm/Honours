@@ -174,9 +174,9 @@ void RenderTextureClass::GetProjectionMatrix(D3DXMATRIX& projection_matrix)
 	projection_matrix = projection_matrix_;
 	return;
 }
-void RenderTextureClass::GetOrthoMatrix(D3DXMATRIX& orthoMatrix)
+void RenderTextureClass::GetOrthoMatrix(D3DXMATRIX& ortho_matrix)
 {
-	orthoMatrix = ortho_matrix_;
+	ortho_matrix = ortho_matrix_;
 	return;
 }
 int RenderTextureClass::GetTextureWidth()

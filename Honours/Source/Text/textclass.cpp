@@ -128,56 +128,56 @@ void TextClass::Shutdown()
 	ReleaseSentence(&m_sentence10);
 	return;
 }
-bool TextClass::Render(ID3D11DeviceContext* deviceContext, FontShaderClass* FontShader, D3DXMATRIX worldMatrix, D3DXMATRIX orthoMatrix)
+bool TextClass::Render(ID3D11DeviceContext* deviceContext, FontShaderClass* FontShader, D3DXMATRIX world_matrix, D3DXMATRIX ortho_matrix)
 {
 	bool result;
 	// Draw the sentences.
-	result = RenderSentence(m_sentence1, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence1, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence2, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence2, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence3, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence3, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence4, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence4, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence5, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence5, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence6, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence6, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence7, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence7, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence8, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence8, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence9, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence9, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
 	}
-	result = RenderSentence(m_sentence10, deviceContext, FontShader, worldMatrix, orthoMatrix);
+	result = RenderSentence(m_sentence10, deviceContext, FontShader, world_matrix, ortho_matrix);
 	if(!result)
 	{
 		return false;
@@ -340,8 +340,8 @@ void TextClass::ReleaseSentence(SentenceType** sentence)
 	}
 	return;
 }
-bool TextClass::RenderSentence(SentenceType* sentence, ID3D11DeviceContext* deviceContext, FontShaderClass* FontShader, D3DXMATRIX worldMatrix, 
-							   D3DXMATRIX orthoMatrix)
+bool TextClass::RenderSentence(SentenceType* sentence, ID3D11DeviceContext* deviceContext, FontShaderClass* FontShader, D3DXMATRIX world_matrix, 
+							   D3DXMATRIX ortho_matrix)
 {
 	unsigned int stride, offset;
 	D3DXVECTOR4 pixelColor;
@@ -358,7 +358,7 @@ bool TextClass::RenderSentence(SentenceType* sentence, ID3D11DeviceContext* devi
 	// Create a pixel color vector with the input sentence color.
 	pixelColor = D3DXVECTOR4(sentence->red, sentence->green, sentence->blue, 1.0f);
 	// Render the text using the font shader.
-	result = FontShader->Render(deviceContext, sentence->indexCount, worldMatrix, m_baseViewMatrix, orthoMatrix, m_Font->GetTexture(), pixelColor);
+	result = FontShader->Render(deviceContext, sentence->indexCount, world_matrix, m_baseViewMatrix, ortho_matrix, m_Font->GetTexture(), pixelColor);
 	if(!result)
 	{
 		false;

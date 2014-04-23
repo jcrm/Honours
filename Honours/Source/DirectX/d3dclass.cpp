@@ -186,71 +186,65 @@ void D3DClass::EndScene(){
 }
 void D3DClass::GetProjectionMatrix(D3DXMATRIX& projection_matrix){
 	projection_matrix = projection_matrix_;
-	return;
 }
-void D3DClass::GetWorldMatrix(D3DXMATRIX& worldMatrix){
-	worldMatrix = world_matrix_;
-	return;
+void D3DClass::GetWorldMatrix(D3DXMATRIX& world_matrix){
+	world_matrix = world_matrix_;
 }
-void D3DClass::GetOrthoMatrix(D3DXMATRIX& orthoMatrix){
-	orthoMatrix = ortho_matrix_;
-	return;
+void D3DClass::GetOrthoMatrix(D3DXMATRIX& ortho_matrix){
+	ortho_matrix = ortho_matrix_;
 }
-void D3DClass::GetVideoCardInfo(char* cardName, int& memory){
-	strcpy_s(cardName, 128, video_card_description_);
+void D3DClass::GetVideoCardInfo(char* card_name, int& memory){
+	strcpy_s(card_name, 128, video_card_description_);
 	memory = video_card_memory_;
-	return;
 }
 void D3DClass::TurnZBufferOn(){
 	device_context_->OMSetDepthStencilState(depth_stencil_state_, 1);
-	return;
 }
 void D3DClass::TurnZBufferOff(){
 	device_context_->OMSetDepthStencilState(depth_disabled_stencil_state_, 1);
-	return;
 }
 void D3DClass::TurnOnAlphaBlending(){
-	float blendFactor[4];
+	float blend_factor[4];
 	// Setup the blend factor.
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
+	blend_factor[0] = 0.0f;
+	blend_factor[1] = 0.0f;
+	blend_factor[2] = 0.0f;
+	blend_factor[3] = 0.0f;
 	// Turn on the alpha blending.
-	device_context_->OMSetBlendState(alpha_enable_blending_state_, blendFactor, 0xffffffff);
+	device_context_->OMSetBlendState(alpha_enable_blending_state_, blend_factor, 0xffffffff);
 	return;
 }
 void D3DClass::TurnOffAlphaBlending(){
-	float blendFactor[4];
+	float blend_factor[4];
 	// Setup the blend factor.
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
+	blend_factor[0] = 0.0f;
+	blend_factor[1] = 0.0f;
+	blend_factor[2] = 0.0f;
+	blend_factor[3] = 0.0f;
 	// Turn off the alpha blending.
-	device_context_->OMSetBlendState(alpha_disable_blending_state_, blendFactor, 0xffffffff);
+	device_context_->OMSetBlendState(alpha_disable_blending_state_, blend_factor, 0xffffffff);
 	return;
 }
 void D3DClass::EnableAlphaBlending(){
-	float blendFactor[4];
+	float blend_factor[4];
 	// Setup the blend factor.
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
+	blend_factor[0] = 0.0f;
+	blend_factor[1] = 0.0f;
+	blend_factor[2] = 0.0f;
+	blend_factor[3] = 0.0f;
 	// Turn on the alpha blending.
-	device_context_->OMSetBlendState(alpha_enable_additional_blending_state_, blendFactor, 0xffffffff);
+	device_context_->OMSetBlendState(alpha_enable_additional_blending_state_, blend_factor, 0xffffffff);
 	return;
 }
 void D3DClass::DisableAlphaBlending(){
-	float blendFactor[4];
+	float blend_factor[4];
 	// Setup the blend factor.
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
+	blend_factor[0] = 0.0f;
+	blend_factor[1] = 0.0f;
+	blend_factor[2] = 0.0f;
+	blend_factor[3] = 0.0f;
 	// Turn off the alpha blending.
-	device_context_->OMSetBlendState(alpha_disable_additional_blending_state_, blendFactor, 0xffffffff);
+	device_context_->OMSetBlendState(alpha_disable_additional_blending_state_, blend_factor, 0xffffffff);
 	return;
 }
 void D3DClass::SetBackBufferRenderTarget(){

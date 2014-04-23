@@ -49,14 +49,14 @@ void ParticleShaderClass::Shutdown()
 }
 
 
-bool ParticleShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool ParticleShaderClass::Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 								D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projection_matrix, texture);
+	result = SetShaderParameters(deviceContext, world_matrix, viewMatrix, projection_matrix, texture);
 	if(!result)
 	{
 		return false;
@@ -299,7 +299,7 @@ void ParticleShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWN
 }
 
 
-bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 											 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
@@ -309,7 +309,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 
 
 	// Transpose the matrices to prepare them for the shader.
-	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
+	D3DXMatrixTranspose(&world_matrix, &world_matrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 
@@ -324,7 +324,7 @@ bool ParticleShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 
 	// Copy the matrices into the constant buffer.
-	dataPtr->world = worldMatrix;
+	dataPtr->world = world_matrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projection_matrix;
 

@@ -19,12 +19,12 @@ bool TextureShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 	}
 	return true;
 }
-bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool TextureShaderClass::Render(ID3D11DeviceContext* device_context, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 								D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(device_context, worldMatrix, viewMatrix, projection_matrix, texture);
+	result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, texture);
 	if(!result)
 	{
 		return false;
@@ -158,7 +158,7 @@ bool TextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	}
 	return true;
 }
-bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX worldMatrix, D3DXMATRIX viewMatrix, 
+bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 											 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
@@ -166,7 +166,7 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	MatrixBufferType* dataPtr;
 	unsigned int bufferNumber;
 	// Transpose the matrices to prepare them for the shader.
-	D3DXMatrixTranspose(&worldMatrix, &worldMatrix);
+	D3DXMatrixTranspose(&world_matrix, &world_matrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
 	D3DXMatrixTranspose(&projection_matrix, &projection_matrix);
 	// Lock the constant buffer so it can be written to.
@@ -178,7 +178,7 @@ bool TextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MatrixBufferType*)mappedResource.pData;
 	// Copy the matrices into the constant buffer.
-	dataPtr->world = worldMatrix;
+	dataPtr->world = world_matrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projection_matrix;
 	// Unlock the constant buffer.
