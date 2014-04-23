@@ -22,8 +22,8 @@ public:
 	D3DXVECTOR4 GetDiffuseColor();
 	D3DXVECTOR3 GetDirection();
 private:
-	D3DXVECTOR4 m_ambientColor;
-	D3DXVECTOR4 m_diffuseColor;
-	D3DXVECTOR3 m_direction;
+	D3DXVECTOR4 ambient_color_;
+	D3DXVECTOR4 diffuse_color_;
+	D3DXVECTOR3 direction_;
 };
 #endif

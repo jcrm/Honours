@@ -11,15 +11,15 @@ PositionClass::PositionClass()
 	rotation_x_ = 0.0f;
 	rotation_y_ = 0.0f;
 	rotation_z_ = 0.0f;
-	m_frameTime = 0.0f;
-	m_forwardSpeed   = 0.0f;
-	m_backwardSpeed  = 0.0f;
-	m_upwardSpeed    = 0.0f;
-	m_downwardSpeed  = 0.0f;
-	m_leftTurnSpeed  = 0.0f;
-	m_rightTurnSpeed = 0.0f;
-	m_lookUpSpeed    = 0.0f;
-	m_lookDownSpeed  = 0.0f;
+	frame_time_ = 0.0f;
+	forward_speed_   = 0.0f;
+	backward_speed_  = 0.0f;
+	upward_speed_    = 0.0f;
+	downward_speed_  = 0.0f;
+	left_turn_speed_  = 0.0f;
+	right_turn_speed_ = 0.0f;
+	look_up_speed_    = 0.0f;
+	look_down_speed_  = 0.0f;
 }
 PositionClass::PositionClass(const PositionClass& other)
 {
@@ -57,7 +57,7 @@ void PositionClass::GetRotation(float& x, float& y, float& z)
 }
 void PositionClass::SetFrameTime(float time)
 {
-	m_frameTime = time;
+	frame_time_ = time;
 	return;
 }
 void PositionClass::MoveForward(bool key_down)
@@ -66,25 +66,25 @@ void PositionClass::MoveForward(bool key_down)
 	// Update the forward speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_forwardSpeed += m_frameTime * 0.001f;
-		if(m_forwardSpeed > (m_frameTime * 0.03f))
+		forward_speed_ += frame_time_ * 0.001f;
+		if(forward_speed_ > (frame_time_ * 0.03f))
 		{
-			m_forwardSpeed = m_frameTime * 0.03f;
+			forward_speed_ = frame_time_ * 0.03f;
 		}
 	}
 	else
 	{
-		m_forwardSpeed -= m_frameTime * 0.0007f;
-		if(m_forwardSpeed < 0.0f)
+		forward_speed_ -= frame_time_ * 0.0007f;
+		if(forward_speed_ < 0.0f)
 		{
-			m_forwardSpeed = 0.0f;
+			forward_speed_ = 0.0f;
 		}
 	}
 	// Convert degrees to radians.
 	radians = rotation_y_ * 0.0174532925f;
 	// Update the position.
-	position_x_ += sinf(radians) * m_forwardSpeed;
-	position_z_ += cosf(radians) * m_forwardSpeed;
+	position_x_ += sinf(radians) * forward_speed_;
+	position_z_ += cosf(radians) * forward_speed_;
 	return;
 }
 void PositionClass::MoveBackward(bool key_down)
@@ -93,26 +93,26 @@ void PositionClass::MoveBackward(bool key_down)
 	// Update the backward speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_backwardSpeed += m_frameTime * 0.001f;
-		if(m_backwardSpeed > (m_frameTime * 0.03f))
+		backward_speed_ += frame_time_ * 0.001f;
+		if(backward_speed_ > (frame_time_ * 0.03f))
 		{
-			m_backwardSpeed = m_frameTime * 0.03f;
+			backward_speed_ = frame_time_ * 0.03f;
 		}
 	}
 	else
 	{
-		m_backwardSpeed -= m_frameTime * 0.0007f;
+		backward_speed_ -= frame_time_ * 0.0007f;
 		
-		if(m_backwardSpeed < 0.0f)
+		if(backward_speed_ < 0.0f)
 		{
-			m_backwardSpeed = 0.0f;
+			backward_speed_ = 0.0f;
 		}
 	}
 	// Convert degrees to radians.
 	radians = rotation_y_ * 0.0174532925f;
 	// Update the position.
-	position_x_ -= sinf(radians) * m_backwardSpeed;
-	position_z_ -= cosf(radians) * m_backwardSpeed;
+	position_x_ -= sinf(radians) * backward_speed_;
+	position_z_ -= cosf(radians) * backward_speed_;
 	return;
 }
 void PositionClass::MoveUpward(bool key_down)
@@ -120,22 +120,22 @@ void PositionClass::MoveUpward(bool key_down)
 	// Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_upwardSpeed += m_frameTime * 0.003f;
-		if(m_upwardSpeed > (m_frameTime * 0.03f))
+		upward_speed_ += frame_time_ * 0.003f;
+		if(upward_speed_ > (frame_time_ * 0.03f))
 		{
-			m_upwardSpeed = m_frameTime * 0.03f;
+			upward_speed_ = frame_time_ * 0.03f;
 		}
 	}
 	else
 	{
-		m_upwardSpeed -= m_frameTime * 0.002f;
-		if(m_upwardSpeed < 0.0f)
+		upward_speed_ -= frame_time_ * 0.002f;
+		if(upward_speed_ < 0.0f)
 		{
-			m_upwardSpeed = 0.0f;
+			upward_speed_ = 0.0f;
 		}
 	}
 	// Update the height position.
-	position_y_ += m_upwardSpeed;
+	position_y_ += upward_speed_;
 	return;
 }
 void PositionClass::MoveDownward(bool key_down)
@@ -143,22 +143,22 @@ void PositionClass::MoveDownward(bool key_down)
 	// Update the downward speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_downwardSpeed += m_frameTime * 0.003f;
-		if(m_downwardSpeed > (m_frameTime * 0.03f))
+		downward_speed_ += frame_time_ * 0.003f;
+		if(downward_speed_ > (frame_time_ * 0.03f))
 		{
-			m_downwardSpeed = m_frameTime * 0.03f;
+			downward_speed_ = frame_time_ * 0.03f;
 		}
 	}
 	else
 	{
-		m_downwardSpeed -= m_frameTime * 0.002f;
-		if(m_downwardSpeed < 0.0f)
+		downward_speed_ -= frame_time_ * 0.002f;
+		if(downward_speed_ < 0.0f)
 		{
-			m_downwardSpeed = 0.0f;
+			downward_speed_ = 0.0f;
 		}
 	}
 	// Update the height position.
-	position_y_ -= m_downwardSpeed;
+	position_y_ -= downward_speed_;
 	return;
 }
 void PositionClass::TurnLeft(bool key_down)
@@ -166,22 +166,22 @@ void PositionClass::TurnLeft(bool key_down)
 	// Update the left turn speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_leftTurnSpeed += m_frameTime * 0.01f;
-		if(m_leftTurnSpeed > (m_frameTime * 0.15f))
+		left_turn_speed_ += frame_time_ * 0.01f;
+		if(left_turn_speed_ > (frame_time_ * 0.15f))
 		{
-			m_leftTurnSpeed = m_frameTime * 0.15f;
+			left_turn_speed_ = frame_time_ * 0.15f;
 		}
 	}
 	else
 	{
-		m_leftTurnSpeed -= m_frameTime* 0.005f;
-		if(m_leftTurnSpeed < 0.0f)
+		left_turn_speed_ -= frame_time_* 0.005f;
+		if(left_turn_speed_ < 0.0f)
 		{
-			m_leftTurnSpeed = 0.0f;
+			left_turn_speed_ = 0.0f;
 		}
 	}
 	// Update the rotation.
-	rotation_y_ -= m_leftTurnSpeed;
+	rotation_y_ -= left_turn_speed_;
 	// Keep the rotation in the 0 to 360 range.
 	if(rotation_y_ < 0.0f)
 	{
@@ -194,22 +194,22 @@ void PositionClass::TurnRight(bool key_down)
 	// Update the right turn speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_rightTurnSpeed += m_frameTime * 0.01f;
-		if(m_rightTurnSpeed > (m_frameTime * 0.15f))
+		right_turn_speed_ += frame_time_ * 0.01f;
+		if(right_turn_speed_ > (frame_time_ * 0.15f))
 		{
-			m_rightTurnSpeed = m_frameTime * 0.15f;
+			right_turn_speed_ = frame_time_ * 0.15f;
 		}
 	}
 	else
 	{
-		m_rightTurnSpeed -= m_frameTime* 0.005f;
-		if(m_rightTurnSpeed < 0.0f)
+		right_turn_speed_ -= frame_time_* 0.005f;
+		if(right_turn_speed_ < 0.0f)
 		{
-			m_rightTurnSpeed = 0.0f;
+			right_turn_speed_ = 0.0f;
 		}
 	}
 	// Update the rotation.
-	rotation_y_ += m_rightTurnSpeed;
+	rotation_y_ += right_turn_speed_;
 	// Keep the rotation in the 0 to 360 range.
 	if(rotation_y_ > 360.0f)
 	{
@@ -222,22 +222,22 @@ void PositionClass::LookUpward(bool key_down)
 	// Update the upward rotation speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_lookUpSpeed += m_frameTime * 0.01f;
-		if(m_lookUpSpeed > (m_frameTime * 0.15f))
+		look_up_speed_ += frame_time_ * 0.01f;
+		if(look_up_speed_ > (frame_time_ * 0.15f))
 		{
-			m_lookUpSpeed = m_frameTime * 0.15f;
+			look_up_speed_ = frame_time_ * 0.15f;
 		}
 	}
 	else
 	{
-		m_lookUpSpeed -= m_frameTime* 0.005f;
-		if(m_lookUpSpeed < 0.0f)
+		look_up_speed_ -= frame_time_* 0.005f;
+		if(look_up_speed_ < 0.0f)
 		{
-			m_lookUpSpeed = 0.0f;
+			look_up_speed_ = 0.0f;
 		}
 	}
 	// Update the rotation.
-	rotation_x_ -= m_lookUpSpeed;
+	rotation_x_ -= look_up_speed_;
 	// Keep the rotation maximum 90 degrees.
 	if(rotation_x_ > 90.0f)
 	{
@@ -250,22 +250,22 @@ void PositionClass::LookDownward(bool key_down)
 	// Update the downward rotation speed movement based on the frame time and whether the user is holding the key down or not.
 	if(key_down)
 	{
-		m_lookDownSpeed += m_frameTime * 0.01f;
-		if(m_lookDownSpeed > (m_frameTime * 0.15f))
+		look_down_speed_ += frame_time_ * 0.01f;
+		if(look_down_speed_ > (frame_time_ * 0.15f))
 		{
-			m_lookDownSpeed = m_frameTime * 0.15f;
+			look_down_speed_ = frame_time_ * 0.15f;
 		}
 	}
 	else
 	{
-		m_lookDownSpeed -= m_frameTime* 0.005f;
-		if(m_lookDownSpeed < 0.0f)
+		look_down_speed_ -= frame_time_* 0.005f;
+		if(look_down_speed_ < 0.0f)
 		{
-			m_lookDownSpeed = 0.0f;
+			look_down_speed_ = 0.0f;
 		}
 	}
 	// Update the rotation.
-	rotation_x_ += m_lookDownSpeed;
+	rotation_x_ += look_down_speed_;
 	// Keep the rotation maximum 90 degrees.
 	if(rotation_x_ < -90.0f)
 	{

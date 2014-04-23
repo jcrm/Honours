@@ -33,10 +33,10 @@ private:
 	void InitializeWindows(int&, int&);
 	void ShutdownWindows();
 private:
-	LPCWSTR m_applicationName;
-	HINSTANCE m_hinstance;
-	HWND m_hwnd;
-	ApplicationClass* m_Application;
+	LPCWSTR application_name_;
+	HINSTANCE hinstance_;
+	HWND hwnd_;
+	ApplicationClass* application_;
 };
 /////////////////////////
 // FUNCTION PROTOTYPES //
@@ -45,5 +45,5 @@ static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 /////////////
 // GLOBALS //
 /////////////
-static SystemClass* ApplicationHandle = 0;
+static SystemClass* application_handle_ = 0;
 #endif

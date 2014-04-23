@@ -32,10 +32,10 @@ public:
 private:
 	float position_x_, position_y_, position_z_;
 	float rotation_x_, rotation_y_, rotation_z_;
-	float m_frameTime;
-	float m_forwardSpeed, m_backwardSpeed;
-	float m_upwardSpeed, m_downwardSpeed;
-	float m_leftTurnSpeed, m_rightTurnSpeed;
-	float m_lookUpSpeed, m_lookDownSpeed;
+	float frame_time_;
+	float forward_speed_, backward_speed_;
+	float upward_speed_, downward_speed_;
+	float left_turn_speed_, right_turn_speed_;
+	float look_up_speed_, look_down_speed_;
 };
 #endif

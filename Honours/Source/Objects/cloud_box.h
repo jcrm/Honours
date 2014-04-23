@@ -16,7 +16,7 @@
 class CloudClass{
 private:
 	struct VertexType{
-		D3DXVECTOR3 position;
+		D3DXVECTOR3 position_;
 		D3DXVECTOR3 texture;
 	};
 	struct VectorType { 
@@ -30,7 +30,7 @@ public:
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 	//getters
-	inline int  GetIndexCount() const {return m_indexCount;}
+	inline int  GetIndexCount() const {return index_count_;}
 	inline RenderTextureClass* GetFrontTexture(){return m_FrontTexture;}
 	inline RenderTextureClass* GetBackTexture(){return m_BackTexture;}
 	
@@ -46,8 +46,8 @@ private:
 	//texture functions 
 	void ReleaseTexture();
 private:
-	int m_vertexCount, m_indexCount;
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
+	int vertex_count_, index_count_;
+	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	RenderTextureClass* m_FrontTexture, *m_BackTexture;
 	D3DXMATRIX transform_;
 	float size;

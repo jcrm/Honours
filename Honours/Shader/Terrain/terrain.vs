@@ -17,14 +17,14 @@ cbuffer MatrixBuffer
 //////////////
 struct VertexInputType
 {
-	float4 position : POSITION;
+	float4 position_ : POSITION;
 	float2 tex: TEXCOORD0;
 	float3 normal : NORMAL;
 };
 
 struct PixelInputType
 {
-	float4 position : SV_POSITION;
+	float4 position_ : SV_POSITION;
 	float2 tex: TEXCOORD0;
 	float3 normal : NORMAL;
 };
@@ -37,12 +37,12 @@ PixelInputType TerrainVertexShader(VertexInputType input)
     PixelInputType output;
 
 	// Change the position vector to be 4 units for proper matrix calculations.
-    input.position.w = 1.0f;
+    input.position_.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(input.position, world_matrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projection_matrix);
+    output.position_ = mul(input.position_, world_matrix);
+    output.position_ = mul(output.position_, viewMatrix);
+    output.position_ = mul(output.position_, projection_matrix);
     
 	output.tex = input.tex;
 	// Calculate the normal vector against the world matrix only.

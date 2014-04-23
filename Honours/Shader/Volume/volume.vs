@@ -18,13 +18,13 @@ cbuffer ScaleBuffer
 //////////////
 struct VertexShaderInput
 {
-	float4 position : POSITION;
+	float4 position_ : POSITION;
 	float2 texcoord : TEXCOORD0;
 };
 
 struct PixelShaderInput
 {
-    float4 position : SV_POSITION;
+    float4 position_ : SV_POSITION;
     float3 texC		: TEXCOORD0;
     float4 pos		: TEXCOORD1;
 	float3 StepSize : TEXCOORD2;
@@ -34,16 +34,16 @@ PixelShaderInput VolumeVS(VertexShaderInput input)
 {
 	PixelShaderInput output;
 
-	input.position.w = 1.0f;
-	input.position = input.position * float4(1, 1, 1, 1) * scale;
+	input.position_.w = 1.0f;
+	input.position_ = input.position_ * float4(1, 1, 1, 1) * scale;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output.position = mul(input.position/scale, world_matrix);
-	output.position = mul(output.position, view_matrix_);
-	output.position = mul(output.position, projection_matrix);
+	output.position_ = mul(input.position_/scale, world_matrix);
+	output.position_ = mul(output.position_, view_matrix_);
+	output.position_ = mul(output.position_, projection_matrix);
 
-	output.texC = input.position;
-	output.pos = output.position;
+	output.texC = input.position_;
+	output.pos = output.position_;
 	output.StepSize = StepSize;
 	output.Iterations = Iterations;
 	return output;

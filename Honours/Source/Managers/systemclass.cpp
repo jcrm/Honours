@@ -4,7 +4,7 @@
 #include "systemclass.h"
 SystemClass::SystemClass()
 {
-	m_Application = 0;
+	application_ = 0;
 }
 SystemClass::SystemClass(const SystemClass& other)
 {
@@ -22,13 +22,13 @@ bool SystemClass::Initialize()
 	// Initialize the windows api.
 	InitializeWindows(screen_width, screen_height);
 	// Create the application wrapper object.
-	m_Application = new ApplicationClass;
-	if(!m_Application)
+	application_ = new ApplicationClass;
+	if(!application_)
 	{
 		return false;
 	}
 	// Initialize the application wrapper object.
-	result = m_Application->Initialize(m_hinstance, m_hwnd, screen_width, screen_height);
+	result = application_->Initialize(hinstance_, hwnd_, screen_width, screen_height);
 	if(!result)
 	{
 		return false;
@@ -38,11 +38,11 @@ bool SystemClass::Initialize()
 void SystemClass::Shutdown()
 {
 	// Release the application wrapper object.
-	if(m_Application)
+	if(application_)
 	{
-		m_Application->Shutdown();
-		delete m_Application;
-		m_Application = 0;
+		application_->Shutdown();
+		delete application_;
+		application_ = 0;
 	}
 	// Shutdown the window.
 	ShutdownWindows();
@@ -87,7 +87,7 @@ bool SystemClass::Frame()
 {
 	bool result;
 	// Do the frame processing for the application object.
-	result = m_Application->Frame();
+	result = application_->Frame();
 	if(!result)
 	{
 		return false;
@@ -104,23 +104,23 @@ void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
 	DEVMODE dmScreenSettings;
 	int posX, posY;
 	// Get an external pointer to this object.	
-	ApplicationHandle = this;
+	application_handle_ = this;
 	// Get the instance of this application.
-	m_hinstance = GetModuleHandle(NULL);
+	hinstance_ = GetModuleHandle(NULL);
 	// Give the application a name.
-	m_applicationName = L"Engine";
+	application_name_ = L"Engine";
 	// Setup the windows class with default settings.
 	wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc   = WndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = m_hinstance;
+	wc.hInstance     = hinstance_;
 	wc.hIcon		 = LoadIcon(NULL, IDI_WINLOGO);
 	wc.hIconSm       = wc.hIcon;
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	wc.lpszMenuName  = NULL;
-	wc.lpszClassName = m_applicationName;
+	wc.lpszClassName = application_name_;
 	wc.cbSize        = sizeof(WNDCLASSEX);
 	
 	// Register the window class.
@@ -153,13 +153,13 @@ void SystemClass::InitializeWindows(int& screen_width, int& screen_height)
 		posY = (GetSystemMetrics(SM_CYSCREEN) - screen_height) / 2;
 	}
 	// Create the window with the screen settings and get the handle to it.
-	m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName, 
+	hwnd_ = CreateWindowEx(WS_EX_APPWINDOW, application_name_, application_name_, 
 						    WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-						    posX, posY, screen_width, screen_height, NULL, NULL, m_hinstance, NULL);
+						    posX, posY, screen_width, screen_height, NULL, NULL, hinstance_, NULL);
 	// Bring the window up on the screen and set it as main focus.
-	ShowWindow(m_hwnd, SW_SHOW);
-	SetForegroundWindow(m_hwnd);
-	SetFocus(m_hwnd);
+	ShowWindow(hwnd_, SW_SHOW);
+	SetForegroundWindow(hwnd_);
+	SetFocus(hwnd_);
 	// Hide the mouse cursor.
 	ShowCursor(false);
 	return;
@@ -174,13 +174,13 @@ void SystemClass::ShutdownWindows()
 		ChangeDisplaySettings(NULL, 0);
 	}
 	// Remove the window.
-	DestroyWindow(m_hwnd);
-	m_hwnd = NULL;
+	DestroyWindow(hwnd_);
+	hwnd_ = NULL;
 	// Remove the application instance.
-	UnregisterClass(m_applicationName, m_hinstance);
-	m_hinstance = NULL;
+	UnregisterClass(application_name_, hinstance_);
+	hinstance_ = NULL;
 	// Release the pointer to this class.
-	ApplicationHandle = NULL;
+	application_handle_ = NULL;
 	return;
 }
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
@@ -202,7 +202,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		// All other messages pass to the message handler in the system class.
 		default:
 		{
-			return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
+			return application_handle_->MessageHandler(hwnd, umessage, wparam, lparam);
 		}
 	}
 }

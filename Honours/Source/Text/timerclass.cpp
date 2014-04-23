@@ -30,12 +30,12 @@ void TimerClass::Frame()
 	// Calculate the difference in time since the last time we queried for the current time.
 	timeDifference = (float)(currentTime - m_startTime);
 	// Calculate the frame time by the time difference over the timer speed resolution.
-	m_frameTime = timeDifference / m_ticksPerMs;
+	frame_time_ = timeDifference / m_ticksPerMs;
 	// Restart the timer.
 	m_startTime = currentTime;
 	return;
 }
 float TimerClass::GetTime()
 {
-	return m_frameTime;
+	return frame_time_;
 }

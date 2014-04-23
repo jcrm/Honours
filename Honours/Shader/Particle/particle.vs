@@ -19,14 +19,14 @@ cbuffer MatrixBuffer
 //////////////
 struct VertexInputType
 {
-    float4 position : POSITION;
+    float4 position_ : POSITION;
     float2 tex : TEXCOORD0;
 	float4 color : COLOR;
 };
 
 struct PixelInputType
 {
-    float4 position : SV_POSITION;
+    float4 position_ : SV_POSITION;
     float2 tex : TEXCOORD0;
 	float4 color : COLOR;
 };
@@ -41,12 +41,12 @@ PixelInputType ParticleVertexShader(VertexInputType input)
     
 
 	// Change the position vector to be 4 units for proper matrix calculations.
-    input.position.w = 1.0f;
+    input.position_.w = 1.0f;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(input.position, world_matrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projection_matrix);
+    output.position_ = mul(input.position_, world_matrix);
+    output.position_ = mul(output.position_, viewMatrix);
+    output.position_ = mul(output.position_, projection_matrix);
     
 	// Store the texture coordinates for the pixel shader.
 	output.tex = input.tex;

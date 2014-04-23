@@ -27,8 +27,8 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 {
 	bool result;
 	// Store the screen width and height for calculating pixel location during the sentence updates.
-	m_screen_width = screen_width;
-	m_screen_height = screen_height;
+	screen_width_ = screen_width;
+	screen_height_ = screen_height;
 	// Store the base view matrix for 2D text rendering.
 	m_baseViewMatrix = baseViewMatrix;
 	// Create the font object.
@@ -297,8 +297,8 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	// Initialize vertex array to zeros at first.
 	memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
 	// Calculate the X and Y pixel position on the screen to start drawing to.
-	drawX = (float)(((m_screen_width / 2) * -1) + positionX);
-	drawY = (float)((m_screen_height / 2) - positionY);
+	drawX = (float)(((screen_width_ / 2) * -1) + positionX);
+	drawY = (float)((screen_height_ / 2) - positionY);
 	// Use the font class to build the vertex array from the sentence text and sentence draw location.
 	m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 	// Lock the vertex buffer so it can be written to.

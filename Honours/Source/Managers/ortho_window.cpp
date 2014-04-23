@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "ortho_window.h"
 OrthoWindowClass::OrthoWindowClass(){
-	m_vertexBuffer = 0;
-	m_indexBuffer = 0;
+	vertex_buffer_ = 0;
+	index_buffer_ = 0;
 }
 OrthoWindowClass::OrthoWindowClass(const OrthoWindowClass& other){
 }
@@ -61,41 +61,41 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 	// Calculate the screen coordinates of the bottom of the window.
 	bottom = -1;
 	// Set the number of vertices in the vertex array.
-	m_vertexCount = 6;
+	vertex_count_ = 6;
 	// Set the number of indices in the index array.
-	m_indexCount = m_vertexCount;
+	index_count_ = vertex_count_;
 	// Create the vertex array.
-	vertices = new VertexType[m_vertexCount];
+	vertices = new VertexType[vertex_count_];
 	if(!vertices){
 		return false;
 	}
 	// Create the index array.
-	indices = new unsigned long[m_indexCount];
+	indices = new unsigned long[index_count_];
 	if(!indices){
 		return false;
 	}
 	// Load the vertex array with data.
 	// First triangle.
-	vertices[0].position = D3DXVECTOR3(left, top, 0.0f);  // Top left.
+	vertices[0].position_ = D3DXVECTOR3(left, top, 0.0f);  // Top left.
 	vertices[0].texture = D3DXVECTOR2(0.0f, 0.0f);
-	vertices[1].position = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
+	vertices[1].position_ = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
 	vertices[1].texture = D3DXVECTOR2(1.0f, 1.0f);
-	vertices[2].position = D3DXVECTOR3(left, bottom, 0.0f);  // Bottom left.
+	vertices[2].position_ = D3DXVECTOR3(left, bottom, 0.0f);  // Bottom left.
 	vertices[2].texture = D3DXVECTOR2(0.0f, 1.0f);
 	// Second triangle.
-	vertices[3].position = D3DXVECTOR3(left, top, 0.0f);  // Top left.
+	vertices[3].position_ = D3DXVECTOR3(left, top, 0.0f);  // Top left.
 	vertices[3].texture = D3DXVECTOR2(0.0f, 0.0f);
-	vertices[4].position = D3DXVECTOR3(right, top, 0.0f);  // Top right.
+	vertices[4].position_ = D3DXVECTOR3(right, top, 0.0f);  // Top right.
 	vertices[4].texture = D3DXVECTOR2(1.0f, 0.0f);
-	vertices[5].position = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
+	vertices[5].position_ = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
 	vertices[5].texture = D3DXVECTOR2(1.0f, 1.0f);
 	// Load the index array with data.
-	for(i=0; i<m_indexCount; i++){
+	for(i=0; i<index_count_; i++){
 		indices[i] = i;
 	}
 	// Set up the description of the vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * vertex_count_;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufferDesc.CPUAccessFlags = 0;
     vertexBufferDesc.MiscFlags = 0;
@@ -105,13 +105,13 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 	// Now finally create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &vertex_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Set up the description of the index buffer.
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+    indexBufferDesc.ByteWidth = sizeof(unsigned long) * index_count_;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufferDesc.CPUAccessFlags = 0;
     indexBufferDesc.MiscFlags = 0;
@@ -121,7 +121,7 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
+	result = device->CreateBuffer(&indexBufferDesc, &indexData, &index_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -134,14 +134,14 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 }
 void OrthoWindowClass::ShutdownBuffers(){
 	// Release the index buffer.
-	if(m_indexBuffer){
-		m_indexBuffer->Release();
-		m_indexBuffer = 0;
+	if(index_buffer_){
+		index_buffer_->Release();
+		index_buffer_ = 0;
 	}
 	// Release the vertex buffer.
-	if(m_vertexBuffer){
-		m_vertexBuffer->Release();
-		m_vertexBuffer = 0;
+	if(vertex_buffer_){
+		vertex_buffer_->Release();
+		vertex_buffer_ = 0;
 	}
 	return;
 }
@@ -152,9 +152,9 @@ void OrthoWindowClass::RenderBuffers(ID3D11DeviceContext* deviceContext){
 	stride = sizeof(VertexType); 
 	offset = 0;
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+	deviceContext->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 	// Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	return;

@@ -62,8 +62,8 @@ private:
 	
 private:
 	int m_terrainWidth, m_terrainHeight;
-	int m_vertexCount, m_indexCount;
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
+	int vertex_count_, index_count_;
+	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	HeightMapType* m_heightMap;
 	TextureClass* m_Texture;
 };

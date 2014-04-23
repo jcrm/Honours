@@ -84,9 +84,9 @@ private:
 
 	TextureClass* m_Texture;
 	ParticleType* m_particleList;
-	int m_vertexCount, m_indexCount;
+	int vertex_count_, index_count_;
 	VertexType* m_vertices;
-	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
+	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	int kill_count_;
 	//where the model is in 3d space
 	D3DXMATRIX translation_;
