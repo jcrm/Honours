@@ -62,7 +62,7 @@
     <ClInclude Include="Source\Objects\terrain.h" />
     <ClInclude Include="Source\Shaders\fontshaderclass.h" />
     <ClInclude Include="Source\Shaders\face_shader.h" />
-    <ClInclude Include="Source\Shaders\mergetextureshader.h" />
+    <ClInclude Include="Source\Shaders\merge_texture_shader.h" />
     <ClInclude Include="Source\Shaders\particle_shader.h" />
     <ClInclude Include="Source\Shaders\shader.h" />
     <ClInclude Include="Source\Shaders\terrain_shader.h" />

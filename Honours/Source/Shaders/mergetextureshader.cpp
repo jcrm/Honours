@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: textureshaderclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
-#include "mergetextureshader.h"
+#include "merge_texture_shader.h"
 
 
 MergeTextureShaderClass::MergeTextureShaderClass()
 {
-	mMergeBuffer = 0;
+	merge_buffer_ = 0;
 }
 
 
@@ -187,7 +187,7 @@ bool MergeTextureShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, 
 	glowBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&glowBufferDesc, NULL, &mMergeBuffer);
+	result = device->CreateBuffer(&glowBufferDesc, NULL, &merge_buffer_);
 	if(FAILED(result))
 	{
 		return false;
@@ -282,18 +282,18 @@ bool MergeTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceCon
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MergeBufferType *dataPtr;
 
-	result = deviceContext->Map(mMergeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = deviceContext->Map(merge_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
 
 	// Get a pointer to the data in the constant buffer.
 	dataPtr = (MergeBufferType*)mappedResource.pData;
-	dataPtr->strength = 0.25f;
+	dataPtr->strength_ = 0.25f;
 	// Unlock the constant buffer.
-	deviceContext->Unmap(mMergeBuffer, 0);
+	deviceContext->Unmap(merge_buffer_, 0);
 
-	deviceContext->PSSetConstantBuffers(0,1,&mMergeBuffer);
+	deviceContext->PSSetConstantBuffers(0,1,&merge_buffer_);
 
 	// Set shader texture resource in the pixel shader.
 	deviceContext->PSSetShaderResources(0, 1, &texture);

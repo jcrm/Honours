@@ -21,17 +21,17 @@ public:
 	TextureToTextureShaderClass();
 	TextureToTextureShaderClass(const TextureToTextureShaderClass&);
 	~TextureToTextureShaderClass();
-	bool Initialize(ID3D11Device* device, HWND hwnd);
+	bool Initialize(ID3D11Device*, HWND);
 	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, ID3D11ShaderResourceView*, float, float);
-	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture);
+	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, ID3D11ShaderResourceView*);
 protected:
 	struct MatrixBufferType2
 	{
 		D3DXMATRIX projection_;
 	};
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, float screen_height, float screen_width);
+	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, ID3D11ShaderResourceView*);
+	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, ID3D11ShaderResourceView*, float, float);
 	void RenderShader(ID3D11DeviceContext*, int);
 };
 #endif

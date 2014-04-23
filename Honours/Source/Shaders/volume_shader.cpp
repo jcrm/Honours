@@ -190,9 +190,9 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	float maxSize = 64.f;
 	float mStepScale = 1.0f;
 	// Copy the lighting variables into the constant buffer.
-	dataPtr2->scale = D3DXVECTOR4(scale,scale,scale,1.0f);
-	dataPtr2->Iterations = (int)maxSize * (1.0f / mStepScale);
-	dataPtr2->StepSize = D3DXVECTOR3(1.0f / 64.f, 1.0f / 64.f, 1.0f / 64.f);;
+	dataPtr2->scale_ = D3DXVECTOR4(scale,scale,scale,1.0f);
+	dataPtr2->iterations_ = (int)maxSize * (1.0f / mStepScale);
+	dataPtr2->step_size_ = D3DXVECTOR3(1.0f / 64.f, 1.0f / 64.f, 1.0f / 64.f);;
 	
 	// Unlock the constant buffer.
 	device_context->Unmap(volume_buffer_, 0);

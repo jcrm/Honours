@@ -47,7 +47,7 @@ const float SCREEN_NEAR = 0.1f;
 #include "../Shaders/shader.h"
 #include "../Shaders/volume_shader.h"
 #include "../Shaders/face_shader.h"
-#include "../Shaders/mergetextureshader.h"
+#include "../Shaders/merge_texture_shader.h"
 #include "../Textures/render_texture.h"
 #include "../CUDA/cuda_structs.h"
 #include "../CUDA/cuda_kernals.h"

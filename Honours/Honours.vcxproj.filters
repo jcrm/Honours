@@ -286,14 +286,14 @@
     <ClInclude Include="Source\Application\application.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\mergetextureshader.h">
-      <Filter>Header Files\Shader Files\Texture Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Objects\particle_system.h">
       <Filter>Header Files\Object Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Shaders\particle_shader.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shaders\merge_texture_shader.h">
+      <Filter>Header Files\Shader Files\Texture Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

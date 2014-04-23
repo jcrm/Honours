@@ -10,9 +10,9 @@ public:
 	ID3D11Buffer* GetBuffer(){return matrix_buffer_;}
 private:
 	struct VolumeBufferType{
-		D3DXVECTOR4 scale;
-		D3DXVECTOR3 StepSize;
-		float Iterations;
+		D3DXVECTOR4 scale_;
+		D3DXVECTOR3 step_size_;
+		float iterations_;
 	};
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);

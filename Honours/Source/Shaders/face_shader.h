@@ -4,7 +4,7 @@ class FaceShader : public ShaderClass
 {
 private:
 	struct ScaleBufferType{
-		D3DXVECTOR4 scale;
+		D3DXVECTOR4 scale_;
 	};
 public:
 	FaceShader(void);

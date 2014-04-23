@@ -3,8 +3,8 @@ struct PixelShaderInput
     float4 position_ : SV_POSITION;
     float3 texC		: TEXCOORD0;
     float4 pos		: TEXCOORD1;
-	float3 StepSize : TEXCOORD2;
-	int Iterations: TEXCOORD3;
+	float3 step_size_ : TEXCOORD2;
+	int iterations_: TEXCOORD3;
 };
 Texture2D Front;
 Texture2D Back;
@@ -29,8 +29,8 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	float4 src = 0;
 	float value = 0;
 	
-	float3 Step = dir * input.StepSize;
-	for(int i = 0; i < input.Iterations; i++){
+	float3 Step = dir * input.step_size_;
+	for(int i = 0; i < input.iterations_; i++){
 		pos.w = 0;
 		value = Volume.SampleLevel(SampleType, pos,0).r;
 

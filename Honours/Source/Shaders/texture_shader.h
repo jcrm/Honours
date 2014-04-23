@@ -27,8 +27,8 @@ public:
 protected:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture);
-	bool SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, float screen_height, float screen_width);
+	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, ID3D11ShaderResourceView*);
+	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, ID3D11ShaderResourceView*, float, float);
 	void RenderShader(ID3D11DeviceContext*, int);
 };
 #endif

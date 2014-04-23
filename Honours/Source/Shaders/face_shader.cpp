@@ -182,7 +182,7 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMA
 	// Get a pointer to the data in the constant buffer.
 	dataPtr2 = (ScaleBufferType*)mappedResource.pData;
 	// Copy the lighting variables into the constant buffer.
-	dataPtr2->scale = D3DXVECTOR4(scale,scale,scale,1.0f);
+	dataPtr2->scale_ = D3DXVECTOR4(scale,scale,scale,1.0f);
 	// Unlock the constant buffer.
 	device_context->Unmap(scale_buffer_, 0);
 	// Set the position of the light constant buffer in the pixel shader.
