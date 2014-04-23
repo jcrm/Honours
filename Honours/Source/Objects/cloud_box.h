@@ -17,7 +17,7 @@ class CloudClass{
 private:
 	struct VertexType{
 		D3DXVECTOR3 position_;
-		D3DXVECTOR3 texture;
+		D3DXVECTOR3 texture_;
 	};
 	struct VectorType { 
 		float x, y, z;

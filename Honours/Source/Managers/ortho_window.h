@@ -15,7 +15,7 @@ class OrthoWindowClass{
 private:
 	struct VertexType{
 		D3DXVECTOR3 position_;
-	    D3DXVECTOR2 texture;
+	    D3DXVECTOR2 texture_;
 	};
 public:
 	OrthoWindowClass();

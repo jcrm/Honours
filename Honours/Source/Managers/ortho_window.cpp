@@ -77,18 +77,18 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 	// Load the vertex array with data.
 	// First triangle.
 	vertices[0].position_ = D3DXVECTOR3(left, top, 0.0f);  // Top left.
-	vertices[0].texture = D3DXVECTOR2(0.0f, 0.0f);
+	vertices[0].texture_ = D3DXVECTOR2(0.0f, 0.0f);
 	vertices[1].position_ = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
-	vertices[1].texture = D3DXVECTOR2(1.0f, 1.0f);
+	vertices[1].texture_ = D3DXVECTOR2(1.0f, 1.0f);
 	vertices[2].position_ = D3DXVECTOR3(left, bottom, 0.0f);  // Bottom left.
-	vertices[2].texture = D3DXVECTOR2(0.0f, 1.0f);
+	vertices[2].texture_ = D3DXVECTOR2(0.0f, 1.0f);
 	// Second triangle.
 	vertices[3].position_ = D3DXVECTOR3(left, top, 0.0f);  // Top left.
-	vertices[3].texture = D3DXVECTOR2(0.0f, 0.0f);
+	vertices[3].texture_ = D3DXVECTOR2(0.0f, 0.0f);
 	vertices[4].position_ = D3DXVECTOR3(right, top, 0.0f);  // Top right.
-	vertices[4].texture = D3DXVECTOR2(1.0f, 0.0f);
+	vertices[4].texture_ = D3DXVECTOR2(1.0f, 0.0f);
 	vertices[5].position_ = D3DXVECTOR3(right, bottom, 0.0f);  // Bottom right.
-	vertices[5].texture = D3DXVECTOR2(1.0f, 1.0f);
+	vertices[5].texture_ = D3DXVECTOR2(1.0f, 1.0f);
 	// Load the index array with data.
 	for(i=0; i<index_count_; i++){
 		indices[i] = i;

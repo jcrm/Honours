@@ -94,147 +94,147 @@ bool CloudClass::InitializeBuffers(ID3D11Device* device){
 	// Load the vertex and index array with the terrain data using a quilt method.
 	//front -0
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 0.f);
 	indices[index] = index++;
 	//1
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 0.f);
 	indices[index] = index++;
 	//2
 	vertices[index].position_ = D3DXVECTOR3(size, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 0.f);
 	indices[index] = index++;
 	//2
 	vertices[index].position_ = D3DXVECTOR3(size, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 0.f);
 	indices[index] = index++;
 	//3
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 0.f);
 	indices[index] = index++;
 	//0
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 0.f);
 	indices[index] = index++;
 	//back -//7
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 1.f);
 	indices[index] = index++;
 	//6
 	vertices[index].position_ = D3DXVECTOR3(size, size, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 1.f);
 	indices[index] = index++;
 	//5
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 1.f);
 	indices[index] = index++;
 	//5
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 1.f);
 	indices[index] = index++;
 	//4
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 1.f);
 	indices[index] = index++;
 	//7
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 1.f);
 	indices[index] = index++;
 	//left -//4
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 1.f);
 	indices[index] = index++;
 	//5
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 1.f);
 	indices[index] = index++;
 	//1
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 0.f);
 	indices[index] = index++;
 	//1
 	vertices[index].position_ =D3DXVECTOR3(0.f, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 0.f);
 	indices[index] = index++;
 	//0
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 0.f);
 	indices[index] = index++;
 	//4
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 1.f);
 	indices[index] = index++;
 	//right -//3
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 0.f);
 	indices[index] = index++;
 	//2
 	vertices[index].position_ = D3DXVECTOR3(size, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 0.f);
 	indices[index] = index++;
 	//6
 	vertices[index].position_ = D3DXVECTOR3(size, size, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 1.f);
 	indices[index] = index++;
 	//6
 	vertices[index].position_ = D3DXVECTOR3(size, size, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 1.f);
 	indices[index] = index++;
 	//7
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 1.f);
 	indices[index] = index++;
 	//3
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 0.f);
 	indices[index] = index++;
 	//Bottom -//4
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 1.f);
 	indices[index] = index++;
 	//0
 	vertices[index].position_ =D3DXVECTOR3(0.f, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 0.f);
 	indices[index] = index++;
 	//3
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 0.f);
 	indices[index] = index++;
 	//3
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 0.f);
 	indices[index] = index++;
 	//7
 	vertices[index].position_ = D3DXVECTOR3(size, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 0.f, 1.f);
 	indices[index] = index++;
 	//4
 	vertices[index].position_ = D3DXVECTOR3(0.f, 0.f, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 0.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 0.f, 1.f);
 	indices[index] = index++;
 	//Top -//1
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 0.f);
 	indices[index] = index++;
 	//5
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, size);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 1.f);
 	indices[index] = index++;
 	//6
 	vertices[index].position_ = D3DXVECTOR3(size, size, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 1.f);
 	indices[index] = index++;
 	//6
 	vertices[index].position_ = D3DXVECTOR3(size, size, size);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 1.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 1.f);
 	indices[index] = index++;
 	//2
 	vertices[index].position_ = D3DXVECTOR3(size, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(1.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(1.f, 1.f, 0.f);
 	indices[index] = index++;
 	//1
 	vertices[index].position_ = D3DXVECTOR3(0.f, size, 0.f);
-	vertices[index].texture = D3DXVECTOR3(0.f, 1.f, 0.f);
+	vertices[index].texture_ = D3DXVECTOR3(0.f, 1.f, 0.f);
 	indices[index] = index++;
 	// Set up the description of the static vertex buffer.
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
