@@ -6,8 +6,8 @@
 /////////////
 // GLOBALS //
 /////////////
-Texture2D shaderTexture;
-SamplerState SampleType;
+Texture2D shader_texture_;
+SamplerState sample_type_;
 
 cbuffer LightBuffer
 {
@@ -40,7 +40,7 @@ float4 TerrainPixelShader(PixelInputType input) : SV_TARGET
 	float4 color_;
 
 	//get the texture color
-	textureColor = shaderTexture.Sample(SampleType, input.tex);
+	textureColor = shader_texture_.Sample(sample_type_, input.tex);
 	// Set the default output color to the ambient light value for all pixels.
     color_ = ambient_color_;
 

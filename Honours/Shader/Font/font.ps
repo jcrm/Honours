@@ -5,8 +5,8 @@
 /////////////
 // GLOBALS //
 /////////////
-Texture2D shaderTexture;
-SamplerState SampleType;
+Texture2D shader_texture_;
+SamplerState sample_type_;
 
 cbuffer PixelBuffer
 {
@@ -31,7 +31,7 @@ float4 FontPixelShader(PixelInputType input) : SV_TARGET
 	float4 color;
 
 	// Sample the texture pixel at this location.
-	color = shaderTexture.Sample(SampleType, input.tex_);
+	color = shader_texture_.Sample(sample_type_, input.tex_);
 
 	// If the color is black on the texture then treat this pixel as transparent.
 	if(color.r == 0.0f){

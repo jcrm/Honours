@@ -5,7 +5,7 @@ struct PixelShaderInput
     float4 pos_		: TEXCOORD1;
 };
 
-SamplerState SampleType;
+SamplerState sample_type_;
 
 float4 FacePS(PixelShaderInput input) : SV_TARGET
 {
