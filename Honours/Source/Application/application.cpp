@@ -255,7 +255,7 @@ bool ApplicationClass::Render(){
 *	Renders the objects on screen to a texture ready for post-processing.
 */
 bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
-	D3DXMATRIX world_matrix, view_matrix_, projection_matrix;
+	D3DXMATRIX world_matrix, view_matrix, projection_matrix;
 	bool result;
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
@@ -265,24 +265,24 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
-	camera_->GetViewMatrix(view_matrix_);
+	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 	// Render the terrain buffers.
 	terrain_object_->Render(direct_3d_->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = terrain_shader_->Render(direct_3d_->GetDeviceContext(), terrain_object_->GetIndexCount(), world_matrix, view_matrix_, projection_matrix, 
+	result = terrain_shader_->Render(direct_3d_->GetDeviceContext(), terrain_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, 
 		light_object_->GetAmbientColor(), light_object_->GetDiffuseColor(), light_object_->GetDirection(), terrain_object_->GetTexture());
 	if(!result){
 		return false;
 	}
 	// Turn on the alpha blending before rendering the text.
 	direct_3d_->TurnOnAlphaBlending();
-	D3DXMATRIX modelWorldMatrix = world_matrix;
+	D3DXMATRIX model_world_matrix = world_matrix;
 	D3DXMATRIX translation = cloud_object_->GetTranslation();
-	D3DXMatrixMultiply(&modelWorldMatrix,&modelWorldMatrix,&translation);
+	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
-	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix_, projection_matrix, 
+	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, 
 		cloud_object_->GetFrontShaderResource(), cloud_object_->GetBackShaderResource(), velocity_cuda_->sr_view_,cloud_object_->GetScale());
 	if(!result){
 		return false;
@@ -298,14 +298,14 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 /*
 *	Takes two textures and combines them to make a third texture;
 */
-bool ApplicationClass::RenderMergeTexture(RenderTextureClass *readTexture, RenderTextureClass *readTexture2, RenderTextureClass *writeTexture){
+bool ApplicationClass::RenderMergeTexture(RenderTextureClass *read_texture, RenderTextureClass *read_texture_two, RenderTextureClass *write_texture){
 	bool result;
 
 	// Set the render target to be the render to texture.
-	writeTexture->SetRenderTarget(direct_3d_->GetDeviceContext());
+	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
 
 	// Clear the render to texture.
-	writeTexture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
+	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 
 	// Generate the view matrix based on the camera's position.
 	camera_->Render();
@@ -317,8 +317,8 @@ bool ApplicationClass::RenderMergeTexture(RenderTextureClass *readTexture, Rende
 	full_screen_window_->Render(direct_3d_->GetDeviceContext());
 
 	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
-	result = merge_shader_->Render(direct_3d_->GetDeviceContext(), full_screen_window_->GetIndexCount(), readTexture->GetShaderResourceView(), 
-		readTexture2->GetShaderResourceView());
+	result = merge_shader_->Render(direct_3d_->GetDeviceContext(), full_screen_window_->GetIndexCount(), read_texture->GetShaderResourceView(), 
+		read_texture_two->GetShaderResourceView());
 	if(!result){
 		return false;
 	}
@@ -337,7 +337,7 @@ bool ApplicationClass::RenderMergeTexture(RenderTextureClass *readTexture, Rende
 *	Renders the objects on screen to a texture ready for post-processing.
 */
 bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_texture){
-	D3DXMATRIX world_matrix, model_world_matrix, view_matrix_, projection_matrix;
+	D3DXMATRIX world_matrix, model_world_matrix, view_matrix, projection_matrix;
 	bool result;
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
@@ -347,21 +347,19 @@ bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_textur
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
-	camera_->GetViewMatrix(view_matrix_);
+	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 
 	direct_3d_->EnableAlphaBlending();
 	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
 		//add code for rotating based upon the camera angle
-
-
-		D3DXMATRIX modelWorldMatrix = world_matrix;
+		D3DXMATRIX model_world_matrix = world_matrix;
 		D3DXMATRIX translation = (*iter)->GetTranslation();
-		D3DXMatrixMultiply(&modelWorldMatrix,&modelWorldMatrix,&translation);
+		D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 		// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
 		(*iter)->Render(direct_3d_->GetDeviceContext());
 		// Render the model using the texture shader.
-		result = particle_shader_->Render(direct_3d_->GetDeviceContext(), (*iter)->GetIndexCount(), modelWorldMatrix, view_matrix_, projection_matrix, 
+		result = particle_shader_->Render(direct_3d_->GetDeviceContext(), (*iter)->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
 						  (*iter)->GetTexture());
 		if(!result){
 			return false;
@@ -377,7 +375,7 @@ bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_textur
 	return true;
 }
 bool ApplicationClass::RenderClouds(){
-	D3DXMATRIX world_matrix, model_world_matrix, view_matrix_, projection_matrix;
+	D3DXMATRIX world_matrix, model_world_matrix, view_matrix, projection_matrix;
 	bool result;
 	// Set the render target to be the render to texture.
 	cloud_object_->GetFrontTexture()->SetRenderTarget(direct_3d_->GetDeviceContext());
@@ -387,12 +385,12 @@ bool ApplicationClass::RenderClouds(){
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
-	camera_->GetViewMatrix(view_matrix_);
+	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 	// Render the terrain buffers.
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix_, projection_matrix, cloud_object_->GetScale());
+	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, cloud_object_->GetScale());
 	if(!result){
 		return false;
 	}
@@ -410,12 +408,12 @@ bool ApplicationClass::RenderClouds(){
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
-	camera_->GetViewMatrix(view_matrix_);
+	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 	// Render the terrain buffers.
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix_, projection_matrix, cloud_object_->GetScale());
+	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, cloud_object_->GetScale());
 	if(!result){
 		return false;
 	}
@@ -466,14 +464,14 @@ bool ApplicationClass::RenderTexture(ShaderClass *shader, RenderTextureClass *re
 * Renders a texture to the screen.
 */
 bool ApplicationClass::Render2DTextureScene(RenderTextureClass* read_texture){
-	D3DXMATRIX world_matrix, view_matrix_, ortho_matrix, projection_matrix;
+	D3DXMATRIX world_matrix, view_matrix, ortho_matrix, projection_matrix;
 	bool result;
 	// Clear the buffers to begin the scene.
 	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 	// Generate the view matrix based on the camera's position.
 	camera_->Render();
 	// Get the world, view, and ortho matrices from the camera and d3d objects.
-	camera_->GetViewMatrix(view_matrix_);
+	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetWorldMatrix(world_matrix);
 	direct_3d_->GetOrthoMatrix(ortho_matrix);
 	// Turn off the Z buffer to begin all 2D rendering.
@@ -501,7 +499,7 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* read_texture){
 	return true;
 }
 bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height){
-	D3DXMATRIX base_view_matrix_;
+	D3DXMATRIX base_view_matrix;
 	char video_card[128];
 	int video_memory;
 	bool result = true;
@@ -535,9 +533,9 @@ bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height)
 	if(!text_){
 		return false;
 	}
-	camera_->GetViewMatrix(base_view_matrix_);
+	camera_->GetViewMatrix(base_view_matrix);
 	// Initialize the text object.
-	result = text_->Initialize(direct_3d_->GetDevice(), direct_3d_->GetDeviceContext(), hwnd, screen_width, screen_height, base_view_matrix_);
+	result = text_->Initialize(direct_3d_->GetDevice(), direct_3d_->GetDeviceContext(), hwnd, screen_width, screen_height, base_view_matrix);
 	if(!result){
 		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
 		return false;
