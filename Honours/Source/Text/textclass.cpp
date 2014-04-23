@@ -274,7 +274,7 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int position_
 	VertexType* vertices;
 	float drawX, drawY;
 	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	D3D11_MAPPED_SUBRESOURCE mapped_resource;
 	VertexType* verticesPtr;
 	// Store the color of the sentence.
 	sentence->red_ = red;
@@ -301,13 +301,13 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int position_
 	// Use the font class to build the vertex array from the sentence text and sentence draw location.
 	font_->BuildVertexArray((void*)vertices, text, drawX, drawY);
 	// Lock the vertex buffer so it can be written to.
-	result = device_context->Map(sentence->vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(sentence->vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
 	if(FAILED(result))
 	{
 		return false;
 	}
 	// Get a pointer to the data in the vertex buffer.
-	verticesPtr = (VertexType*)mappedResource.pData;
+	verticesPtr = (VertexType*)mapped_resource.pData;
 	// Copy the data into the vertex buffer.
 	memcpy(verticesPtr, (void*)vertices, (sizeof(VertexType) * sentence->vertex_count_));
 	// Unlock the vertex buffer.

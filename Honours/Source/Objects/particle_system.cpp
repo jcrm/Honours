@@ -375,7 +375,7 @@ void ParticleSystemClass::KillParticles(){
 bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* device_context){
 	int index;
 	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	D3D11_MAPPED_SUBRESOURCE mapped_resource;
 	VertexType* verticesPtr;
 
 	// Initialize vertex array to zeros at first.
@@ -423,13 +423,13 @@ bool ParticleSystemClass::UpdateBuffers(ID3D11DeviceContext* device_context){
 	}
 	
 	// Lock the vertex buffer.
-	result = device_context->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(vertex_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
 	if(FAILED(result)){
 		return false;
 	}
 
 	// Get a pointer to the data in the vertex buffer.
-	verticesPtr = (VertexType*)mappedResource.pData;
+	verticesPtr = (VertexType*)mapped_resource.pData;
 
 	// Copy the data into the vertex buffer.
 	memcpy(verticesPtr, (void*)vertices_, (sizeof(VertexType) * vertex_count_));

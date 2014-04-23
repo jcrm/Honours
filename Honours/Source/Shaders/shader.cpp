@@ -50,27 +50,27 @@ void ShaderClass::ShutdownShader(){
 	}
 	return;
 }
-void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename){
-	char* compileErrors;
-	unsigned long bufferSize, i;
+void ShaderClass::OutputShaderErrorMessage(ID3D10Blob* error_message, HWND hwnd, WCHAR* shader_filename){
+	char* compile_errors;
+	unsigned long buffer_size, i;
 	ofstream fout;
 	// Get a pointer to the error message text buffer.
-	compileErrors = (char*)(errorMessage->GetBufferPointer());
+	compile_errors = (char*)(error_message->GetBufferPointer());
 	// Get the length of the message.
-	bufferSize = errorMessage->GetBufferSize();
+	buffer_size = error_message->GetBufferSize();
 	// Open a file to write the error message to.
 	fout.open("shader-error.txt");
 	// Write out the error message.
-	for(i=0; i<bufferSize; i++)	{
-		fout << compileErrors[i];
+	for(i=0; i<buffer_size; i++)	{
+		fout << compile_errors[i];
 	}
 	// Close the file.
 	fout.close();
 	// Release the error message.
-	errorMessage->Release();
-	errorMessage = 0;
+	error_message->Release();
+	error_message = 0;
 	// Pop a message up on the screen to notify the user to check the text file for compile errors.
-	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
+	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shader_filename, MB_OK);
 	return;
 }
 bool ShaderClass::SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*){
