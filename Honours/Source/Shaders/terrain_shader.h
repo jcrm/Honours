@@ -23,10 +23,10 @@ private:
 		D3DXMATRIX projection_;
 	};
 	struct LightBufferType{
-		D3DXVECTOR4 ambientColor;
-		D3DXVECTOR4 diffuseColor;
-		D3DXVECTOR3 lightDirection;
-		float padding;
+		D3DXVECTOR4 ambient_color_;
+		D3DXVECTOR4 diffuse_color_;
+		D3DXVECTOR3 light_direction_;
+		float padding_;
 	};
 public:
 	TerrainShaderClass();
@@ -34,12 +34,12 @@ public:
 	~TerrainShaderClass();
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();
-	bool Render(ID3D11DeviceContext* deviceContext, int indexCount, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, D3DXMATRIX projection_matrix, D3DXVECTOR4 ambientColor, D3DXVECTOR4 diffuseColor, D3DXVECTOR3 lightDirection, ID3D11ShaderResourceView* texture);
+	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, D3DXVECTOR4, D3DXVECTOR4, D3DXVECTOR3, ID3D11ShaderResourceView*);
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void ShutdownShader();
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
-	bool SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, D3DXMATRIX projection_matrix, D3DXVECTOR4 ambientColor, D3DXVECTOR4 diffuseColor, D3DXVECTOR3 lightDirection, ID3D11ShaderResourceView* texture);
+	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, D3DXVECTOR4, D3DXVECTOR4, D3DXVECTOR3, ID3D11ShaderResourceView*);
 	void RenderShader(ID3D11DeviceContext*, int);
 private:
 	ID3D11VertexShader* vertex_shader_;
@@ -47,6 +47,6 @@ private:
 	ID3D11InputLayout* layout_;
 	ID3D11SamplerState* sample_state_;
 	ID3D11Buffer* matrix_buffer_;
-	ID3D11Buffer* m_lightBuffer;
+	ID3D11Buffer* light_buffer_;
 };
 #endif

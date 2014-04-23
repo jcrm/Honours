@@ -25,7 +25,7 @@ public:
 	struct MergeBufferType
 	{
 		float strength;
-		D3DXVECTOR3 padding;
+		D3DXVECTOR3 padding_;
 	};
 	MergeTextureShaderClass();
 	MergeTextureShaderClass(const MergeTextureShaderClass&);

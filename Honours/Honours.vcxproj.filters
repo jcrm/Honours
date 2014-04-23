@@ -286,14 +286,14 @@
     <ClInclude Include="Source\Application\application.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Objects\particlesystemclass.h">
-      <Filter>Header Files\Object Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shaders\particleshaderclass.h">
-      <Filter>Header Files\Shader Files\Object Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Shaders\mergetextureshader.h">
       <Filter>Header Files\Shader Files\Texture Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Objects\particle_system.h">
+      <Filter>Header Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shaders\particle_shader.h">
+      <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -375,14 +375,14 @@
     <ClCompile Include="Source\Application\application.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Objects\particlesystemclass.cpp">
-      <Filter>Source Files\Object Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shaders\particleshaderclass.cpp">
-      <Filter>Source Files\Shader Files\Object Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Shaders\mergetextureshader.cpp">
       <Filter>Source Files\Shader Files\Texture Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Objects\particle_system.cpp">
+      <Filter>Source Files\Object Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\particle_shader.cpp">
+      <Filter>Source Files\Shader Files\Object Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
