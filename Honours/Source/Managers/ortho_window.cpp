@@ -24,9 +24,9 @@ void OrthoWindowClass::Shutdown(){
 	ShutdownBuffers();
 	return;
 }
-void OrthoWindowClass::Render(ID3D11DeviceContext* deviceContext){
+void OrthoWindowClass::Render(ID3D11DeviceContext* device_context){
 	// Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	RenderBuffers(deviceContext);
+	RenderBuffers(device_context);
 	return;
 }
 bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, int windowHeight){
@@ -144,17 +144,17 @@ void OrthoWindowClass::ShutdownBuffers(){
 	}
 	return;
 }
-void OrthoWindowClass::RenderBuffers(ID3D11DeviceContext* deviceContext){
+void OrthoWindowClass::RenderBuffers(ID3D11DeviceContext* device_context){
 	unsigned int stride;
 	unsigned int offset;
 	// Set vertex buffer stride and offset.
 	stride = sizeof(VertexType); 
 	offset = 0;
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
+	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 	// Set the index buffer to active in the input assembler so it can be rendered.
-	deviceContext->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+	device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	return;
 }

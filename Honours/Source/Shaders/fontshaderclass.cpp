@@ -34,18 +34,18 @@ void FontShaderClass::Shutdown()
 	ShutdownShader();
 	return;
 }
-bool FontShaderClass::Render(ID3D11DeviceContext* deviceContext, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool FontShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 							 D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
 {
 	bool result;
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, world_matrix, viewMatrix, projection_matrix, texture, pixelColor);
+	result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, texture, pixelColor);
 	if(!result)
 	{
 		return false;
 	}
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, index_count_);
+	RenderShader(device_context, index_count_);
 	return true;
 }
 bool FontShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename)
@@ -254,7 +254,7 @@ void FontShaderClass::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hw
 	MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
 	return;
 }
-bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
+bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 										  D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* texture, D3DXVECTOR4 pixelColor)
 {
 	HRESULT result;
@@ -263,7 +263,7 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	unsigned int bufferNumber;
 	PixelBufferType* dataPtr2;
 	// Lock the constant buffer so it can be written to.
-	result = deviceContext->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -279,15 +279,15 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	dataPtr->view_ = viewMatrix;
 	dataPtr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
-    deviceContext->Unmap(constant_buffer_, 0);
+    device_context->Unmap(constant_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &constant_buffer_);
+    device_context->VSSetConstantBuffers(bufferNumber, 1, &constant_buffer_);
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
+	device_context->PSSetShaderResources(0, 1, &texture);
 	// Lock the pixel constant buffer so it can be written to.
-	result = deviceContext->Map(pixel_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(pixel_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result))
 	{
 		return false;
@@ -297,23 +297,23 @@ bool FontShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, D3
 	// Copy the pixel color into the pixel constant buffer.
 	dataPtr2->pixel_color_ = pixelColor;
 	// Unlock the pixel constant buffer.
-    deviceContext->Unmap(pixel_buffer_, 0);
+    device_context->Unmap(pixel_buffer_, 0);
 	// Set the position of the pixel constant buffer in the pixel shader.
 	bufferNumber = 0;
 	// Now set the pixel constant buffer in the pixel shader with the updated value.
-    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &pixel_buffer_);
+    device_context->PSSetConstantBuffers(bufferNumber, 1, &pixel_buffer_);
 	return true;
 }
-void FontShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int index_count_)
+void FontShaderClass::RenderShader(ID3D11DeviceContext* device_context, int index_count_)
 {
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(layout_);
+	device_context->IASetInputLayout(layout_);
     // Set the vertex and pixel shaders that will be used to render the triangles.
-    deviceContext->VSSetShader(vertex_shader_, NULL, 0);
-    deviceContext->PSSetShader(pixel_shader_, NULL, 0);
+    device_context->VSSetShader(vertex_shader_, NULL, 0);
+    device_context->PSSetShader(pixel_shader_, NULL, 0);
 	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &sample_state_);
+	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangles.
-	deviceContext->DrawIndexed(index_count_, 0, 0);
+	device_context->DrawIndexed(index_count_, 0, 0);
 	return;
 }

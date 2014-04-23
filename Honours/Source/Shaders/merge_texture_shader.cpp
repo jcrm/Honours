@@ -41,20 +41,20 @@ void MergeTextureShaderClass::Shutdown()
 
 	return;
 }
-bool MergeTextureShaderClass::Render(ID3D11DeviceContext* deviceContext, int index_count_, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2)
+bool MergeTextureShaderClass::Render(ID3D11DeviceContext* device_context, int index_count_, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2)
 {
 	bool result;
 
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, texture, texture2);
+	result = SetShaderParameters(device_context, texture, texture2);
 	if(!result)
 	{
 		return false;
 	}
 
 	// Now render the prepared buffers with the shader.
-	RenderShader(deviceContext, index_count_);
+	RenderShader(device_context, index_count_);
 
 	return true;
 }
@@ -259,30 +259,30 @@ void MergeTextureShaderClass::ShutdownShader()
 
 
 
-void MergeTextureShaderClass::RenderShader(ID3D11DeviceContext* deviceContext, int index_count_)
+void MergeTextureShaderClass::RenderShader(ID3D11DeviceContext* device_context, int index_count_)
 {
 	// Set the vertex input layout.
-	deviceContext->IASetInputLayout(layout_);
+	device_context->IASetInputLayout(layout_);
 
     // Set the vertex and pixel shaders that will be used to render this triangle.
-    deviceContext->VSSetShader(vertex_shader_, NULL, 0);
-    deviceContext->PSSetShader(pixel_shader_, NULL, 0);
+    device_context->VSSetShader(vertex_shader_, NULL, 0);
+    device_context->PSSetShader(pixel_shader_, NULL, 0);
 
 	// Set the sampler state in the pixel shader.
-	deviceContext->PSSetSamplers(0, 1, &sample_state_);
+	device_context->PSSetSamplers(0, 1, &sample_state_);
 
 	// Render the triangle.
-	deviceContext->DrawIndexed(index_count_, 0, 0);
+	device_context->DrawIndexed(index_count_, 0, 0);
 
 	return;
 }
-bool MergeTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2)
+bool MergeTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context, ID3D11ShaderResourceView* texture, ID3D11ShaderResourceView* texture2)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MergeBufferType *dataPtr;
 
-	result = deviceContext->Map(merge_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	result = device_context->Map(merge_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if(FAILED(result)){
 		return false;
 	}
@@ -291,13 +291,13 @@ bool MergeTextureShaderClass::SetShaderParameters(ID3D11DeviceContext* deviceCon
 	dataPtr = (MergeBufferType*)mappedResource.pData;
 	dataPtr->strength_ = 0.25f;
 	// Unlock the constant buffer.
-	deviceContext->Unmap(merge_buffer_, 0);
+	device_context->Unmap(merge_buffer_, 0);
 
-	deviceContext->PSSetConstantBuffers(0,1,&merge_buffer_);
+	device_context->PSSetConstantBuffers(0,1,&merge_buffer_);
 
 	// Set shader texture resource in the pixel shader.
-	deviceContext->PSSetShaderResources(0, 1, &texture);
-	deviceContext->PSSetShaderResources(1, 1, &texture2);
+	device_context->PSSetShaderResources(0, 1, &texture);
+	device_context->PSSetShaderResources(1, 1, &texture2);
 
 	return true;
 }

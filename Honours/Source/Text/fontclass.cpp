@@ -13,17 +13,17 @@ FontClass::FontClass(const FontClass& other)
 FontClass::~FontClass()
 {
 }
-bool FontClass::Initialize(ID3D11Device* device, char* fontFilename, WCHAR* textureFilename)
+bool FontClass::Initialize(ID3D11Device* device, char* font_filename, WCHAR* texture_filename)
 {
 	bool result;
 	// Load in the text file containing the font data.
-	result = LoadFontData(fontFilename);
+	result = LoadFontData(font_filename);
 	if(!result)
 	{
 		return false;
 	}
 	// Load the texture that has the font characters on it.
-	result = LoadTexture(device, textureFilename);
+	result = LoadTexture(device, texture_filename);
 	if(!result)
 	{
 		return false;
@@ -41,7 +41,6 @@ void FontClass::Shutdown()
 bool FontClass::LoadFontData(char* filename)
 {
 	ifstream fin;
-	int i;
 	char temp;
 	// Create the font spacing buffer.
 	font_ = new FontType[95];
@@ -56,7 +55,7 @@ bool FontClass::LoadFontData(char* filename)
 		return false;
 	}
 	// Read in the 95 used ascii characters for text.
-	for(i=0; i<95; i++)
+	for(int i=0; i<95; i++)
 	{
 		fin.get(temp);
 		while(temp != ' ')
