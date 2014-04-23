@@ -18,7 +18,7 @@ private:
 	{
 		ID3D11Buffer *vertexBuffer, *indexBuffer;
 		int vertexCount, indexCount, maxLength;
-		float red, green, blue;
+		float red_, green_, blue_;
 	};
 	struct VertexType
 	{

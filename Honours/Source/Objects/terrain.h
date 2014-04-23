@@ -65,6 +65,6 @@ private:
 	int vertex_count_, index_count_;
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	HeightMapType* m_heightMap;
-	TextureClass* m_Texture;
+	TextureClass* texture_;
 };
 #endif

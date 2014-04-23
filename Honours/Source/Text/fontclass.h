@@ -45,6 +45,6 @@ private:
 	void ReleaseTexture();
 private:
 	FontType* m_Font;
-	TextureClass* m_Texture;
+	TextureClass* texture_;
 };
 #endif

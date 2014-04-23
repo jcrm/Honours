@@ -268,7 +268,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int maxLength, ID3D1
 	indices = 0;
 	return true;
 }
-bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX, int positionY, float red, float green, float blue,
+bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int position_x_, int position_y_, float red, float green, float blue,
 							   ID3D11DeviceContext* deviceContext)
 {
 	int numLetters;
@@ -278,9 +278,9 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	VertexType* verticesPtr;
 	// Store the color of the sentence.
-	sentence->red = red;
-	sentence->green = green;
-	sentence->blue = blue;
+	sentence->red_ = red;
+	sentence->green_ = green;
+	sentence->blue_ = blue;
 	// Get the number of letters in the sentence.
 	numLetters = (int)strlen(text);
 	// Check for possible buffer overflow.
@@ -297,8 +297,8 @@ bool TextClass::UpdateSentence(SentenceType* sentence, char* text, int positionX
 	// Initialize vertex array to zeros at first.
 	memset(vertices, 0, (sizeof(VertexType) * sentence->vertexCount));
 	// Calculate the X and Y pixel position on the screen to start drawing to.
-	drawX = (float)(((screen_width_ / 2) * -1) + positionX);
-	drawY = (float)((screen_height_ / 2) - positionY);
+	drawX = (float)(((screen_width_ / 2) * -1) + position_x_);
+	drawY = (float)((screen_height_ / 2) - position_y_);
 	// Use the font class to build the vertex array from the sentence text and sentence draw location.
 	m_Font->BuildVertexArray((void*)vertices, text, drawX, drawY);
 	// Lock the vertex buffer so it can be written to.
@@ -356,7 +356,7 @@ bool TextClass::RenderSentence(SentenceType* sentence, ID3D11DeviceContext* devi
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// Create a pixel color vector with the input sentence color.
-	pixelColor = D3DXVECTOR4(sentence->red, sentence->green, sentence->blue, 1.0f);
+	pixelColor = D3DXVECTOR4(sentence->red_, sentence->green_, sentence->blue_, 1.0f);
 	// Render the text using the font shader.
 	result = FontShader->Render(deviceContext, sentence->indexCount, world_matrix, m_baseViewMatrix, ortho_matrix, m_Font->GetTexture(), pixelColor);
 	if(!result)
@@ -443,23 +443,23 @@ bool TextClass::SetCpu(int cpu, ID3D11DeviceContext* deviceContext)
 }
 bool TextClass::SetCameraPosition(float posX, float posY, float posZ, ID3D11DeviceContext* deviceContext)
 {
-	int positionX, positionY, positionZ;
+	int position_x_, position_y_, position_z_;
 	char tempString[16];
 	char dataString[16];
 	bool result;
 	// Convert the position from floating point to integer.
-	positionX = (int)posX;
-	positionY = (int)posY;
-	positionZ = (int)posZ;
+	position_x_ = (int)posX;
+	position_y_ = (int)posY;
+	position_z_ = (int)posZ;
 	// Truncate the position if it exceeds either 9999 or -9999.
-	if(positionX > 9999) { positionX = 9999; }
-	if(positionY > 9999) { positionY = 9999; }
-	if(positionZ > 9999) { positionZ = 9999; }
-	if(positionX < -9999) { positionX = -9999; }
-	if(positionY < -9999) { positionY = -9999; }
-	if(positionZ < -9999) { positionZ = -9999; }
+	if(position_x_ > 9999) { position_x_ = 9999; }
+	if(position_y_ > 9999) { position_y_ = 9999; }
+	if(position_z_ > 9999) { position_z_ = 9999; }
+	if(position_x_ < -9999) { position_x_ = -9999; }
+	if(position_y_ < -9999) { position_y_ = -9999; }
+	if(position_z_ < -9999) { position_z_ = -9999; }
 	// Setup the X position string.
-	_itoa_s(positionX, tempString, 10);
+	_itoa_s(position_x_, tempString, 10);
 	strcpy_s(dataString, "X: ");
 	strcat_s(dataString, tempString);
 	result = UpdateSentence(m_sentence5, dataString, 10, 130, 0.0f, 1.0f, 0.0f, deviceContext);
@@ -469,7 +469,7 @@ bool TextClass::SetCameraPosition(float posX, float posY, float posZ, ID3D11Devi
 	}
 	
 	// Setup the Y position string.
-	_itoa_s(positionY, tempString, 10);
+	_itoa_s(position_y_, tempString, 10);
 	strcpy_s(dataString, "Y: ");
 	strcat_s(dataString, tempString);
 	result = UpdateSentence(m_sentence6, dataString, 10, 150, 0.0f, 1.0f, 0.0f, deviceContext);
@@ -478,7 +478,7 @@ bool TextClass::SetCameraPosition(float posX, float posY, float posZ, ID3D11Devi
 		return false;
 	}
 	// Setup the Z position string.
-	_itoa_s(positionZ, tempString, 10);
+	_itoa_s(position_z_, tempString, 10);
 	strcpy_s(dataString, "Z: ");
 	strcat_s(dataString, tempString);
 	result = UpdateSentence(m_sentence7, dataString, 10, 170, 0.0f, 1.0f, 0.0f, deviceContext);

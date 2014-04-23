@@ -7,7 +7,7 @@ TerrainClass::TerrainClass()
 	vertex_buffer_ = 0;
 	index_buffer_ = 0;
 	m_heightMap = 0;
-	m_Texture = 0;
+	texture_ = 0;
 }
 TerrainClass::TerrainClass(const TerrainClass& other)
 {
@@ -70,7 +70,7 @@ int TerrainClass::GetIndexCount()
 }
 ID3D11ShaderResourceView* TerrainClass::GetTexture()
 {
-	return m_Texture->GetTexture();
+	return texture_->GetTexture();
 }
 bool TerrainClass::LoadHeightMap(char* filename)
 {
@@ -335,13 +335,13 @@ bool TerrainClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	bool result;
 	// Create the texture object.
-	m_Texture = new TextureClass;
-	if(!m_Texture)
+	texture_ = new TextureClass;
+	if(!texture_)
 	{
 		return false;
 	}
 	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
+	result = texture_->Initialize(device, filename);
 	if(!result)
 	{
 		return false;
@@ -351,11 +351,11 @@ bool TerrainClass::LoadTexture(ID3D11Device* device, WCHAR* filename)
 void TerrainClass::ReleaseTexture()
 {
 	// Release the texture object.
-	if(m_Texture)
+	if(texture_)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+		texture_->Shutdown();
+		delete texture_;
+		texture_ = 0;
 	}
 	return;
 }

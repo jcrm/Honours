@@ -24,16 +24,14 @@
 class ParticleSystemClass
 {
 private:
-	struct ParticleType
-	{
-		float positionX, positionY, positionZ;
-		float red, green, blue;
-		float velocity;
-		bool active;
+	struct ParticleType{
+		float position_x_, position_y_, position_z_;
+		float red_, green_, blue_;
+		float velocity_;
+		bool active_;
 	};
 
-	struct VertexType
-	{
+	struct VertexType{
 		D3DXVECTOR3 position_;
 		D3DXVECTOR2 texture_;
 		D3DXVECTOR4 color_;
@@ -74,18 +72,18 @@ private:
 	void RenderBuffers(ID3D11DeviceContext*);
 
 private:
-	float m_particleDeviationX, m_particleDeviationY, m_particleDeviationZ;
-	float m_particleVelocity, m_particleVelocityVariation;
-	float m_particleSize, m_particlesPerSecond;
-	int m_maxParticles;
+	float particle_deviation_x_, particle_deviation_y_, particle_deviation_z_;
+	float particle_velocity_, particle_velocity_variation_;
+	float particle_size_, particles_per_second_;
+	int max_particles_;
 
-	int m_currentParticleCount;
-	float m_accumulatedTime;
+	int current_particle_count_;
+	float accumulated_time_;
 
-	TextureClass* m_Texture;
-	ParticleType* m_particleList;
+	TextureClass* texture_;
+	ParticleType* particle_list_;
 	int vertex_count_, index_count_;
-	VertexType* m_vertices;
+	VertexType* vertices_;
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	int kill_count_;
 	//where the model is in 3d space
