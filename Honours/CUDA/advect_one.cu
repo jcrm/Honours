@@ -3,7 +3,7 @@
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-
+#define PIXEL_FMT_SIZE 4
 #define timeStep 1.f
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_advect_one_texture(unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice, float4 advect_index){ 
@@ -12,18 +12,18 @@ __global__ void cuda_kernel_advect_one_texture(unsigned char *input, float3 size
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size_WHD.z; ++z_iter){ 
-		if(x_iter +1 < size_WHD.x && x_iter - 1 > 0){
-			if(y_iter + 1 < size_WHD.y && y_iter - 1 > 0){
-				if(z_iter + 1 < size_WHD.z && z_iter - 1 > 0){
+		if(x_iter +1 < size_WHD.x && x_iter - 1 >= 0){
+			if(y_iter + 1 < size_WHD.y && y_iter - 1 >= 0){
+				if(z_iter + 1 < size_WHD.z && z_iter - 1 >= 0){
 					//location is z slide + y position + variable size time x position
 					unsigned char *current_velocity = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
-					unsigned char *output_velocity = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+					unsigned char *output_velocity = input + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 
 					float pos_x = float((x_iter +0.5f)- (timeStep * signed int(current_velocity[0])))/ size_WHD.x;
 					float pos_y = float((y_iter +0.5f) - (timeStep * signed int(current_velocity[1])))/ size_WHD.y;
 					float pos_z = float((z_iter +0.5f) - (timeStep * signed int(current_velocity[2]))+0.5f)/ size_WHD.z;
 
-					unsigned int location = (pos_z*pitch_slice) + (pos_y*pitch) + (4*pos_x);
+					unsigned int location = (pos_z*pitch_slice) + (pos_y*pitch) + (PIXEL_FMT_SIZE * pos_x);
 					current_velocity = input + location;
 
 					output_velocity[0] = signed int(current_velocity[0]);

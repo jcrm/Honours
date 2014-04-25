@@ -90,12 +90,13 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_wid
 	return true;
 }
 void ApplicationClass::InitClouds(){
+
 	// 3D
 	cudaGraphicsD3D11RegisterResource(&velocity_cuda_->cuda_resource_, velocity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&velocity_cuda_->cuda_linear_memory_, velocity_cuda_->width_ * 4 * velocity_cuda_->height_ * velocity_cuda_->depth_);
-	velocity_cuda_->pitch_ = velocity_cuda_->width_ * 4;
+	cudaMalloc(&velocity_cuda_->cuda_linear_memory_, velocity_cuda_->width_ * PIXEL_FMT_SIZE * velocity_cuda_->height_ * velocity_cuda_->depth_);
+	velocity_cuda_->pitch_ = velocity_cuda_->width_ * PIXEL_FMT_SIZE;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(velocity_cuda_->cuda_linear_memory_, 1, velocity_cuda_->pitch_ * velocity_cuda_->height_ * velocity_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
@@ -103,8 +104,8 @@ void ApplicationClass::InitClouds(){
 	cudaGraphicsD3D11RegisterResource(&velocity_derivative_cuda_->cuda_resource_, velocity_derivative_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&velocity_derivative_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->width_ * 4 * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
-	velocity_derivative_cuda_->pitch_ = velocity_derivative_cuda_->width_ * 4;
+	cudaMalloc(&velocity_derivative_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->width_ * PIXEL_FMT_SIZE * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
+	velocity_derivative_cuda_->pitch_ = velocity_derivative_cuda_->width_ * PIXEL_FMT_SIZE;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(velocity_derivative_cuda_->cuda_linear_memory_, 1, velocity_derivative_cuda_->pitch_ * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
@@ -112,8 +113,8 @@ void ApplicationClass::InitClouds(){
 	cudaGraphicsD3D11RegisterResource(&pressure_divergence_cuda_->cuda_resource_, pressure_divergence_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&pressure_divergence_cuda_->cuda_linear_memory_, pressure_divergence_cuda_->width_ * 4 * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
-	pressure_divergence_cuda_->pitch_ = pressure_divergence_cuda_->width_ * 4;
+	cudaMalloc(&pressure_divergence_cuda_->cuda_linear_memory_, pressure_divergence_cuda_->width_ * PIXEL_FMT_SIZE * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
+	pressure_divergence_cuda_->pitch_ = pressure_divergence_cuda_->width_ * PIXEL_FMT_SIZE;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(pressure_divergence_cuda_->cuda_linear_memory_, 1, pressure_divergence_cuda_->pitch_ * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
@@ -121,8 +122,8 @@ void ApplicationClass::InitClouds(){
 	cudaGraphicsD3D11RegisterResource(&water_continuity_cuda_->cuda_resource_, water_continuity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&water_continuity_cuda_->cuda_linear_memory_, water_continuity_cuda_->width_ * 4 * water_continuity_cuda_->height_ * water_continuity_cuda_->depth_);
-	water_continuity_cuda_->pitch_ = water_continuity_cuda_->width_ * 4;
+	cudaMalloc(&water_continuity_cuda_->cuda_linear_memory_, water_continuity_cuda_->width_ * PIXEL_FMT_SIZE * water_continuity_cuda_->height_ * water_continuity_cuda_->depth_);
+	water_continuity_cuda_->pitch_ = water_continuity_cuda_->width_ * PIXEL_FMT_SIZE;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(water_continuity_cuda_->cuda_linear_memory_, 1, water_continuity_cuda_->pitch_ * water_continuity_cuda_->height_ * water_continuity_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");

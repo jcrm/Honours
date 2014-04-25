@@ -6,6 +6,7 @@
 #include <math.h> 
 #define dx 1.f
 #define time_step 1.f
+#define PIXEL_FMT_SIZE 4
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
@@ -13,18 +14,18 @@ __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, 
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size_WHD.z; ++z_iter){ 
-		if(x_iter +1 < size_WHD.x && x_iter - 1 > 0){
-			if(y_iter + 1 < size_WHD.y && y_iter - 1 > 0){
-				if(z_iter + 1 < size_WHD.z && z_iter - 1 > 0){
-					unsigned char*output_velocity = output + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+		if(x_iter +1 < size_WHD.x && x_iter - 1 >= 0){
+			if(y_iter + 1 < size_WHD.y && y_iter - 1 >= 0){
+				if(z_iter + 1 < size_WHD.z && z_iter - 1 >= 0){
+					unsigned char*output_velocity = output + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 					//vorticity confinement
 					float scalar = 1.f;
-					unsigned char *pLeft = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*(x_iter-1));
-					unsigned char *pRight = input + (z_iter*pitch_slice) + (y_iter*pitch) + (4*(x_iter+1));
-					unsigned char *pDown = input + (z_iter*pitch_slice) + ((y_iter-1)*pitch) + (4*x_iter); 
-					unsigned char *pUp = input + (z_iter*pitch_slice) + ((y_iter+1)*pitch) + (4*x_iter); 
-					unsigned char *pTop = input + ((z_iter-1)*pitch_slice) + (y_iter*pitch) + (4*x_iter);
-					unsigned char *pBottom = input + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+					unsigned char *pLeft = input + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * (x_iter-1));
+					unsigned char *pRight = input + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * (x_iter+1));
+					unsigned char *pDown = input + (z_iter*pitch_slice) + ((y_iter-1)*pitch) + (PIXEL_FMT_SIZE * x_iter); 
+					unsigned char *pUp = input + (z_iter*pitch_slice) + ((y_iter+1)*pitch) + (PIXEL_FMT_SIZE * x_iter); 
+					unsigned char *pTop = input + ((z_iter-1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
+					unsigned char *pBottom = input + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 
 					float3 curl_value = {
 						((pDown[2] - pUp[2]) - (pBottom[1] - pTop[1])) / dx, 

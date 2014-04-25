@@ -3,7 +3,7 @@
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-
+#define PIXEL_FMT_SIZE 4
 __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){  
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
@@ -17,23 +17,23 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 siz
 			divergence_index = 0;
 		}
 		for(z_iter = 0; z_iter < size_WHD.z; ++z_iter){
-			if(x_iter +1 < size_WHD.x && x_iter - 1 > 0){
-				if(y_iter + 1 < size_WHD.y && y_iter - 1 > 0){
-					if(z_iter + 1 < size_WHD.z && z_iter - 1 > 0){
+			if(x_iter +1 < size_WHD.x && x_iter - 1 >= 0){
+				if(y_iter + 1 < size_WHD.y && y_iter - 1 >= 0){
+					if(z_iter + 1 < size_WHD.z && z_iter - 1 >= 0){
 					
-						unsigned char* cellDivergence = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+						unsigned char* cellDivergence = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 						// Get the divergence at the current cell.  
 						float dCentre = cellDivergence[divergence_index];
 
-						unsigned char *pLeft = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (4*(x_iter-1));
-						unsigned char *pRight = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (4*(x_iter+1));
-						unsigned char *pDown = pressuredivergence + (z_iter*pitch_slice) + ((y_iter-1)*pitch) + (4*x_iter); 
-						unsigned char *pUp = pressuredivergence + (z_iter*pitch_slice) + ((y_iter+1)*pitch) + (4*x_iter); 
-						unsigned char *pTop = pressuredivergence + ((z_iter-1)*pitch_slice) + (y_iter*pitch) + (4*x_iter);
-						unsigned char *pBottom = pressuredivergence + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+						unsigned char *pLeft = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * (x_iter-1));
+						unsigned char *pRight = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * (x_iter+1));
+						unsigned char *pDown = pressuredivergence + (z_iter*pitch_slice) + ((y_iter-1)*pitch) + (PIXEL_FMT_SIZE * x_iter); 
+						unsigned char *pUp = pressuredivergence + (z_iter*pitch_slice) + ((y_iter+1)*pitch) + (PIXEL_FMT_SIZE * x_iter); 
+						unsigned char *pTop = pressuredivergence + ((z_iter-1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
+						unsigned char *pBottom = pressuredivergence + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 
 						// Compute the new pressure value for the center cell.
-						unsigned char* cellPressure = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (4*x_iter);
+						unsigned char* cellPressure = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 						cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/6.f;
 					}
 				}
