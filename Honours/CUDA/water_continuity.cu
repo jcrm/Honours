@@ -1,3 +1,4 @@
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +21,13 @@
 #define a 17.27f
 #define b 35.86f
 #define es0 100.f*3.8f/0.62197f
+
 #define PIXEL_FMT_SIZE 4
+#define qv_identifier_ 0
+#define qc_identifier_ 1
+#define qr_identifier_ 2
+#define F_identifier_ 3
+
 __global__ void cuda_kernel_water(unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){  
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;

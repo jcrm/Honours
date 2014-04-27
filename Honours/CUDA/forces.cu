@@ -1,12 +1,18 @@
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-#include <math.h> 
+#include <math.h>
+
 #define dx 1.f
 #define time_step 1.f
 #define PIXEL_FMT_SIZE 4
+#define x_identifier_ 0
+#define y_identifier_ 1
+#define z_identifier_ 2
+
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
@@ -28,9 +34,9 @@ __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, 
 					unsigned char *pBottom = input + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 
 					float3 curl_value = {
-						((pDown[2] - pUp[2]) - (pBottom[1] - pTop[1])) / dx, 
-						((pBottom[0] - pTop[0]) - (pRight[2] - pLeft[2])) / dx, 
-						((pRight[1] - pLeft[1]) - (pDown[0] - pUp[0])) / dx
+						((pDown[z_identifier_] - pUp[z_identifier_]) - (pBottom[y_identifier_] - pTop[y_identifier_])) / dx, 
+						((pBottom[x_identifier_] - pTop[x_identifier_]) - (pRight[z_identifier_] - pLeft[z_identifier_])) / dx, 
+						((pRight[y_identifier_] - pLeft[y_identifier_]) - (pDown[x_identifier_] - pUp[x_identifier_])) / dx
 					};
 
 					float invLen = 1.0f / sqrt((curl_value.x * curl_value.x) + (curl_value.y * curl_value.y) + (curl_value.z * curl_value.z));
@@ -40,9 +46,9 @@ __global__ void cuda_kernel_forces(unsigned char *output, unsigned char *input, 
 						curl_value.z * invLen
 					};
 
-					output_velocity[0] += ((norm_value.y * curl_value.z) - (norm_value.z * curl_value.y)) * dx * scalar * time_step;
-					output_velocity[1] += ((norm_value.z * curl_value.x) - (norm_value.x * curl_value.z)) * dx * scalar * time_step;
-					output_velocity[2] += ((norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)) * dx * scalar * time_step;
+					output_velocity[x_identifier_] += ((norm_value.y * curl_value.z) - (norm_value.z * curl_value.y)) * dx * scalar * time_step;
+					output_velocity[y_identifier_] += ((norm_value.z * curl_value.x) - (norm_value.x * curl_value.z)) * dx * scalar * time_step;
+					output_velocity[z_identifier_] += ((norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)) * dx * scalar * time_step;
 
 					//buoyancy
 

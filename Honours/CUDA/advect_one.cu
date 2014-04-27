@@ -1,10 +1,13 @@
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+
 #define PIXEL_FMT_SIZE 4
 #define timeStep 1.f
+
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_advect_one_texture(unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice, float4 advect_index){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;

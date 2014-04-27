@@ -1,10 +1,15 @@
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+
 #define PIXEL_FMT_SIZE 4
 #define timeStep 1.f
+#define x_identifier_ 0
+#define y_identifier_ 1
+#define z_identifier_ 2
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_advect_two_texture(unsigned char *output, unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
@@ -25,21 +30,21 @@ __global__ void cuda_kernel_advect_two_texture(unsigned char *output, unsigned c
 					unsigned char *fieldRightCornerBack = input + ((z_iter+1)*pitch_slice) + ((y_iter+1)*pitch) + (PIXEL_FMT_SIZE * (x_iter+1));
 					unsigned char *fieldBack = input + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 
-					float temp_X_1 = field[0] +((fieldRight[0]-field[0])*0.5f);
-					float temp_Y_1 = field[1] +((fieldRight[1]-field[1])*0.5f);
-					float temp_Z_1 = field[2] +((fieldRight[2]-field[2])*0.5f);
+					float temp_X_1 = field[x_identifier_] +((fieldRight[x_identifier_]-field[x_identifier_])*0.5f);
+					float temp_Y_1 = field[y_identifier_] +((fieldRight[y_identifier_]-field[y_identifier_])*0.5f);
+					float temp_Z_1 = field[z_identifier_] +((fieldRight[z_identifier_]-field[z_identifier_])*0.5f);
 
-					float temp_X_2 = fieldDown[0] +((fieldRightCorner[0]-fieldDown[0])*0.5f);
-					float temp_Y_2 = fieldDown[1] +((fieldRightCorner[1]-fieldDown[1])*0.5f);
-					float temp_Z_2 = fieldDown[2] +((fieldRightCorner[2]-fieldDown[2])*0.5f);
+					float temp_X_2 = fieldDown[x_identifier_] +((fieldRightCorner[x_identifier_]-fieldDown[x_identifier_])*0.5f);
+					float temp_Y_2 = fieldDown[y_identifier_] +((fieldRightCorner[y_identifier_]-fieldDown[y_identifier_])*0.5f);
+					float temp_Z_2 = fieldDown[z_identifier_] +((fieldRightCorner[z_identifier_]-fieldDown[z_identifier_])*0.5f);
 
-					float temp_X_3 = fieldBack[0] +((fieldRightBack[0]-fieldBack[0])*0.5f);
-					float temp_Y_3 = fieldBack[1] +((fieldRightBack[1]-fieldBack[1])*0.5f);
-					float temp_Z_3 = fieldBack[2] +((fieldRightBack[2]-fieldBack[2])*0.5f);
+					float temp_X_3 = fieldBack[x_identifier_] +((fieldRightBack[x_identifier_]-fieldBack[x_identifier_])*0.5f);
+					float temp_Y_3 = fieldBack[y_identifier_] +((fieldRightBack[y_identifier_]-fieldBack[y_identifier_])*0.5f);
+					float temp_Z_3 = fieldBack[z_identifier_] +((fieldRightBack[z_identifier_]-fieldBack[z_identifier_])*0.5f);
 
-					float temp_X_4 = fieldDownBack[0] +((fieldRightCornerBack[0]-fieldDownBack[0])*0.5f);
-					float temp_Y_4 = fieldDownBack[1] +((fieldRightCornerBack[1]-fieldDownBack[1])*0.5f);
-					float temp_Z_4 = fieldDownBack[2] +((fieldRightCornerBack[2]-fieldDownBack[2])*0.5f);
+					float temp_X_4 = fieldDownBack[x_identifier_] +((fieldRightCornerBack[x_identifier_]-fieldDownBack[x_identifier_])*0.5f);
+					float temp_Y_4 = fieldDownBack[y_identifier_] +((fieldRightCornerBack[y_identifier_]-fieldDownBack[y_identifier_])*0.5f);
+					float temp_Z_4 = fieldDownBack[z_identifier_] +((fieldRightCornerBack[z_identifier_]-fieldDownBack[z_identifier_])*0.5f);
 
 					temp_X_1 =(temp_X_1 + (temp_X_2-temp_X_1)*0.5f);
 					temp_Y_1 =(temp_Y_1 + (temp_Y_2-temp_Y_1)*0.5f);
@@ -50,9 +55,9 @@ __global__ void cuda_kernel_advect_two_texture(unsigned char *output, unsigned c
 					temp_Z_3 =(temp_Z_3 + (temp_Z_4-temp_Z_3)*0.5f);
 
 					unsigned char *output_velocity = output + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
-					output_velocity[0] = signed int(temp_X_1 + ((temp_X_3-temp_X_1)*0.5f));
-					output_velocity[1] = signed int(temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f));
-					output_velocity[2] = signed int(temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f));
+					output_velocity[x_identifier_] = signed int(temp_X_1 + ((temp_X_3-temp_X_1)*0.5f));
+					output_velocity[y_identifier_] = signed int(temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f));
+					output_velocity[z_identifier_] = signed int(temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f));
 				}
 			}
 		}

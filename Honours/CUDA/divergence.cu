@@ -1,9 +1,14 @@
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+
 #define PIXEL_FMT_SIZE 4
+#define x_identifier_ 0
+#define y_identifier_ 1
+#define z_identifier_ 2
 //output diverrgnece texture //input velocity derrivitive teture
 __global__ void cuda_kernel_divergence(unsigned char* output, unsigned char* input,float3 size_WHD, size_t pitch, size_t pitch_slice, int divergence_index){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
@@ -21,8 +26,9 @@ __global__ void cuda_kernel_divergence(unsigned char* output, unsigned char* inp
 					unsigned char *fieldTop = input + ((z_iter-1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 					unsigned char *fieldBottom = input + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
 					unsigned char *output_divergence = output + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
-					output_divergence[divergence_index] = signed int(0.5f * ((signed int(fieldRight[0]) - signed int(fieldLeft[0])) + 
-						(signed int(fieldTop[1]) - signed int(fieldBottom[1])) + (signed int(fieldUp[2]) - signed int(fieldDown[2]))));
+					output_divergence[divergence_index] = signed int(0.5f * ((signed int(fieldRight[x_identifier_]) - signed int(fieldLeft[x_identifier_])) + 
+						(signed int(fieldTop[y_identifier_]) - signed int(fieldBottom[y_identifier_])) + 
+						(signed int(fieldUp[z_identifier_]) - signed int(fieldDown[z_identifier_]))));
 					// Compute the velocity's divergence using central differences.  
 				}
 			}
