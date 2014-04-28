@@ -200,6 +200,12 @@
     <CudaCompile Include="CUDA\advect_one.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="CUDA\buoyancy.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\temperature.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CUDA\cuda_kernals.h">

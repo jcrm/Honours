@@ -37,11 +37,13 @@
   <ItemGroup>
     <CudaCompile Include="CUDA\advect_one.cu" />
     <CudaCompile Include="CUDA\advect_two.cu" />
+    <CudaCompile Include="CUDA\buoyancy.cu" />
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\inital.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
     <CudaCompile Include="CUDA\forces.cu" />
+    <CudaCompile Include="CUDA\temperature.cu" />
     <CudaCompile Include="CUDA\water_continuity.cu" />
   </ItemGroup>
   <ItemGroup>
