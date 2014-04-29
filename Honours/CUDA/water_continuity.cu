@@ -20,7 +20,7 @@
 #define epsilon 18.02f/29.87f
 #define a 17.27f
 #define b 35.86f
-#define es0 100.f*3.8f/0.62197f
+#define es0 100.f*3.8f
 #define z_alt 1000
 
 #define PIXEL_FMT_SIZE 4
@@ -29,7 +29,7 @@
 #define qr_identifier_ 2
 #define F_identifier_ 3
 
-__global__ void cuda_kernel_water(unsigned char *input, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){  
+__global__ void cuda_kernel_water(unsigned char *input, unsigned char *input_two,float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){  
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -45,14 +45,14 @@ __global__ void cuda_kernel_water(unsigned char *input, float3 size_WHD, size_t 
 					if(qc>aT){
 						A=alpha*(qc-aT);
 					}
-
+					float theta;
 					float T=T0-gamma*z_alt;
 					float p=p0*pow((T/T0),(g/R/gamma));
-					float est = es0*exp(a*(T-273)/(T-b));
+					float est = (es0/p)*exp(a*(theta-273)/(theta-b));
 					float C = g*p/(R*T*pow((p-est),2));
-					C += (-a*gamma)*((273-b)/pow((T-b),2))*((1.f/p)+(est/pow((p-est),2)));
+					C += (-a*gamma)*((273-b)/pow((theta-b),2))*((1.f/p)+(est/pow((p-est),2)));
 					C *= -est*W*epsilon;
-
+					
 					qv = -C/W;
 					qc = (-A-K+C)/W;
 					qr = (A+K+F)/W;
