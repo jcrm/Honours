@@ -26,6 +26,7 @@
 #define latent_heat 2.501
 #define cp 1005
 #define k 0.286
+#define T T0-gamma*z_alt
 
 #define PIXEL_FMT_SIZE 4
 #define qv_identifier_ 0
@@ -61,7 +62,6 @@ __global__ void cuda_kernel_water_thermo(unsigned char *input, unsigned char *in
 					if(qc>aT){
 						A=alpha*(qc-aT);
 					}
-					float T=T0-gamma*z_alt;
 					float p=p0*pow((T/T0),(g/R/gamma));
 					float est = (es0/p)*exp(a*(theta-273)/(theta-b));
 					float C = g*p/(R*T*pow((p-est),2));
@@ -90,6 +90,7 @@ void cuda_fluid_water_thermo(unsigned char *input, unsigned char *input_two, Siz
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
+	//dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
 	cuda_kernel_water_thermo<<<Dg,Db>>>((unsigned char *)input, (unsigned char *)input_two, size);
