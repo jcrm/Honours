@@ -90,6 +90,17 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_wid
 	return true;
 }
 void ApplicationClass::InitClouds(){
+	// 2D
+    // register the Direct3D resources that we'll use
+    // we'll read to and write from g_texture_2d, so don't set any special map flags for it
+	cudaGraphicsD3D11RegisterResource(&rain_cuda_->cuda_resource_, rain_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
+    getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
+    // cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
+    // Create a buffer so that cuda can write into it
+    // pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
+    cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * sizeof(float) * 4, rain_cuda_->height_);
+    getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
+    cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_);
 
 	// 3D
 	cudaGraphicsD3D11RegisterResource(&velocity_cuda_->cuda_resource_, velocity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
@@ -858,7 +869,33 @@ bool ApplicationClass::InitCudaTextures(){
 	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_cuda_->texture_, NULL, &water_continuity_cuda_->sr_view_))){
 		return false;
 	}
-	d3d_device_context->PSSetShaderResources(offset_shader, 1, &water_continuity_cuda_->sr_view_);
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_cuda_->sr_view_);
+
+	rain_cuda_ = new rain_texture;
+	rain_cuda_->width_  = 64;
+    rain_cuda_->height_ = 64;
+
+    D3D11_TEXTURE2D_DESC desc2d;
+    ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
+    desc2d.Width = rain_cuda_->width_;
+    desc2d.Height = rain_cuda_->height_;
+    desc2d.MipLevels = 1;
+    desc2d.ArraySize = 1;
+    desc2d.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    desc2d.SampleDesc.Count = 1;
+    desc2d.Usage = D3D11_USAGE_DEFAULT;
+    desc2d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	if (FAILED(d3d_device->CreateTexture2D(&desc2d, NULL, &rain_cuda_->texture_))){
+        return E_FAIL;
+    }
+
+    if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
+        return E_FAIL;
+    }
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
+
+	rain_map = (float*)malloc(64*64*sizeof(float));
 	return true;
 }
 //-----------------------------------------------------------------------------
@@ -899,6 +936,7 @@ void ApplicationClass::RunCloudKernals(){
 	size.pitch_slice_ = velocity_cuda_->pitch_ * velocity_cuda_->height_;
 	
 	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
+
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 	if(is_done_once_ == false){
 		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 10.f);
@@ -959,6 +997,19 @@ void ApplicationClass::RunCloudKernals(){
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
 	getLastCudaError("cudaMemcpy3D failed");
+
+	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size);
+	getLastCudaError("cuda_texture_2d failed");
+	int tex_size = rain_cuda_->width_*rain_cuda_->height_*sizeof(float);
+	float* output;
+
+	cudaMalloc((void**)&output, tex_size);
+	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
+	printf("%3.2f", (float*)output);
+	float* fout = (float*)(output);
+	fout[0] = 1.f;
+	getLastCudaError("cudaMemcpy2DToArray failed");
 }
 void ApplicationClass::Shutdown(){
 	if(full_screen_window_){

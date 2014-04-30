@@ -127,6 +127,8 @@ private:
 	fluid_texture *velocity_derivative_cuda_;
 	fluid_texture *pressure_divergence_thermo_cuda_;
 	fluid_texture *water_continuity_cuda_;
+	rain_texture *rain_cuda_;
 	bool is_done_once_;
+	float* rain_map;
 };
 #endif

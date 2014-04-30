@@ -10,6 +10,8 @@
 #define PIXEL_FMT_SIZE 4
 #define F_identifier_ 3
 
+// 2D float texture
+texture<float, cudaTextureType2D, cudaReadModeElementType> texRef;
 
 __global__ void cuda_kernel_rain(unsigned char *output, unsigned char *input, Size size){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
