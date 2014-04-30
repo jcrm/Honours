@@ -203,6 +203,9 @@
     <CudaCompile Include="CUDA\advect_velocity.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="CUDA\flatten.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CUDA\cuda_kernals.h">

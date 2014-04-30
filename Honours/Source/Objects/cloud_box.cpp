@@ -7,7 +7,13 @@
 CloudClass::CloudClass(): vertex_buffer_(0), index_buffer_(0)
 {
 	// Rotate the world matrix by the rotation value so that the cube will spin.
-	D3DXMatrixRotationZ(&transform_, 1.57f);
+	D3DXMATRIX rot;
+	D3DXMATRIX trans;
+	D3DXMatrixTranslation(&trans, -0.5f, -0.5f, -0.5f);
+	D3DXMatrixRotationZ(&rot, -1.57f);
+	D3DXMatrixMultiply(&transform_,&trans,&rot);
+	D3DXMatrixTranslation(&trans, 0.5f, 0.5f, 0.5f);
+	D3DXMatrixMultiply(&transform_,&transform_,&trans);
 }
 CloudClass::CloudClass(const CloudClass& other): vertex_buffer_(0), index_buffer_(0)
 {

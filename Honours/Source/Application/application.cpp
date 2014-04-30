@@ -283,7 +283,7 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
-	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, 
+	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
 		cloud_object_->GetFrontShaderResource(), cloud_object_->GetBackShaderResource(), velocity_cuda_->sr_view_,cloud_object_->GetScale());
 	if(!result){
 		return false;
@@ -388,10 +388,15 @@ bool ApplicationClass::RenderClouds(){
 	direct_3d_->GetWorldMatrix(world_matrix);
 	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
+
+	model_world_matrix = world_matrix;
+	D3DXMATRIX translation = cloud_object_->GetTranslation();
+	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
+
 	// Render the terrain buffers.
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, cloud_object_->GetScale());
+	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, cloud_object_->GetScale());
 	if(!result){
 		return false;
 	}
@@ -400,7 +405,6 @@ bool ApplicationClass::RenderClouds(){
 	// Reset the viewport back to the original.
 	direct_3d_->ResetViewport();
 	direct_3d_->CreateBackFaceRaster();
-	cloud_object_->Render(direct_3d_->GetDeviceContext());
 	// Set the render target to be the render to texture.
 	cloud_object_->GetBackTexture()->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
@@ -412,9 +416,14 @@ bool ApplicationClass::RenderClouds(){
 	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 	// Render the terrain buffers.
+
+	model_world_matrix = world_matrix;
+	translation = cloud_object_->GetTranslation();
+	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
+
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 	// Render the terrain using the terrain shader.
-	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), world_matrix, view_matrix, projection_matrix, cloud_object_->GetScale());
+	result = face_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, cloud_object_->GetScale());
 	if(!result){
 		return false;
 	}
