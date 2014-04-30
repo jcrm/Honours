@@ -188,22 +188,19 @@
     <CudaCompile Include="CUDA\jacobi.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\forces.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\water_continuity.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\advect_two.cu">
+    <CudaCompile Include="CUDA\advect_thermo.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\advect_one.cu">
+    <CudaCompile Include="CUDA\vorticity.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\buoyancy.cu">
+    <CudaCompile Include="CUDA\bouyancy.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\temperature.cu">
+    <CudaCompile Include="CUDA\advect_velocity.cu">
       <Filter>Resource Files\CUDA Files</Filter>
     </CudaCompile>
   </ItemGroup>
@@ -297,6 +294,9 @@
     </ClInclude>
     <ClInclude Include="Source\Shaders\merge_texture_shader.h">
       <Filter>Header Files\Shader Files\Texture Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\CUDA\cuda_header.h">
+      <Filter>Header Files\CUDA</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

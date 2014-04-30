@@ -6,7 +6,7 @@ ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), play
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
 	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
 	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
-	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
+	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_thermo_cuda_(0),
 	water_continuity_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
 	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
 {
@@ -15,7 +15,7 @@ ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
 	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
 	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
-	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0),
+	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_thermo_cuda_(0),
 	water_continuity_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
 	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
 {
@@ -110,13 +110,13 @@ void ApplicationClass::InitClouds(){
 	cudaMemset(velocity_derivative_cuda_->cuda_linear_memory_, 1, velocity_derivative_cuda_->pitch_ * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 	
-	cudaGraphicsD3D11RegisterResource(&pressure_divergence_cuda_->cuda_resource_, pressure_divergence_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
+	cudaGraphicsD3D11RegisterResource(&pressure_divergence_thermo_cuda_->cuda_resource_, pressure_divergence_thermo_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&pressure_divergence_cuda_->cuda_linear_memory_, pressure_divergence_cuda_->width_ * PIXEL_FMT_SIZE * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
-	pressure_divergence_cuda_->pitch_ = pressure_divergence_cuda_->width_ * PIXEL_FMT_SIZE;
+	cudaMalloc(&pressure_divergence_thermo_cuda_->cuda_linear_memory_, pressure_divergence_thermo_cuda_->width_ * PIXEL_FMT_SIZE * pressure_divergence_thermo_cuda_->height_ * pressure_divergence_thermo_cuda_->depth_);
+	pressure_divergence_thermo_cuda_->pitch_ = pressure_divergence_thermo_cuda_->width_ * PIXEL_FMT_SIZE;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(pressure_divergence_cuda_->cuda_linear_memory_, 1, pressure_divergence_cuda_->pitch_ * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
+	cudaMemset(pressure_divergence_thermo_cuda_->cuda_linear_memory_, 1, pressure_divergence_thermo_cuda_->pitch_ * pressure_divergence_thermo_cuda_->height_ * pressure_divergence_thermo_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 
 	cudaGraphicsD3D11RegisterResource(&water_continuity_cuda_->cuda_resource_, water_continuity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
@@ -774,8 +774,8 @@ bool ApplicationClass::InitCudaTextures(){
 	if (!velocity_derivative_cuda_){
 		return false;
 	}
-	pressure_divergence_cuda_ = new fluid_texture;
-	if (!pressure_divergence_cuda_){
+	pressure_divergence_thermo_cuda_ = new fluid_texture;
+	if (!pressure_divergence_thermo_cuda_){
 		return false;
 	}
 	water_continuity_cuda_ = new fluid_texture;
@@ -819,21 +819,21 @@ bool ApplicationClass::InitCudaTextures(){
 	}
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_derivative_cuda_->sr_view_);
 
-	pressure_divergence_cuda_->width_  = size_WHD.x;
-	pressure_divergence_cuda_->height_ = size_WHD.y;
-	pressure_divergence_cuda_->depth_  = size_WHD.z;
+	pressure_divergence_thermo_cuda_->width_  = size_WHD.x;
+	pressure_divergence_thermo_cuda_->height_ = size_WHD.y;
+	pressure_divergence_thermo_cuda_->depth_  = size_WHD.z;
 
-	desc.Width = pressure_divergence_cuda_->width_;
-	desc.Height = pressure_divergence_cuda_->height_;
-	desc.Depth = pressure_divergence_cuda_->depth_;
+	desc.Width = pressure_divergence_thermo_cuda_->width_;
+	desc.Height = pressure_divergence_thermo_cuda_->height_;
+	desc.Depth = pressure_divergence_thermo_cuda_->depth_;
 
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &pressure_divergence_cuda_->texture_))){
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &pressure_divergence_thermo_cuda_->texture_))){
 		return false;
 	}
-	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_cuda_->texture_, NULL, &pressure_divergence_cuda_->sr_view_))){
+	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_thermo_cuda_->texture_, NULL, &pressure_divergence_thermo_cuda_->sr_view_))){
 		return false;
 	}
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_cuda_->sr_view_);
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_thermo_cuda_->sr_view_);
 
 	water_continuity_cuda_->width_  = size_WHD.x;
 	water_continuity_cuda_->height_ = size_WHD.y;
@@ -866,7 +866,7 @@ void ApplicationClass::CudaRender(){
 	cudaGraphicsResource *resources[num_resources] ={
 		velocity_cuda_->cuda_resource_,
 		velocity_derivative_cuda_->cuda_resource_,
-		pressure_divergence_cuda_->cuda_resource_,
+		pressure_divergence_thermo_cuda_->cuda_resource_,
 		water_continuity_cuda_->cuda_resource_
 	};
 	cudaGraphicsMapResources(num_resources, resources, stream);
@@ -879,72 +879,62 @@ void ApplicationClass::CudaRender(){
 }
 void ApplicationClass::RunCloudKernals(){
 	// populate the volume texture
-	int pressure_index, divergence_index = 0;
-	size_t pitch_slice = velocity_cuda_->pitch_ * velocity_cuda_->height_;
+	int pressure_index = 0;
+	int divergence_index = 1;
 	cudaArray *cuda_velocity_array;
-	float3 size_WHD ={velocity_cuda_->width_, velocity_cuda_->height_, velocity_cuda_->depth_};
-	float4 advect_index = {0.f,1.f,2.f,5.f};
+	Size size;
+	size.width_ = velocity_cuda_->width_;
+	size.height_ = velocity_cuda_->height_;
+	size.depth_ = velocity_cuda_->depth_;
+	size.pitch_ = velocity_cuda_->pitch_;
+	size.pitch_slice_ = velocity_cuda_->pitch_ * velocity_cuda_->height_;
+	
 	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 	if(is_done_once_ == false){
-		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, 10.f);
+		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 10.f);
 		getLastCudaError("cuda_fluid_initial failed");
-		cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size_WHD, velocity_derivative_cuda_->pitch_, pitch_slice, 0.f);
+		cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
-		cuda_fluid_initial(pressure_divergence_cuda_->cuda_linear_memory_, size_WHD, pressure_divergence_cuda_->pitch_, pitch_slice, 0.f);
+		cuda_fluid_initial(pressure_divergence_thermo_cuda_->cuda_linear_memory_, size, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
-		cuda_fluid_initial(water_continuity_cuda_->cuda_linear_memory_, size_WHD, water_continuity_cuda_->pitch_, pitch_slice, 0.f);
+		cuda_fluid_initial(water_continuity_cuda_->cuda_linear_memory_, size, 0.f);
 		getLastCudaError("cuda_fluid_initial failed");
 		is_done_once_ = true;
 	}
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect_two_texture(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);
-	getLastCudaError("cuda_fluid_advect failed");
-	divergence_index = 1;
-
-	/*
-	advect_index.x = advect_index.y = advect_index.z = advect_index.w =  5.f;
-	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, advect_index);
+	cuda_fluid_advect_velocity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_advect failed");
 
-	advect_index.x = advect_index.y = advect_index.z = advect_index.w =  5.f;
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, advect_index);
+	cuda_fluid_advect_thermo(pressure_divergence_thermo_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_advect failed");
-	
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, advect_index);
-	getLastCudaError("cuda_fluid_advect failed");
-	*/
+	cuda_fluid_vorticity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
+	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_forces(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice);
-	getLastCudaError("cuda_fluid_forces failed");
+	cuda_fluid_bouyancy(velocity_derivative_cuda_->cuda_linear_memory_, pressure_divergence_thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size);
+	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, divergence_index);
+	cuda_fluid_water_thermo(water_continuity_cuda_->cuda_linear_memory_, pressure_divergence_thermo_cuda_->cuda_linear_memory_, size);
+	getLastCudaError("cuda_fluid_vorticity failed");
+
+	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
+	cuda_fluid_divergence(pressure_divergence_thermo_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, divergence_index);
 	getLastCudaError("cuda_fluid_divergence failed");
-	/*for(int i = 0; i < 16; i++){
-		if(i%2 == 0){
-			pressure_index = 0;
-			divergence_index = 1;
-		}else{
-			pressure_index = 1;
-			divergence_index = 0;
-		}*/
-		pressure_index = 0;
-		divergence_index = 1;
-		// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-		cuda_fluid_jacobi(pressure_divergence_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, pressure_index, divergence_index);
-		getLastCudaError("cuda_fluid_jacobi failed");
-	//}
+
+	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
+	cuda_fluid_jacobi(pressure_divergence_thermo_cuda_->cuda_linear_memory_, size, pressure_index, divergence_index);
+	getLastCudaError("cuda_fluid_jacobi failed");
+
 	pressure_index = 1;
 	divergence_index = 0;
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_WHD, velocity_cuda_->pitch_, pitch_slice, pressure_index);
+	cuda_fluid_project(pressure_divergence_thermo_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size, pressure_index);
 	getLastCudaError("cuda_fluid_project failed");
 	
 	// then we want to copy cuda_linear_memory_ to the D3D texture, via its mapped form : cudaArray
@@ -1060,9 +1050,9 @@ void ApplicationClass::ShutdownTextures(){
 	if (velocity_derivative_cuda_){
 		delete velocity_derivative_cuda_;
 		velocity_derivative_cuda_ = NULL;	}
-	if (pressure_divergence_cuda_){
-		delete pressure_divergence_cuda_;
-		pressure_divergence_cuda_ = NULL;;
+	if (pressure_divergence_thermo_cuda_){
+		delete pressure_divergence_thermo_cuda_;
+		pressure_divergence_thermo_cuda_ = NULL;;
 	}
 	if (water_continuity_cuda_){
 		delete water_continuity_cuda_;

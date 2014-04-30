@@ -4,10 +4,11 @@
 #include <string.h>
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+#include "../Source/CUDA/cuda_header.h"
 
 #define PIXEL_FMT_SIZE 4
 
-__global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){  
+__global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, Size size, int pressure_index, int divergence_index){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -19,24 +20,24 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 siz
 			pressure_index = 1;
 			divergence_index = 0;
 		}
-		for(z_iter = 0; z_iter < size_WHD.z; ++z_iter){
-			if(x_iter +1 < size_WHD.x && x_iter - 1 >= 0){
-				if(y_iter + 1 < size_WHD.y && y_iter - 1 >= 0){
-					if(z_iter + 1 < size_WHD.z && z_iter - 1 >= 0){
+		for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
+			if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
+				if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
+					if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 					
-						unsigned char* cellDivergence = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
+						unsigned char* cellDivergence = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
 						// Get the divergence at the current cell.  
 						float dCentre = cellDivergence[divergence_index];
 
-						unsigned char *pLeft = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * (x_iter-1));
-						unsigned char *pRight = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * (x_iter+1));
-						unsigned char *pDown = pressuredivergence + (z_iter*pitch_slice) + ((y_iter-1)*pitch) + (PIXEL_FMT_SIZE * x_iter); 
-						unsigned char *pUp = pressuredivergence + (z_iter*pitch_slice) + ((y_iter+1)*pitch) + (PIXEL_FMT_SIZE * x_iter); 
-						unsigned char *pTop = pressuredivergence + ((z_iter-1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
-						unsigned char *pBottom = pressuredivergence + ((z_iter+1)*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
+						unsigned char *pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * (x_iter-1));
+						unsigned char *pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * (x_iter+1));
+						unsigned char *pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE * x_iter); 
+						unsigned char *pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE * x_iter); 
+						unsigned char *pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+						unsigned char *pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
 
 						// Compute the new pressure value for the center cell.
-						unsigned char* cellPressure = pressuredivergence + (z_iter*pitch_slice) + (y_iter*pitch) + (PIXEL_FMT_SIZE * x_iter);
+						unsigned char* cellPressure = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
 						cellPressure[pressure_index] = (pLeft[pressure_index] + pRight[pressure_index] + pBottom[pressure_index] + pTop[pressure_index] + pUp[pressure_index] + pDown[pressure_index] - dCentre)/6.f;
 					}
 				}
@@ -45,13 +46,13 @@ __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, float3 siz
 	}
 }
 extern "C"
-void cuda_fluid_jacobi(void *input, float3 size_WHD, size_t pitch, size_t pitch_slice, int pressure_index, int divergence_index){
+void cuda_fluid_jacobi(void *input, Size size, int pressure_index, int divergence_index){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
-	dim3 Dg = dim3((size_WHD.x+Db.x-1)/Db.x, (size_WHD.y+Db.y-1)/Db.y);
+	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_jacobi<<<Dg,Db>>>((unsigned char *)input,size_WHD, pitch, pitch_slice, pressure_index, divergence_index);
+	cuda_kernel_jacobi<<<Dg,Db>>>((unsigned char *)input, size, pressure_index, divergence_index);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

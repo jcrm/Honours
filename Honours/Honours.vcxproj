@@ -35,19 +35,19 @@
     <None Include="Shader\Volume\volume.vs" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CUDA\advect_one.cu" />
-    <CudaCompile Include="CUDA\advect_two.cu" />
-    <CudaCompile Include="CUDA\buoyancy.cu" />
+    <CudaCompile Include="CUDA\advect_thermo.cu" />
+    <CudaCompile Include="CUDA\advect_velocity.cu" />
+    <CudaCompile Include="CUDA\bouyancy.cu" />
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\inital.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
-    <CudaCompile Include="CUDA\forces.cu" />
-    <CudaCompile Include="CUDA\temperature.cu" />
+    <CudaCompile Include="CUDA\vorticity.cu" />
     <CudaCompile Include="CUDA\water_continuity.cu" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application\application.h" />
+    <ClInclude Include="Source\CUDA\cuda_header.h" />
     <ClInclude Include="Source\CUDA\cuda_kernals.h" />
     <ClInclude Include="Source\CUDA\cuda_structs.h" />
     <ClInclude Include="Source\DirectX\cuda_d3d.h" />
