@@ -997,18 +997,18 @@ void ApplicationClass::RunCloudKernals(){
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
 	getLastCudaError("cudaMemcpy3D failed");
-
+	/*
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_texture_2d failed");
 	int tex_size = rain_cuda_->width_*rain_cuda_->height_*sizeof(float);
 	float* output;
-
+	
 	cudaMalloc((void**)&output, tex_size);
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
 	printf("%3.2f", (float*)output);
 	float* fout = (float*)(output);
-	fout[0] = 1.f;
+	fout[0] = 1.f;*/
 	getLastCudaError("cudaMemcpy2DToArray failed");
 }
 void ApplicationClass::Shutdown(){

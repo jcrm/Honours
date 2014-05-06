@@ -62,7 +62,9 @@ __global__ void cuda_kernel_advect_velocity(unsigned char *output, unsigned char
 				}
 			}
 		}
+		
 	}
+	
 }
 
 extern "C"

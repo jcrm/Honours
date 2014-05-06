@@ -53,6 +53,42 @@ __global__ void cuda_kernel_vorticity(unsigned char *output, unsigned char *inpu
 				}
 			}
 		}
+		if(x_iter +1 == size.width_ || x_iter - 1 < 0){
+			unsigned char *output_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+			signed int x = output_velocity[x_identifier_] - 1;
+			signed int y = output_velocity[y_identifier_] - 1;
+			signed int z = output_velocity[z_identifier_] - 1;
+			x =  x < 0 ? 10 : x;
+			y =  y < 0 ? 10 : y;
+			z =  z < 0 ? 10 : z;
+			output_velocity[x_identifier_] = x;
+			output_velocity[y_identifier_] = y;
+			output_velocity[z_identifier_] = z;
+		}
+		if(y_iter + 1 == size.height_ || y_iter - 1 < 0){
+			unsigned char *output_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+			signed int x = output_velocity[x_identifier_] - 1;
+			signed int y = output_velocity[y_identifier_] - 1;
+			signed int z = output_velocity[z_identifier_] - 1;
+			x =  x < 0 ? 0 : x;
+			y =  y < 0 ? 0 : y;
+			z =  z < 0 ? 0 : z;
+			output_velocity[x_identifier_] = x;
+			output_velocity[y_identifier_] = y;
+			output_velocity[z_identifier_] = z;
+		}
+		if(z_iter + 1 == size.depth_ || z_iter - 1 < 0){
+			unsigned char *output_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+			signed int x = output_velocity[x_identifier_] - 1;
+			signed int y = output_velocity[y_identifier_] - 1;
+			signed int z = output_velocity[z_identifier_] - 1;
+			x =  x < 0 ? 0 : x;
+			y =  y < 0 ? 0 : y;
+			z =  z < 0 ? 0 : z;
+			output_velocity[x_identifier_] = x;
+			output_velocity[y_identifier_] = y;
+			output_velocity[z_identifier_] = z;
+		}
 	}
 }
 

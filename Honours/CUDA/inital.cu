@@ -29,12 +29,22 @@ __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value
 					cell_value[3] = signed int(0);
 				}
 			}
-		}
+		}/*
+		if(x_iter +1 < 3*(size.width_/4) && x_iter - 1 >= (size.depth_/4)){
+			if(y_iter + 1 < 3*(size.height_/4) && y_iter - 1 >= (size.depth_/4)){
+				if(z_iter + 1 < 3*(size.depth_/4) && z_iter - 1 >= (size.depth_/4)){
+					cell_value[0] = signed int(value);
+					cell_value[1] = signed int(value);
+					cell_value[2] = signed int(value);
+					cell_value[3] = signed int(0);
+
+				}
+			}
+		}*/
 		if(x_iter +1 >= size.width_){
-			cell_value[0] = signed int(value*10);
+			cell_value[0] = signed int(value);
 			cell_value[1] = signed int(0.5f*value);
-			cell_value[2] = signed int(-value);
-			cell_value[3] = signed int(value);
+			cell_value[2] = signed int(value);
 		}
 	}
 }

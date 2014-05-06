@@ -16,8 +16,8 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
 	float2 tex = input.pos_.xy /= input.pos_.w;
-	tex.x =  0.5f*tex.x + 0.5f; 
-	tex.y = -0.5f*tex.y + 0.5f;  
+	tex.x =  0.5f*tex.x + 0.5f;
+	tex.y = -0.5f*tex.y + 0.5f;
 
 	float3 front = front_.Sample(sample_type_, tex);
 	float3 back = back_.Sample(sample_type_, tex);
@@ -33,8 +33,8 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	for(int i = 0; i < input.iterations_; i++){
 		pos.w = 0;
 		value = volume_.SampleLevel(sample_type_, pos,0).a;
+		src = float4(1.f,1.f,1.f,(float)value);
 
-		src = (float4)value;
 		src.a *= .05f;
 		//reduce the alpha to have a more transparent result
 		//this needs to be adjusted based on the step size
@@ -47,7 +47,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		dst = (1.0f - dst.a)*src + dst;
 		
 		//break from the loop when alpha gets high enough
-		if(dst.a >= 1.f){
+		if(dst.a >= .95f){
 			break;
 		}
 

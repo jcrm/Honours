@@ -36,7 +36,6 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 						(cell_velocity[y_identifier_] * cell_velocity[y_identifier_]) + 
 						(cell_velocity[z_identifier_] * cell_velocity[z_identifier_]);
 					cell_velocity[3] = sqrt(density);
-					//cell_velocity[3] = density;
 				}
 			}
 		}

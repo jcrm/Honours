@@ -46,7 +46,6 @@ __global__ void cuda_kernel_advect_thermo(unsigned char *input, Size size){
 				}
 			}
 		}
-		
 	}
 }
 

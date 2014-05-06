@@ -262,9 +262,6 @@
     <ClInclude Include="Source\Objects\terrain.h">
       <Filter>Header Files\Object Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Objects\cloud_box.h">
-      <Filter>Header Files\Object Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Managers\ortho_window.h">
       <Filter>Header Files\Manager Files</Filter>
     </ClInclude>
@@ -300,6 +297,9 @@
     </ClInclude>
     <ClInclude Include="Source\CUDA\cuda_header.h">
       <Filter>Header Files\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Objects\cloud_box.h">
+      <Filter>Header Files\Object Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
