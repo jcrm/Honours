@@ -40,15 +40,6 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 				}
 			}
 		}
-		if(x_iter +1 == size.width_ || x_iter - 1 < 0){
-			cell_velocity[3] = 0.f;
-		}
-		if(y_iter + 1 == size.height_ || y_iter - 1 < 0){
-			cell_velocity[3] = 0.f;
-		}
-		if(z_iter + 1 == size.depth_ || z_iter - 1 < 0){
-			cell_velocity[3] = 0.f;
-		}
 	}
 }
 

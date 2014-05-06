@@ -27,17 +27,20 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 
 	float4 dst = float4(0, 0, 0, 0);
 	float4 src = 0;
-	float value = 0;
+	float4 value = float4(0, 0, 0, 0);
 	
 	float3 step = dir * input.step_size_;
-	for(int i = 0; i <100; i++){
+	for(int i = 0; i <64; i++){
 		
 		pos.w = 0;
+		//value = volume_.SampleLevel(sample_type_, pos,0).a;
 		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f ).a;
-		if(value < 0){
-			value = 0;
+		if(value.a < 0){
+			value.a = 0;
 		}
-		src = (float4)value;
+		
+		src = (float4)value.a;
+
 		src.a *= .1f;
 		//reduce the alpha to have a more transparent result
 		//this needs to be adjusted based on the step size
@@ -50,7 +53,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		dst = (1.0f - dst.a)*src + dst;
 		
 		//break from the loop when alpha gets high enough
-		if(dst.a >= .95f){
+		if(dst.a >= 1.f){
 			break;
 		}
 
@@ -61,9 +64,9 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f){
 			break;
 		}
-		if(pos.x == 0.0f || pos.y == 0.0f || pos.z == 0.0f){
-			dst = float4(0, 0, 0, 0);
-		}
-	}
+	}/*
+	if(dst.b >= 1.f  && dst.r < 0.4f && dst.g < 0.4f){
+		dst.b -= 0.1f;
+	}*/
 	return dst;
 }
