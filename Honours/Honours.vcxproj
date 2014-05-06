@@ -31,6 +31,8 @@
     <None Include="Shader\TextureToTexture\texturetotexture.vs" />
     <None Include="Shader\Texture\texture.ps" />
     <None Include="Shader\Texture\texture.vs" />
+    <None Include="Shader\Volume2\volume2.ps" />
+    <None Include="Shader\Volume2\volume2.vs" />
     <None Include="Shader\Volume\volume.ps" />
     <None Include="Shader\Volume\volume.vs" />
   </ItemGroup>
@@ -71,6 +73,7 @@
     <ClInclude Include="Source\Shaders\texture_shader.h" />
     <ClInclude Include="Source\Shaders\texture_to_texture_shader.h" />
     <ClInclude Include="Source\Shaders\volume_shader.h" />
+    <ClInclude Include="Source\Shaders\volume_shader2.h" />
     <ClInclude Include="Source\Textures\render_texture.h" />
     <ClInclude Include="Source\Textures\texture.h" />
     <ClInclude Include="Source\Text\cpuclass.h" />
@@ -102,6 +105,7 @@
     <ClCompile Include="Source\Shaders\texture_shader.cpp" />
     <ClCompile Include="Source\Shaders\texture_to_texture_shader.cpp" />
     <ClCompile Include="Source\Shaders\volume_shader.cpp" />
+    <ClCompile Include="Source\Shaders\volume_shader2.cpp" />
     <ClCompile Include="Source\Textures\render_texture.cpp" />
     <ClCompile Include="Source\Textures\texture.cpp" />
     <ClCompile Include="Source\Text\cpuclass.cpp" />

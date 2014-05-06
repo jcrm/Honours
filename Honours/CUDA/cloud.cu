@@ -18,6 +18,7 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
+		unsigned char *cell_velocity = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
@@ -28,7 +29,7 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 					unsigned char *pUp = pressure + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE * x_iter); 
 					unsigned char *pTop = pressure + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
 					unsigned char *pBottom = pressure + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
-					unsigned char *cell_velocity = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+					
 					cell_velocity[x_identifier_] = cell_velocity[x_identifier_] - (0.5f *(pRight[pressure_index] - pLeft[pressure_index]));
 					cell_velocity[y_identifier_] = cell_velocity[y_identifier_] - (0.5f *(pTop[pressure_index] - pBottom[pressure_index]));
 					cell_velocity[2] = cell_velocity[2] - (0.5f *(pUp[pressure_index] - pDown[pressure_index])); 
@@ -38,6 +39,15 @@ __global__ void cuda_kernel_project(unsigned char *pressure, unsigned char* velo
 					cell_velocity[3] = sqrt(density);
 				}
 			}
+		}
+		if(x_iter +1 == size.width_ || x_iter - 1 < 0){
+			cell_velocity[3] = 0.f;
+		}
+		if(y_iter + 1 == size.height_ || y_iter - 1 < 0){
+			cell_velocity[3] = 0.f;
+		}
+		if(z_iter + 1 == size.depth_ || z_iter - 1 < 0){
+			cell_velocity[3] = 0.f;
 		}
 	}
 }

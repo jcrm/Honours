@@ -5,7 +5,7 @@
 ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
 	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
-	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	texture_to_texture_shader_(0), volume_shader_(0), volume_shader_two_(0), particle_shader_(0), 	face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_thermo_cuda_(0),
 	water_continuity_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
 	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
@@ -14,7 +14,7 @@ ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), play
 ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
 	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
-	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	texture_to_texture_shader_(0), volume_shader_(0), volume_shader_two_(0), particle_shader_(0), 	face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_thermo_cuda_(0),
 	water_continuity_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
 	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
@@ -272,7 +272,7 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.6f, 1.0f, 1.0f, 1.0f);
+	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.6f, 0.0f, 0.0f, 1.0f);
 	// Generate the view matrix based on the camera's position.
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
@@ -292,10 +292,15 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	D3DXMATRIX model_world_matrix = world_matrix;
 	D3DXMATRIX translation = cloud_object_->GetTranslation();
 	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
-
-	cloud_object_->Render(direct_3d_->GetDeviceContext());
+	D3DXVECTOR4 camera_pos = D3DXVECTOR4(camera_->GetPosition(), 1.f);
+	cloud_object_->Render(direct_3d_->GetDeviceContext());/*
+	result = volume_shader_two_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
+		velocity_cuda_->sr_view_, camera_pos);
+	*/
+	
 	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
 		cloud_object_->GetFrontShaderResource(), cloud_object_->GetBackShaderResource(), velocity_cuda_->sr_view_,cloud_object_->GetScale());
+	
 	if(!result){
 		return false;
 	}
@@ -732,6 +737,14 @@ bool ApplicationClass::InitObjectShaders(HWND hwnd){
 	}
 	// Initialize the terrain shader object.
 	result = terrain_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		return false;
+	}
+	volume_shader_two_ = new VolumeShaderTWO;
+	if (!volume_shader_two_){
+		return false;
+	}
+	result = volume_shader_two_->Initialize(direct_3d_->GetDevice(),hwnd);
 	if(!result){
 		return false;
 	}

@@ -5,7 +5,7 @@
 #include "device_launch_parameters.h"
 #include <cuda_runtime.h>
 #include "../Source/CUDA/cuda_header.h"
-
+#include "math.h"
 #define PIXEL_FMT_SIZE 4
 
 __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value){ 
@@ -41,10 +41,11 @@ __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value
 				}
 			}
 		}*/
-		if(x_iter +1 >= size.width_){
+		if(x_iter +1 >= size.width_ && y_iter == 0 && z_iter == 0){
 			cell_value[0] = signed int(value);
 			cell_value[1] = signed int(0.5f*value);
 			cell_value[2] = signed int(value);
+			cell_value[0] = signed int(0);
 		}
 	}
 }

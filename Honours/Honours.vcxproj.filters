@@ -106,6 +106,9 @@
     <Filter Include="Resource Files\Shader Files\Merge Files">
       <UniqueIdentifier>{ad7acef6-2b42-4347-83fe-66cda7bb18ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shader Files\Volume Two Files">
+      <UniqueIdentifier>{b7e4f725-b515-4f9b-a844-54a8efbe2d54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\ground.dds">
@@ -173,6 +176,12 @@
     </None>
     <None Include="Data\height_map.bmp">
       <Filter>Resource Files\Other Files</Filter>
+    </None>
+    <None Include="Shader\Volume2\volume2.ps">
+      <Filter>Resource Files\Shader Files\Volume Two Files</Filter>
+    </None>
+    <None Include="Shader\Volume2\volume2.vs">
+      <Filter>Resource Files\Shader Files\Volume Two Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +310,9 @@
     <ClInclude Include="Source\Objects\cloud_box.h">
       <Filter>Header Files\Object Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Shaders\volume_shader2.h">
+      <Filter>Header Files\Shader Files\Object Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\DirectX\d3dclass.cpp">
@@ -389,6 +401,9 @@
     </ClCompile>
     <ClCompile Include="Source\Shaders\merge_texture_shader.cpp">
       <Filter>Source Files\Shader Files\Texture Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shaders\volume_shader2.cpp">
+      <Filter>Source Files\Shader Files\Object Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

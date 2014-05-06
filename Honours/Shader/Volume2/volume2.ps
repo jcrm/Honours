@@ -1,0 +1,96 @@
+Texture3D volume_;
+SamplerState sample_type_;
+
+cbuffer CameraData
+{
+	float4 CameraPosition;
+	matrix inverse;
+};
+
+struct PixelShaderInput
+{
+	float4 position_ : SV_POSITION;
+	float3 tex_		: TEXCOORD0;
+};
+
+float4 VolumePS(PixelShaderInput input) : SV_TARGET
+{ 
+	float4 Ka= float4( 0.2f, 0.2f, 0.2f, 0.2f );
+	float4 Kd= float4( 0.1f, 1.0f, 0.1f, 0.5f );
+	float4 Ks= float4( 1.0f, 1.0f, 1.0f, 1.0f );
+	float4 LightPosition= float4( 100.0f, 100.0f, -100.0f, 0.0f );
+	float4 Ia= float4( 0.25f, 0.25f, 0.25f, 0.25f );
+	float4 Id= float4( 0.5f, 0.5f, 0.5f, 1.0f );
+	float4 Is= float4( 1.0f, 1.0f, 1.0f, 1.0f );
+	float4 CameraPositionTS =  mul(CameraPosition, inverse);
+	float4 LightPositionTS = mul(LightPosition, inverse);
+	// Find the texture space view vector for this pixel.  This is done by taking the texture
+	// space view position and subtracting the current texture coordinate.
+	//float3 CameraPositionTS = float3( 10.0f, 10.0f, 10.0f );
+	float3 direction = normalize( input.tex_ - CameraPositionTS.xyz );
+
+	// Perform the sampling along the view vector until you max out the number of iterations
+	// or you hit the surface.
+	
+	float stepLength = 1.0f/64.0f;
+	float3 stepSize = direction * stepLength;
+	float3 location = input.tex_;
+	float surfaceHit = 0.0f;
+
+	float currTSDF = 0.0f;
+	float prevTSDF = 0.0f;
+
+	float3 surfacePosition = input.tex_;
+
+
+	for ( int i = 0; i < 300; i++ ) {
+		prevTSDF = currTSDF;
+		currTSDF = volume_.SampleGrad(sample_type_, location, 1.0f, 1.0f ).a;
+
+		if ( currTSDF > 0.f) {
+
+			float TSDFdelta = currTSDF - prevTSDF;
+			float TSDFintersect = currTSDF / TSDFdelta;
+			surfacePosition = location - stepSize * TSDFintersect;
+			
+			surfaceHit = 1.0f;
+			break;
+		}
+
+		location = location + stepSize;
+	}
+
+	// Calculate the gradient based normal vector using central differences
+	float right = volume_.SampleGrad( sample_type_, surfacePosition + float3(  1.0f,  0.0f,  0.0f ) * stepLength, 1.0f, 1.0f ).a;
+	float left  = volume_.SampleGrad( sample_type_, surfacePosition + float3( -1.0f,  0.0f,  0.0f ) * stepLength, 1.0f, 1.0f ).a;
+	float up    = volume_.SampleGrad( sample_type_, surfacePosition + float3(  0.0f,  1.0f,  0.0f ) * stepLength, 1.0f, 1.0f ).a;
+	float down  = volume_.SampleGrad( sample_type_, surfacePosition + float3(  0.0f, -1.0f,  0.0f ) * stepLength, 1.0f, 1.0f ).a;
+	float front = volume_.SampleGrad( sample_type_, surfacePosition + float3(  0.0f,  0.0f,  1.0f ) * stepLength, 1.0f, 1.0f ).a;
+	float back  = volume_.SampleGrad( sample_type_, surfacePosition + float3(  0.0f,  0.0f, -1.0f ) * stepLength, 1.0f, 1.0f ).a;
+
+	float3 surfaceNormal = normalize( float3( left-right, down-up, back-front ) ); // (2*stepLength);
+
+	// Shade the point based on the calculated normal vector
+	float3 P = surfacePosition;
+	float3 N = surfaceNormal;
+	float3 L = normalize( LightPositionTS.xyz - P.xyz );
+	float3 V = normalize( CameraPositionTS.xyz - P.xyz );
+	float3 H = normalize( L + V );
+
+	float NdotL = dot( L, N );
+	float4 ambientIntensity = Kd * Ia;
+	float4 diffuseIntensity = Kd * Id * clamp( NdotL, 0.0f, 1.0f );
+	float4 specularIntensity = Ks * Is * clamp( pow( abs( dot( H, N ) ), 64.0f ), 0.0f, 1.0f );
+
+	float4 output = ambientIntensity;
+
+	if ( NdotL > 0.0f ) {
+		output += diffuseIntensity;
+		output += specularIntensity;
+	}
+
+	output.a = 1.0f;
+
+	// Multiply by the 'hit' value to ensure only rendering a portion of the implicit surface.
+	return( output * surfaceHit );
+}
