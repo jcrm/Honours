@@ -7,13 +7,6 @@
 #include <math.h>
 #include "../Source/CUDA/cuda_header.h"
 
-#define dx 1.f
-#define time_step 1.f
-#define PIXEL_FMT_SIZE 4
-#define x_identifier_ 0
-#define y_identifier_ 1
-#define z_identifier_ 2
-
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_vorticity(unsigned char *output, unsigned char *input, Size size){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;

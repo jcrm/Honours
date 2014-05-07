@@ -6,7 +6,7 @@
 #include <cuda_runtime.h>
 #include "../Source/CUDA/cuda_header.h"
 #include "math.h"
-#define PIXEL_FMT_SIZE 4
+
 
 __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;

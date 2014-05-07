@@ -6,10 +6,6 @@
 #include <cuda_runtime.h>
 #include "../Source/CUDA/cuda_header.h"
 
-#define PIXEL_FMT_SIZE 4
-#define x_identifier_ 0
-#define y_identifier_ 1
-#define z_identifier_ 2
 //output diverrgnece texture //input velocity derrivitive teture
 __global__ void cuda_kernel_divergence(unsigned char* output, unsigned char* input, Size size, int divergence_index){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;

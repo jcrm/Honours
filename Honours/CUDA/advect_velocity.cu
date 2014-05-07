@@ -6,11 +6,6 @@
 #include <cuda_runtime.h>
 #include "../Source/CUDA/cuda_header.h"
 
-#define PIXEL_FMT_SIZE 4
-#define timeStep 1.f
-#define x_identifier_ 0
-#define y_identifier_ 1
-#define z_identifier_ 2
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_advect_velocity(unsigned char *output, unsigned char *input, Size size){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;

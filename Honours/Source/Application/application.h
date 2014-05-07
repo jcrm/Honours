@@ -52,8 +52,8 @@ const float SCREEN_NEAR = 0.1f;
 #include "../Textures/render_texture.h"
 #include "../CUDA/cuda_structs.h"
 #include "../CUDA/cuda_kernals.h"
+#include "../CUDA/cuda_header.h"
 
-#define PIXEL_FMT_SIZE 4
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,5 +132,6 @@ private:
 	rain_texture *rain_cuda_;
 	bool is_done_once_;
 	float* rain_map;
+	signed char output[64*64*4];
 };
 #endif

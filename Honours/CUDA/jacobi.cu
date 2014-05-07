@@ -6,8 +6,6 @@
 #include <cuda_runtime.h>
 #include "../Source/CUDA/cuda_header.h"
 
-#define PIXEL_FMT_SIZE 4
-
 __global__ void cuda_kernel_jacobi(unsigned char *pressuredivergence, Size size, int pressure_index, int divergence_index){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;

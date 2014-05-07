@@ -98,7 +98,7 @@ void ApplicationClass::InitClouds(){
     // cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
     // Create a buffer so that cuda can write into it
     // pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-    cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * sizeof(float) * 4, rain_cuda_->height_);
+    cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * PIXEL_FMT_SIZE, rain_cuda_->height_);
     getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
     cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_);
 
@@ -921,12 +921,13 @@ void ApplicationClass::CudaRender(){
 	//and to have the map/unmap calls be the boundary between using the GPU
 	//for Direct3D and Cuda
 	cudaStream_t stream = 0;
-	const int num_resources = 4;
+	const int num_resources = 5;
 	cudaGraphicsResource *resources[num_resources] ={
 		velocity_cuda_->cuda_resource_,
 		velocity_derivative_cuda_->cuda_resource_,
 		pressure_divergence_thermo_cuda_->cuda_resource_,
-		water_continuity_cuda_->cuda_resource_
+		water_continuity_cuda_->cuda_resource_,
+		rain_cuda_->cuda_resource_
 	};
 	cudaGraphicsMapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
@@ -941,16 +942,20 @@ void ApplicationClass::RunCloudKernals(){
 	int pressure_index = 0;
 	int divergence_index = 1;
 	cudaArray *cuda_velocity_array;
+	cudaArray *cuda_rain_array;
 	Size size;
 	size.width_ = velocity_cuda_->width_;
 	size.height_ = velocity_cuda_->height_;
 	size.depth_ = velocity_cuda_->depth_;
 	size.pitch_ = velocity_cuda_->pitch_;
 	size.pitch_slice_ = velocity_cuda_->pitch_ * velocity_cuda_->height_;
-	
-	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
 
+	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
+
+	cudaGraphicsSubResourceGetMappedArray(&cuda_rain_array, rain_cuda_->cuda_resource_, 0, 0);
+	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_2d) failed");
+
 	if(is_done_once_ == false){
 		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 10.f);
 		getLastCudaError("cuda_fluid_initial failed");
@@ -1010,21 +1015,18 @@ void ApplicationClass::RunCloudKernals(){
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
 	getLastCudaError("cudaMemcpy3D failed");
-	/*
+	
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_texture_2d failed");
-	int tex_size = rain_cuda_->width_*rain_cuda_->height_*sizeof(float);
-	float* output;
-	
-	cudaMalloc((void**)&output, tex_size);
+	int tex_size = rain_cuda_->width_*rain_cuda_->height_*PIXEL_FMT_SIZE*sizeof(signed char);
+
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
-	printf("%3.2f", (float*)output);
-	float* fout = (float*)(output);
-	fout[0] = 1.f;*/
-	getLastCudaError("cudaMemcpy2DToArray failed");
+	int temp = int(output[1]);
+	std::cout << "value: " << temp << std::endl;
 }
 void ApplicationClass::Shutdown(){
+
 	if(full_screen_window_){
 		full_screen_window_->Shutdown();
 		delete full_screen_window_;

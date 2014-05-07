@@ -7,17 +7,7 @@
 #include <math.h>
 #include "../Source/CUDA/cuda_header.h"
 
-#define vptemp 295.f
-#define dx 1.f
-#define time_step 1.f
-#define PIXEL_FMT_SIZE 4
-#define x_identifier_ 0
-#define y_identifier_ 1
-#define z_identifier_ 2
 
-#define qv_identifier_ 0
-#define qc_identifier_ 1
-#define theta_identifier_ 2
 
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_bouyancy(unsigned char *output, unsigned char *input, unsigned char *input_two, Size size){ 
@@ -36,7 +26,7 @@ __global__ void cuda_kernel_bouyancy(unsigned char *output, unsigned char *input
 					float qv = inout_water[qv_identifier_];
 					float qh = inout_water[qc_identifier_];
 					//buoyancy
-					output_velocity[y_identifier_] += 9.8f * (((theta*(1.f+(0.61f*qv))) / vptemp) - qh )* time_step;
+					output_velocity[y_identifier_] += 9.8f * (((theta*(1.f+(0.61f*qv))) / T0) - qh )* time_step;
 				}
 			}
 		}

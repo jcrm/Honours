@@ -7,9 +7,6 @@
 #include "math.h"
 #include "../Source/CUDA/cuda_header.h"
 
-#define PIXEL_FMT_SIZE 4
-#define F_identifier_ 3
-
 // 2D float texture
 texture<float, cudaTextureType2D, cudaReadModeElementType> texRef;
 
@@ -17,6 +14,7 @@ __global__ void cuda_kernel_rain(unsigned char *output, unsigned char *input, Si
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
+
 	float rain_sum = 0.f;
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
@@ -24,12 +22,19 @@ __global__ void cuda_kernel_rain(unsigned char *output, unsigned char *input, Si
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 					unsigned char* cellRain = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
 					rain_sum += cellRain[F_identifier_];
+					
 				}
 			}
 		}
 	}
-	unsigned char* rain = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+	unsigned char* rain = output + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+	if(rain_sum != 0){
+		rain[0] = rain_sum;
+	}
 	rain[0] = rain_sum;
+	rain[1] = 10;
+	rain[2] = -5;
+	rain[3] = 127;
 }
 extern "C"
 void cuda_fluid_rain(unsigned char *output, unsigned char *input, Size size){
