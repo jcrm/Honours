@@ -43,6 +43,7 @@
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\flatten.cu" />
+    <CudaCompile Include="CUDA\inital _float.cu" />
     <CudaCompile Include="CUDA\inital.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
     <CudaCompile Include="CUDA\vorticity.cu" />

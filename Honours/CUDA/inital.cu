@@ -15,7 +15,7 @@ __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value
 
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
 		//location is z slide + y position + variable size time x position
-		unsigned char *cell_value = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE * x_iter);
+		unsigned char *cell_value = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 		cell_value[0] = signed int(0);
 		cell_value[1] = signed int(0);
 		cell_value[2] = signed int(0);
@@ -51,13 +51,13 @@ __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value
 	}
 }
 extern "C"
-void cuda_fluid_initial(void *velocity_input, Size size, float value){
+void cuda_fluid_initial(void *input, Size size, float value){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_initial<<<Dg,Db>>>((unsigned char *)velocity_input, size, value);
+	cuda_kernel_initial<<<Dg,Db>>>((unsigned char *)input, size, value);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){
