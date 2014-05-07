@@ -36,7 +36,7 @@ public:
 	
 	inline ID3D11ShaderResourceView* GetFrontShaderResource(){return front_texture_->GetShaderResourceView();}
 	inline ID3D11ShaderResourceView* GetBackShaderResource(){return back_texture_->GetShaderResourceView();}
-	inline float GetScale(){return 1/size_;}
+	inline D3DXVECTOR3 GetScale(){return size_;}
 	inline D3DXMATRIX GetTranslation() {return transform_;}
 private:
 	//buffer functions
@@ -50,6 +50,6 @@ private:
 	ID3D11Buffer *vertex_buffer_, *index_buffer_;
 	RenderTextureClass *front_texture_, *back_texture_;
 	D3DXMATRIX transform_;
-	float size_;
+	D3DXVECTOR3 size_;
 };
 #endif

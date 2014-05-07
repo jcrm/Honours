@@ -6,7 +6,7 @@ public:
 	VolumeShader(void);
 	~VolumeShader(void);
 	bool Initialize(ID3D11Device*, HWND);
-	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, float);
+	bool Render(ID3D11DeviceContext*, int, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, D3DXVECTOR3);
 	ID3D11Buffer* GetBuffer(){return matrix_buffer_;}
 private:
 	struct VolumeBufferType{
@@ -16,7 +16,7 @@ private:
 	};
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
-	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, float);
+	bool SetShaderParameters(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX, D3DXMATRIX, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, ID3D11ShaderResourceView*, D3DXVECTOR3);
 	void RenderShader(ID3D11DeviceContext*, int);
 private:
 	ID3D11Buffer* volume_buffer_;

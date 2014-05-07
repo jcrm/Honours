@@ -14,7 +14,7 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 }
 bool VolumeShader::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 						  D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* frontTexture , ID3D11ShaderResourceView* backTexture,
-						  ID3D11ShaderResourceView* volumeTexture, float scale){
+						  ID3D11ShaderResourceView* volumeTexture, D3DXVECTOR3 scale){
 	// Set the shader parameters that it will use for rendering.
 	bool result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, frontTexture, backTexture, volumeTexture, scale);
 	if(!result){
@@ -145,7 +145,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 }
 bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
 									   D3DXMATRIX projection_matrix, ID3D11ShaderResourceView* frontTexture, 
-									   ID3D11ShaderResourceView* backTexture, ID3D11ShaderResourceView* volumeTexture, float scale){
+									   ID3D11ShaderResourceView* backTexture, ID3D11ShaderResourceView* volumeTexture, D3DXVECTOR3 scale){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mapped_resource;
 	MatrixBufferType* data_ptr;
@@ -186,7 +186,7 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	float maxSize = 64.f;
 	float mStepScale = 1.0f;
 	// Copy the lighting variables into the constant buffer.
-	data_ptr_two->scale_ = D3DXVECTOR4(scale,scale,scale,1.0f);
+	data_ptr_two->scale_ = D3DXVECTOR4(1.f/scale.x,1.f/scale.y,1.f/scale.z,1.0f);
 	data_ptr_two->step_size_ = D3DXVECTOR3(1.0f / 64.f, 1.0f / 64.f, 1.0f / 64.f);
 	data_ptr_two->iterations_ = 64;
 	

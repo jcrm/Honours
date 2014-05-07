@@ -12,7 +12,7 @@ bool FaceShader::Initialize(ID3D11Device* device, HWND hwnd){
 	}
 	return true;
 }
-bool FaceShader::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, D3DXMATRIX projection_matrix, float scale){
+bool FaceShader::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, D3DXMATRIX projection_matrix, D3DXVECTOR3 scale){
 	bool result;
 	// Set the shader parameters that it will use for rendering.
 	result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, scale);
@@ -142,7 +142,7 @@ bool FaceShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_fil
 	return true;
 }
 bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, 
-									   D3DXMATRIX projection_matrix, float scale){
+									   D3DXMATRIX projection_matrix, D3DXVECTOR3 scale){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mapped_resource;
 	MatrixBufferType* data_ptr;
@@ -177,7 +177,7 @@ bool FaceShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMA
 	// Get a pointer to the data in the constant buffer.
 	data_ptr_two = (ScaleBufferType*)mapped_resource.pData;
 	// Copy the lighting variables into the constant buffer.
-	data_ptr_two->scale_ = D3DXVECTOR4(scale,scale,scale,1.0f);
+	data_ptr_two->scale_ = D3DXVECTOR4(1.f/scale.x,1.f/scale.y,1.f/scale.z,1.0f);
 	// Unlock the constant buffer.
 	device_context->Unmap(scale_buffer_, 0);
 	// Set the position of the light constant buffer in the pixel shader.
