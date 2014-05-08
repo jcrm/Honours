@@ -96,7 +96,7 @@ void ApplicationClass::InitClouds(){
 	// cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
 	// Create a buffer so that cuda can write into it
 	// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-	cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * PIXEL_FMT_SIZE_RGBA, rain_cuda_->height_);
+	cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * PIXEL_FMT_SIZE_RGBA * sizeof(float*), rain_cuda_->height_);
 	getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
 	cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_);
 
@@ -587,13 +587,11 @@ bool ApplicationClass::InitCudaTextures(){
 	if (FAILED(d3d_device->CreateTexture2D(&desc2d, NULL, &rain_cuda_->texture_))){
 		return E_FAIL;
 	}
-
 	if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
 		return E_FAIL;
 	}
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
 
-	rain_map = (float*)malloc(64*64*sizeof(float));
 	return true;
 }
 
@@ -1014,6 +1012,7 @@ void ApplicationClass::RunCloudKernals(){
 	int divergence_index = 1;
 	cudaArray *cuda_velocity_array;
 	cudaArray *cuda_rain_array;
+
 	Size size;
 	size.width_ = velocity_cuda_->width_;
 	size.height_ = velocity_cuda_->height_;
@@ -1103,11 +1102,8 @@ void ApplicationClass::RunCloudKernals(){
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size, size_two);
 	getLastCudaError("cuda_texture_2d failed");
-	int tex_size = rain_cuda_->width_*rain_cuda_->height_*PIXEL_FMT_SIZE_RGBA*sizeof(signed char);
-
+	int tex_size = rain_cuda_->width_*rain_cuda_->height_*PIXEL_FMT_SIZE_RGBA* sizeof(float*);
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
-	int temp = int(output[1]);
-	std::cout << "value: " << temp << std::endl;
 }
 void ApplicationClass::Shutdown(){
 

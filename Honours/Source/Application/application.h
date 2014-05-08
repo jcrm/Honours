@@ -17,6 +17,7 @@ const float SCREEN_NEAR = 0.1f;
 #include <vector>
 #include <windows.h>
 #include <mmsystem.h>
+#include <string>
 // This header inclues all the necessary D3D11 and CUDA includes
 #include <dynlink_d3d11.h>
 #include <cuda_runtime_api.h>
@@ -133,7 +134,6 @@ private:
 	fluid_texture *water_continuity_rain_cuda_;
 	rain_texture *rain_cuda_;
 	bool is_done_once_;
-	float* rain_map;
-	signed char output[64*64*4];
+	float output[64*64*PIXEL_FMT_SIZE_RGBA* sizeof(float*)];
 };
 #endif

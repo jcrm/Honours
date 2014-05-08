@@ -7,12 +7,12 @@
 #include "math.h"
 #include "../Source/CUDA/cuda_header.h"
 
-__global__ void cuda_kernel_rain(unsigned char *output, float *input, Size size, Size size_two){
+__global__ void cuda_kernel_rain(float *output, float *input, Size size, Size size_two){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
-
 	float rain_sum = 0.f;
+
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
@@ -23,14 +23,11 @@ __global__ void cuda_kernel_rain(unsigned char *output, float *input, Size size,
 			}
 		}
 	}
-	unsigned char* rain = output + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-	if(rain_sum != 0){
-		rain[0] = rain_sum;
-	}
+	float* rain = output + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 	rain[0] = rain_sum;
-	rain[1] = 10;
-	rain[2] = -5;
-	rain[3] = 127;
+	rain[1] = 0.f;
+	rain[2] = 0.f;
+	rain[3] = 0.f;
 }
 extern "C"
 void cuda_fluid_rain(void *output, void *input, Size size, Size size_two){
@@ -40,7 +37,7 @@ void cuda_fluid_rain(void *output, void *input, Size size, Size size_two){
 	//dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_rain<<<Dg,Db>>>((unsigned char *)output, (float *)input, size, size_two);
+	cuda_kernel_rain<<<Dg,Db>>>((float *)output, (float *)input, size, size_two);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){
