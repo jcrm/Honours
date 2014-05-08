@@ -22,6 +22,7 @@ ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0),
 }
 ApplicationClass::~ApplicationClass(){
 }
+
 bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height){
 	bool result;
 	// Create the input object.  The input object will be used to handle reading the keyboard and mouse input from the user.
@@ -154,6 +155,448 @@ void ApplicationClass::InitClouds(){
 	cudaMemset(water_continuity_rain_cuda_->cuda_linear_memory_, 1, water_continuity_rain_cuda_->pitch_ * water_continuity_rain_cuda_->height_ * water_continuity_rain_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 }
+bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height){
+	D3DXMATRIX base_view_matrix;
+	char video_card[128];
+	int video_memory;
+	bool result = true;
+	// Create the timer object.
+	timer_ = new TimerClass;
+	if(!timer_){
+		return false;
+	}
+	// Initialize the timer object.
+	result = timer_->Initialize();
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the timer object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the fps object.
+	FPS_ = new FpsClass;
+	if(!FPS_){
+		return false;
+	}
+	// Initialize the fps object.
+	FPS_->Initialize();
+	// Create the cpu object.
+	CPU_ = new CpuClass;
+	if(!CPU_){
+		return false;
+	}
+	// Initialize the cpu object.
+	CPU_->Initialize();
+	// Create the text object.
+	text_ = new TextClass;
+	if(!text_){
+		return false;
+	}
+	camera_->GetViewMatrix(base_view_matrix);
+	// Initialize the text object.
+	result = text_->Initialize(direct_3d_->GetDevice(), direct_3d_->GetDeviceContext(), hwnd, screen_width, screen_height, base_view_matrix);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
+		return false;
+	}
+	// Retrieve the video card information.
+	direct_3d_->GetVideoCardInfo(video_card, video_memory);
+	// Set the video card information in the text object.
+	result = text_->SetVideoCardInfo(video_card, video_memory, direct_3d_->GetDeviceContext());
+	if(!result){
+		MessageBox(hwnd, L"Could not set video card info in the text object.", L"Error", MB_OK);
+		return false;
+	}
+	return true;
+}
+bool ApplicationClass::InitObjects(HWND hwnd){
+	bool result;
+	// Create the terrain object.
+	terrain_object_ = new TerrainClass;
+	if(!terrain_object_){
+		return false;
+	}
+	// Initialize the terrain object.
+	result = terrain_object_->Initialize(direct_3d_->GetDevice(),"Data/height_map.bmp" ,L"Data/ground.dds");
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
+		return false;
+	}
+	cloud_object_ = new CloudClass;
+	if(!cloud_object_){
+		return false;
+	}
+	// Initialize the terrain object.
+	result = cloud_object_->Initialize(direct_3d_->GetDevice(), 800,600,SCREEN_DEPTH, SCREEN_NEAR);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
+		return false;
+	}
+	for(int i = 0; i < 5; i++){
+		ParticleSystemClass* temp_system = new ParticleSystemClass;
+		// Initialize the particle system object.
+		result = temp_system->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
+		if(!result){
+			return false;
+		}
+		rain_systems_.push_back(temp_system);
+	}
+
+	return true;
+}
+bool ApplicationClass::InitTextures(HWND hwnd, int screen_width, int screen_height){
+	bool result;
+	// Create the render to texture object.
+	render_fullsize_texture_ = new RenderTextureClass;
+	if(!render_fullsize_texture_){
+		return false;
+	}
+	// Initialize the render to texture object.
+	result = render_fullsize_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the up sample render to texture object.
+	fullsize_texture_ = new RenderTextureClass;
+	if(!fullsize_texture_){
+		return false;
+	}
+	// Initialize the up sample render to texture object.
+	result = fullsize_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the full size render to texture object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the down sample render to texture object.
+	merge_texture_ = new RenderTextureClass;
+	if(!merge_texture_){
+		return false;
+	}
+	// Initialize the down sample render to texture object.
+	result = merge_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
+		return false;
+	}
+	//create a second down sample texture for performing convolutions on
+	particle_texture_ = new RenderTextureClass;
+	if (!particle_texture_){
+		return false;
+	}
+	result = particle_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
+	if (!result){
+		MessageBox(hwnd, L"Could not initialize the second half size to texture object.", L"Error", MB_OK);		
+		return false;
+	}
+	return true;
+}
+bool ApplicationClass::InitCamera(){
+	// Create the camera object.
+	camera_ = new CameraClass;
+	if(!camera_){
+		return false;
+	}
+	// Initialize a base view matrix with the camera for 2D user interface rendering.
+	camera_->SetPosition(0.0f, 0.0f, -1.0f);
+	camera_->Render();
+	// Set the initial position of the camera.
+	camera_->SetPosition(0.0f, 2.0f, -7.0f);
+	// Create the position object.
+	player_position_ = new PositionClass;
+	if(!player_position_){
+		return false;
+	}
+	// Set the initial position of the viewer to the same as the initial camera position.
+	player_position_->SetPosition(0.0f, 2.0f, -7.0f);
+	return true;
+}
+bool ApplicationClass::InitShaders(HWND hwnd){
+	// Create the font shader object.
+	font_shader_ = new FontShaderClass;
+	if(!font_shader_){
+		return false;
+	}
+	// Initialize the font shader object.
+	bool result = font_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
+		return false;
+	}
+	if(!InitTextureShaders(hwnd)){
+		MessageBox(hwnd, L"Could not initialize the texture shaders.", L"Error", MB_OK);
+		return false;
+	}	
+	if(!InitObjectShaders(hwnd)){
+		MessageBox(hwnd, L"Could not initialize the object shaders.", L"Error", MB_OK);
+		return false;
+	}
+	return true;
+}
+bool ApplicationClass::InitTextureShaders(HWND hwnd){
+	bool result;
+	// Create the texture to texture shader object.
+	texture_to_texture_shader_ = new TextureToTextureShaderClass;
+	if(!texture_to_texture_shader_){
+		return false;
+	}
+	// Initialize the texture to texture shader object.
+	result = texture_to_texture_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the texture to texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+	//create the texture shader object
+	texture_shader_ = new TextureShaderClass;
+	if(!texture_shader_){
+		return false;
+	}
+	// Initialize the texture shader object.
+	result = texture_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+	return true;
+}
+bool ApplicationClass::InitObjectShaders(HWND hwnd){
+	bool result;
+	// Create the terrain shader object.
+	terrain_shader_ = new TerrainShaderClass;
+	if(!terrain_shader_){
+		return false;
+	}
+	// Initialize the terrain shader object.
+	result = terrain_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		return false;
+	}
+	volume_shader_ = new VolumeShader;
+	if (!volume_shader_){
+		return false;
+	}
+	result = volume_shader_->Initialize(direct_3d_->GetDevice(),hwnd);
+	if(!result){
+		return false;
+	}
+	face_shader_ = new FaceShader;
+	if (!face_shader_){
+		return false;
+	}
+	result = face_shader_->Initialize(direct_3d_->GetDevice(),hwnd);
+	if(!result){
+		return false;
+	}
+	// Create the particle shader object.
+	particle_shader_ = new ParticleShaderClass;
+	if(!particle_shader_){
+		return false;
+	}
+	// Initialize the particle shader object.
+	result = particle_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		return false;
+	}
+	// Create the particle shader object.
+	merge_shader_ = new MergeTextureShaderClass;
+	if(!merge_shader_){
+		return false;
+	}
+	// Initialize the particle shader object.
+	result = merge_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
+	if(!result){
+		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
+		return false;
+	}
+	return true;
+}
+//-----------------------------------------------------------------------------
+// Name: InitTextures()
+// Desc: Initializes Direct3D Textures (allocation and initialization)
+//-----------------------------------------------------------------------------
+bool ApplicationClass::InitCudaTextures(){
+	int offset_shader = 0;
+	int3 size_WHD = {64,64,64};
+	ID3D11Device* d3d_device = direct_3d_->GetDevice();
+	ID3D11DeviceContext* d3d_device_context = direct_3d_->GetDeviceContext();
+	D3D11_TEXTURE3D_DESC desc;
+	D3D11_TEXTURE3D_DESC desc_two;
+	//Create cuda textures
+	velocity_cuda_ = new fluid_texture;
+	if (!velocity_cuda_){
+		return false;
+	}
+	velocity_derivative_cuda_ = new fluid_texture;
+	if (!velocity_derivative_cuda_){
+		return false;
+	}
+	pressure_divergence_cuda_ = new fluid_texture;
+	if (!pressure_divergence_cuda_){
+		return false;
+	}
+	//set the width and height for the texture description
+	velocity_cuda_->width_  = size_WHD.x;
+	velocity_cuda_->height_ = size_WHD.y;
+	velocity_cuda_->depth_  = size_WHD.z;
+	//Set 3D texture to be the correcdt width, height, depth and format DXGI_FORMAT_R8G8B8A8_SNORM
+	ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
+	desc.Width = velocity_cuda_->width_;
+	desc.Height = velocity_cuda_->height_;
+	desc.Depth = velocity_cuda_->depth_;
+	desc.MipLevels = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	//create the 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_cuda_->texture_))){
+		return false;
+	}
+	//create the shader resource for the texture
+	if (FAILED(d3d_device->CreateShaderResourceView(velocity_cuda_->texture_, NULL, &velocity_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_cuda_->sr_view_);
+	//do the same as above for the velocity derivative texture and pressure and divergence texture
+	velocity_derivative_cuda_->width_  = size_WHD.x;
+	velocity_derivative_cuda_->height_ = size_WHD.y;
+	velocity_derivative_cuda_->depth_  = size_WHD.z;
+	//set width, height and depth
+	desc.Width = velocity_derivative_cuda_->width_;
+	desc.Height = velocity_derivative_cuda_->height_;
+	desc.Depth = velocity_derivative_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_derivative_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(velocity_derivative_cuda_->texture_, NULL, &velocity_derivative_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_derivative_cuda_->sr_view_);
+	//set texture variables for pressure and divergence texture
+	pressure_divergence_cuda_->width_  = size_WHD.x;
+	pressure_divergence_cuda_->height_ = size_WHD.y;
+	pressure_divergence_cuda_->depth_  = size_WHD.z;
+
+	desc.Width = pressure_divergence_cuda_->width_;
+	desc.Height = pressure_divergence_cuda_->height_;
+	desc.Depth = pressure_divergence_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &pressure_divergence_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_cuda_->texture_, NULL, &pressure_divergence_cuda_->sr_view_))){
+		return false;
+	}
+	//set pixel shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_cuda_->sr_view_);
+	//create the cuda resources for the water continuity, rain, and thermo textures
+	water_continuity_cuda_ = new fluid_texture;
+	if (!water_continuity_cuda_){
+		return false;
+	}
+	thermo_cuda_ = new fluid_texture;
+	if (!thermo_cuda_){
+		return false;
+	}
+	water_continuity_rain_cuda_ = new fluid_texture;
+	if (!water_continuity_rain_cuda_){
+		return false;
+	}
+	//set the correct width, height, and depth
+	water_continuity_cuda_->width_  = size_WHD.x;
+	water_continuity_cuda_->height_ = size_WHD.y;
+	water_continuity_cuda_->depth_  = size_WHD.z;
+	//set up a new description using the format DXGI_FORMAT_R32G32_FLOAT
+	ZeroMemory(&desc_two, sizeof(D3D11_TEXTURE3D_DESC));
+	desc_two.Width = water_continuity_cuda_->width_;
+	desc_two.Height = water_continuity_cuda_->height_;
+	desc_two.Depth = water_continuity_cuda_->depth_;
+	desc_two.MipLevels = 1;
+	desc_two.Format = DXGI_FORMAT_R32G32_FLOAT;
+	desc_two.Usage = D3D11_USAGE_DEFAULT;
+	desc_two.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &water_continuity_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_cuda_->texture_, NULL, &water_continuity_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_cuda_->sr_view_);
+	//set rain cuda width,height, and depth
+	water_continuity_rain_cuda_->width_  = size_WHD.x;
+	water_continuity_rain_cuda_->height_ = size_WHD.y;
+	water_continuity_rain_cuda_->depth_  = size_WHD.z;
+	//update description
+	desc_two.Width = water_continuity_rain_cuda_->width_;
+	desc_two.Height = water_continuity_rain_cuda_->height_;
+	desc_two.Depth = water_continuity_rain_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &water_continuity_rain_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_rain_cuda_->texture_, NULL, &water_continuity_rain_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_rain_cuda_->sr_view_);
+	//set thermodynamic cuda width, height, depth
+	thermo_cuda_->width_  = size_WHD.x;
+	thermo_cuda_->height_ = size_WHD.y;
+	thermo_cuda_->depth_  = size_WHD.z;
+	//update description
+	desc_two.Width = thermo_cuda_->width_;
+	desc_two.Height = thermo_cuda_->height_;
+	desc_two.Depth = thermo_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &thermo_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(thermo_cuda_->texture_, NULL, &thermo_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resoruce
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &thermo_cuda_->sr_view_);
+	//create texture for rain location.
+	rain_cuda_ = new rain_texture;
+	if (!rain_cuda_){
+		return false;
+	}
+	//set width and height
+	rain_cuda_->width_  = size_WHD.x;
+	rain_cuda_->height_ = size_WHD.y;
+	//create description for 2d texture format DXGI_FORMAT_R32G32B32A32_FLOAT
+	D3D11_TEXTURE2D_DESC desc2d;
+	ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
+	desc2d.Width = rain_cuda_->width_;
+	desc2d.Height = rain_cuda_->height_;
+	desc2d.MipLevels = 1;
+	desc2d.ArraySize = 1;
+	desc2d.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	desc2d.SampleDesc.Count = 1;
+	desc2d.Usage = D3D11_USAGE_DEFAULT;
+	desc2d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	if (FAILED(d3d_device->CreateTexture2D(&desc2d, NULL, &rain_cuda_->texture_))){
+		return E_FAIL;
+	}
+
+	if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
+		return E_FAIL;
+	}
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
+
+	rain_map = (float*)malloc(64*64*sizeof(float));
+	return true;
+}
+
 bool ApplicationClass::Frame(){
 	bool result;
 	if(input_){
@@ -536,449 +979,7 @@ bool ApplicationClass::Render2DTextureScene(RenderTextureClass* read_texture){
 	direct_3d_->EndScene();
 	return true;
 }
-bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height){
-	D3DXMATRIX base_view_matrix;
-	char video_card[128];
-	int video_memory;
-	bool result = true;
-	// Create the timer object.
-	timer_ = new TimerClass;
-	if(!timer_){
-		return false;
-	}
-	// Initialize the timer object.
-	result = timer_->Initialize();
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the timer object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the fps object.
-	FPS_ = new FpsClass;
-	if(!FPS_){
-		return false;
-	}
-	// Initialize the fps object.
-	FPS_->Initialize();
-	// Create the cpu object.
-	CPU_ = new CpuClass;
-	if(!CPU_){
-		return false;
-	}
-	// Initialize the cpu object.
-	CPU_->Initialize();
-	// Create the text object.
-	text_ = new TextClass;
-	if(!text_){
-		return false;
-	}
-	camera_->GetViewMatrix(base_view_matrix);
-	// Initialize the text object.
-	result = text_->Initialize(direct_3d_->GetDevice(), direct_3d_->GetDeviceContext(), hwnd, screen_width, screen_height, base_view_matrix);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
-		return false;
-	}
-	// Retrieve the video card information.
-	direct_3d_->GetVideoCardInfo(video_card, video_memory);
-	// Set the video card information in the text object.
-	result = text_->SetVideoCardInfo(video_card, video_memory, direct_3d_->GetDeviceContext());
-	if(!result){
-		MessageBox(hwnd, L"Could not set video card info in the text object.", L"Error", MB_OK);
-		return false;
-	}
-	return true;
-}
-bool ApplicationClass::InitObjects(HWND hwnd){
-	bool result;
-	// Create the terrain object.
-	terrain_object_ = new TerrainClass;
-	if(!terrain_object_){
-		return false;
-	}
-	// Initialize the terrain object.
-	result = terrain_object_->Initialize(direct_3d_->GetDevice(),"Data/height_map.bmp" ,L"Data/ground.dds");
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
-		return false;
-	}
-	cloud_object_ = new CloudClass;
-	if(!cloud_object_){
-		return false;
-	}
-	// Initialize the terrain object.
-	result = cloud_object_->Initialize(direct_3d_->GetDevice(), 800,600,SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
-		return false;
-	}
-	for(int i = 0; i < 5; i++){
-		ParticleSystemClass* temp_system = new ParticleSystemClass;
-		// Initialize the particle system object.
-		result = temp_system->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
-		if(!result){
-			return false;
-		}
-		rain_systems_.push_back(temp_system);
-	}
 
-	return true;
-}
-bool ApplicationClass::InitTextures(HWND hwnd, int screen_width, int screen_height){
-	bool result;
-	int down_sample_width = screen_width / 2;
-	int down_sample_height = screen_height / 2;
-	// Create the render to texture object.
-	render_fullsize_texture_ = new RenderTextureClass;
-	if(!render_fullsize_texture_){
-		return false;
-	}
-	// Initialize the render to texture object.
-	result = render_fullsize_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the up sample render to texture object.
-	fullsize_texture_ = new RenderTextureClass;
-	if(!fullsize_texture_){
-		return false;
-	}
-	// Initialize the up sample render to texture object.
-	result = fullsize_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the full size render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the down sample render to texture object.
-	merge_texture_ = new RenderTextureClass;
-	if(!merge_texture_){
-		return false;
-	}
-	// Initialize the down sample render to texture object.
-	result = merge_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-	//create a second down sample texture for performing convolutions on
-	particle_texture_ = new RenderTextureClass;
-	if (!particle_texture_){
-		return false;
-	}
-	result = particle_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if (!result){
-		MessageBox(hwnd, L"Could not initialize the second half size to texture object.", L"Error", MB_OK);		
-		return false;
-	}
-	return true;
-}
-bool ApplicationClass::InitCamera(){
-	// Create the camera object.
-	camera_ = new CameraClass;
-	if(!camera_){
-		return false;
-	}
-	// Initialize a base view matrix with the camera for 2D user interface rendering.
-	camera_->SetPosition(0.0f, 0.0f, -1.0f);
-	camera_->Render();
-	// Set the initial position of the camera.
-	camera_->SetPosition(0.0f, 2.0f, -7.0f);
-	// Create the position object.
-	player_position_ = new PositionClass;
-	if(!player_position_){
-		return false;
-	}
-	// Set the initial position of the viewer to the same as the initial camera position.
-	player_position_->SetPosition(0.0f, 2.0f, -7.0f);
-	return true;
-}
-bool ApplicationClass::InitShaders(HWND hwnd){
-	// Create the font shader object.
-	font_shader_ = new FontShaderClass;
-	if(!font_shader_){
-		return false;
-	}
-	// Initialize the font shader object.
-	bool result = font_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
-		return false;
-	}
-	if(!InitTextureShaders(hwnd)){
-		MessageBox(hwnd, L"Could not initialize the texture shaders.", L"Error", MB_OK);
-		return false;
-	}	
-	if(!InitObjectShaders(hwnd)){
-		MessageBox(hwnd, L"Could not initialize the object shaders.", L"Error", MB_OK);
-		return false;
-	}
-	return true;
-}
-bool ApplicationClass::InitTextureShaders(HWND hwnd){
-	bool result;
-	// Create the texture to texture shader object.
-	texture_to_texture_shader_ = new TextureToTextureShaderClass;
-	if(!texture_to_texture_shader_){
-		return false;
-	}
-	// Initialize the texture to texture shader object.
-	result = texture_to_texture_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the texture to texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-	//create the texture shader object
-	texture_shader_ = new TextureShaderClass;
-	if(!texture_shader_){
-		return false;
-	}
-	// Initialize the texture shader object.
-	result = texture_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-	return true;
-}
-bool ApplicationClass::InitObjectShaders(HWND hwnd){
-	bool result;
-	// Create the terrain shader object.
-	terrain_shader_ = new TerrainShaderClass;
-	if(!terrain_shader_){
-		return false;
-	}
-	// Initialize the terrain shader object.
-	result = terrain_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		return false;
-	}
-	volume_shader_ = new VolumeShader;
-	if (!volume_shader_){
-		return false;
-	}
-	result = volume_shader_->Initialize(direct_3d_->GetDevice(),hwnd);
-	if(!result){
-		return false;
-	}
-	face_shader_ = new FaceShader;
-	if (!face_shader_){
-		return false;
-	}
-	result = face_shader_->Initialize(direct_3d_->GetDevice(),hwnd);
-	if(!result){
-		return false;
-	}
-	// Create the particle shader object.
-	particle_shader_ = new ParticleShaderClass;
-	if(!particle_shader_){
-		return false;
-	}
-	// Initialize the particle shader object.
-	result = particle_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the particle shader object.
-	merge_shader_ = new MergeTextureShaderClass;
-	if(!merge_shader_){
-		return false;
-	}
-	// Initialize the particle shader object.
-	result = merge_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
-		return false;
-	}
-	return true;
-}
-//-----------------------------------------------------------------------------
-// Name: InitTextures()
-// Desc: Initializes Direct3D Textures (allocation and initialization)
-//-----------------------------------------------------------------------------
-bool ApplicationClass::InitCudaTextures(){
-	int offset_shader = 0;
-	int3 size_WHD = {64,64,64};
-	ID3D11Device* d3d_device = direct_3d_->GetDevice();
-	ID3D11DeviceContext* d3d_device_context = direct_3d_->GetDeviceContext();
-	D3D11_TEXTURE3D_DESC desc;
-	D3D11_TEXTURE3D_DESC desc_two;
-	//Create cuda textures
-	velocity_cuda_ = new fluid_texture;
-	if (!velocity_cuda_){
-		return false;
-	}
-	velocity_derivative_cuda_ = new fluid_texture;
-	if (!velocity_derivative_cuda_){
-		return false;
-	}
-	pressure_divergence_cuda_ = new fluid_texture;
-	if (!pressure_divergence_cuda_){
-		return false;
-	}
-	//set the width and height for the texture description
-	velocity_cuda_->width_  = size_WHD.x;
-	velocity_cuda_->height_ = size_WHD.y;
-	velocity_cuda_->depth_  = size_WHD.z;
-	//Set 3D texture to be the correcdt width, height, depth and format DXGI_FORMAT_R8G8B8A8_SNORM
-	ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
-	desc.Width = velocity_cuda_->width_;
-	desc.Height = velocity_cuda_->height_;
-	desc.Depth = velocity_cuda_->depth_;
-	desc.MipLevels = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	//create the 3d texture
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_cuda_->texture_))){
-		return false;
-	}
-	//create the shader resource for the texture
-	if (FAILED(d3d_device->CreateShaderResourceView(velocity_cuda_->texture_, NULL, &velocity_cuda_->sr_view_))){
-		return false;
-	}
-	//set shader resource
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_cuda_->sr_view_);
-	//do the same as above for the velocity derivative texture and pressure and divergence texture
-	velocity_derivative_cuda_->width_  = size_WHD.x;
-	velocity_derivative_cuda_->height_ = size_WHD.y;
-	velocity_derivative_cuda_->depth_  = size_WHD.z;
-	//set width, height and depth
-	desc.Width = velocity_derivative_cuda_->width_;
-	desc.Height = velocity_derivative_cuda_->height_;
-	desc.Depth = velocity_derivative_cuda_->depth_;
-	//create 3d texture
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_derivative_cuda_->texture_))){
-		return false;
-	}
-	//create shader resource
-	if (FAILED(d3d_device->CreateShaderResourceView(velocity_derivative_cuda_->texture_, NULL, &velocity_derivative_cuda_->sr_view_))){
-		return false;
-	}
-	//set shader resource
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_derivative_cuda_->sr_view_);
-	//set texture variables for pressure and divergence texture
-	pressure_divergence_cuda_->width_  = size_WHD.x;
-	pressure_divergence_cuda_->height_ = size_WHD.y;
-	pressure_divergence_cuda_->depth_  = size_WHD.z;
-
-	desc.Width = pressure_divergence_cuda_->width_;
-	desc.Height = pressure_divergence_cuda_->height_;
-	desc.Depth = pressure_divergence_cuda_->depth_;
-	//create 3d texture
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &pressure_divergence_cuda_->texture_))){
-		return false;
-	}
-	//create shader resource
-	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_cuda_->texture_, NULL, &pressure_divergence_cuda_->sr_view_))){
-		return false;
-	}
-	//set pixel shader resource
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_cuda_->sr_view_);
-	//create the cuda resources for the water continuity, rain, and thermo textures
-	water_continuity_cuda_ = new fluid_texture;
-	if (!water_continuity_cuda_){
-		return false;
-	}
-	thermo_cuda_ = new fluid_texture;
-	if (!thermo_cuda_){
-		return false;
-	}
-	water_continuity_rain_cuda_ = new fluid_texture;
-	if (!water_continuity_rain_cuda_){
-		return false;
-	}
-	//set the correct width, height, and depth
-	water_continuity_cuda_->width_  = size_WHD.x;
-	water_continuity_cuda_->height_ = size_WHD.y;
-	water_continuity_cuda_->depth_  = size_WHD.z;
-	//set up a new description using the format DXGI_FORMAT_R32G32_FLOAT
-	ZeroMemory(&desc_two, sizeof(D3D11_TEXTURE3D_DESC));
-	desc_two.Width = water_continuity_cuda_->width_;
-	desc_two.Height = water_continuity_cuda_->height_;
-	desc_two.Depth = water_continuity_cuda_->depth_;
-	desc_two.MipLevels = 1;
-	desc_two.Format = DXGI_FORMAT_R32G32_FLOAT;
-	desc_two.Usage = D3D11_USAGE_DEFAULT;
-	desc_two.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	//create 3d texture
-	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &water_continuity_cuda_->texture_))){
-		return false;
-	}
-	//create shader resource
-	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_cuda_->texture_, NULL, &water_continuity_cuda_->sr_view_))){
-		return false;
-	}
-	//set shader resource
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_cuda_->sr_view_);
-	//set rain cuda width,height, and depth
-	water_continuity_rain_cuda_->width_  = size_WHD.x;
-	water_continuity_rain_cuda_->height_ = size_WHD.y;
-	water_continuity_rain_cuda_->depth_  = size_WHD.z;
-	//update description
-	desc_two.Width = water_continuity_rain_cuda_->width_;
-	desc_two.Height = water_continuity_rain_cuda_->height_;
-	desc_two.Depth = water_continuity_rain_cuda_->depth_;
-	//create 3d texture
-	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &water_continuity_rain_cuda_->texture_))){
-		return false;
-	}
-	//create shader resource
-	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_rain_cuda_->texture_, NULL, &water_continuity_rain_cuda_->sr_view_))){
-		return false;
-	}
-	//set shader resource
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_rain_cuda_->sr_view_);
-	//set thermodynamic cuda width, height, depth
-	thermo_cuda_->width_  = size_WHD.x;
-	thermo_cuda_->height_ = size_WHD.y;
-	thermo_cuda_->depth_  = size_WHD.z;
-	//update description
-	desc_two.Width = thermo_cuda_->width_;
-	desc_two.Height = thermo_cuda_->height_;
-	desc_two.Depth = thermo_cuda_->depth_;
-	//create 3d texture
-	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &thermo_cuda_->texture_))){
-		return false;
-	}
-	//create shader resource
-	if (FAILED(d3d_device->CreateShaderResourceView(thermo_cuda_->texture_, NULL, &thermo_cuda_->sr_view_))){
-		return false;
-	}
-	//set shader resoruce
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &thermo_cuda_->sr_view_);
-	//create texture for rain location.
-	rain_cuda_ = new rain_texture;
-	if (!rain_cuda_){
-		return false;
-	}
-	//set width and height
-	rain_cuda_->width_  = size_WHD.x;
-	rain_cuda_->height_ = size_WHD.y;
-	//create description for 2d texture format DXGI_FORMAT_R32G32B32A32_FLOAT
-	D3D11_TEXTURE2D_DESC desc2d;
-	ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
-	desc2d.Width = rain_cuda_->width_;
-	desc2d.Height = rain_cuda_->height_;
-	desc2d.MipLevels = 1;
-	desc2d.ArraySize = 1;
-	desc2d.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	desc2d.SampleDesc.Count = 1;
-	desc2d.Usage = D3D11_USAGE_DEFAULT;
-	desc2d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	if (FAILED(d3d_device->CreateTexture2D(&desc2d, NULL, &rain_cuda_->texture_))){
-		return E_FAIL;
-	}
-
-	if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
-		return E_FAIL;
-	}
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
-
-	rain_map = (float*)malloc(64*64*sizeof(float));
-	return true;
-}
 //-----------------------------------------------------------------------------
 // Name: CudaRender()
 // Desc: Launches the CUDA kernels to fill in the texture data
