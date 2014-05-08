@@ -89,6 +89,8 @@ private:
 	void ShutdownTextures();
 	void ShutdownCamera();
 	void ShutdownShaders();
+	void ShutdownCudaResources();
+
 	bool InitCudaTextures();
 	void CudaRender();
 	void RunKernels();

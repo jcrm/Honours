@@ -27,36 +27,29 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 					float theta =thermo[theta_identifier_];
 					float theta_advect = thermo[theta_advect_identifier_];
 
-					float K=beta*qc*qr*z_alt;
-					float F=-V*qr/b1*z_alt;
-					if(F != 0.f){
-						F *= 1.f;
-					}
+					float K=beta*qc*qr;
+					float F=-V*qr/b1;
 					float A = 0;
 					if(qc>aT){
-						A=alpha*(qc-aT)*z_alt;
+						A=alpha*(qc-aT);
 					}
-					
-					float p=p0*pow((T/T0),(g/R/gamma));
-					float TEMP = theta * powf((p0/p),k);
-					float est = (es0/p)*exp(a*(TEMP-273)/(TEMP-b));
-					float C = g*p/(R*T*pow((p-est),2));
-					C += (-a*gamma)*((273-b)/pow((TEMP-b),2))*((1.f/p)+(est/pow((p-est),2)));
-					C *= -est*W*epsilon*z_alt;
-					
-					qv = -C/W;
-					qc = (-A-K+C)/W;
-					qr = (A+K+F)/W;
-					float temp = (latent_heat / (cp * powf(p/p0,k)));
-					temp *= C * time_step;
-					temp = theta_advect - temp;
-					theta = temp;
+
+					float pressure = p0*pow((T/T0),(g/R/gamma));
+					float temperature = theta * powf((p0/pressure),k);
+					float est = (es0/pressure)*exp(a*(temperature-273)/(temperature-b));
+					float pres_minus_est = pow((pressure-est),2);
+					float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
+
+					qv = (-C/W)*100;
+					qc = ((-A-K+C)/W)*100;
+					qr = ((A+K+F)/W)*100;
+
+					theta = theta_advect - (latent_heat / (cp * powf(pressure/p0,k))) * C * time_step;
 
 					water[qv_identifier_] = qv;
 					water[qc_identifier_] = qc;
 					rain[qr_identifier_] = qr;
 					rain[F_identifier_] = F;
-					float themp_F = rain[F_identifier_];
 					thermo[theta_identifier_] = theta;
 					thermo[theta_advect_identifier_] = theta_advect;
 				}

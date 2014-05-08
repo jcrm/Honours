@@ -24,9 +24,6 @@ ApplicationClass::~ApplicationClass(){
 }
 bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height){
 	bool result;
-	// Set the size to sample down to.
-	int down_sample_width = screen_width / 2;
-	int down_sample_height = screen_height / 2;
 	// Create the input object.  The input object will be used to handle reading the keyboard and mouse input from the user.
 	input_ = new InputClass;
 	if(!input_){
@@ -817,7 +814,7 @@ bool ApplicationClass::InitCudaTextures(){
 	ID3D11DeviceContext* d3d_device_context = direct_3d_->GetDeviceContext();
 	D3D11_TEXTURE3D_DESC desc;
 	D3D11_TEXTURE3D_DESC desc_two;
-
+	//Create cuda textures
 	velocity_cuda_ = new fluid_texture;
 	if (!velocity_cuda_){
 		return false;
@@ -830,6 +827,66 @@ bool ApplicationClass::InitCudaTextures(){
 	if (!pressure_divergence_cuda_){
 		return false;
 	}
+	//set the width and height for the texture description
+	velocity_cuda_->width_  = size_WHD.x;
+	velocity_cuda_->height_ = size_WHD.y;
+	velocity_cuda_->depth_  = size_WHD.z;
+	//Set 3D texture to be the correcdt width, height, depth and format DXGI_FORMAT_R8G8B8A8_SNORM
+	ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
+	desc.Width = velocity_cuda_->width_;
+	desc.Height = velocity_cuda_->height_;
+	desc.Depth = velocity_cuda_->depth_;
+	desc.MipLevels = 1;
+	desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	//create the 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_cuda_->texture_))){
+		return false;
+	}
+	//create the shader resource for the texture
+	if (FAILED(d3d_device->CreateShaderResourceView(velocity_cuda_->texture_, NULL, &velocity_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_cuda_->sr_view_);
+	//do the same as above for the velocity derivative texture and pressure and divergence texture
+	velocity_derivative_cuda_->width_  = size_WHD.x;
+	velocity_derivative_cuda_->height_ = size_WHD.y;
+	velocity_derivative_cuda_->depth_  = size_WHD.z;
+	//set width, height and depth
+	desc.Width = velocity_derivative_cuda_->width_;
+	desc.Height = velocity_derivative_cuda_->height_;
+	desc.Depth = velocity_derivative_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_derivative_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(velocity_derivative_cuda_->texture_, NULL, &velocity_derivative_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_derivative_cuda_->sr_view_);
+	//set texture variables for pressure and divergence texture
+	pressure_divergence_cuda_->width_  = size_WHD.x;
+	pressure_divergence_cuda_->height_ = size_WHD.y;
+	pressure_divergence_cuda_->depth_  = size_WHD.z;
+
+	desc.Width = pressure_divergence_cuda_->width_;
+	desc.Height = pressure_divergence_cuda_->height_;
+	desc.Depth = pressure_divergence_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &pressure_divergence_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_cuda_->texture_, NULL, &pressure_divergence_cuda_->sr_view_))){
+		return false;
+	}
+	//set pixel shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_cuda_->sr_view_);
+	//create the cuda resources for the water continuity, rain, and thermo textures
 	water_continuity_cuda_ = new fluid_texture;
 	if (!water_continuity_cuda_){
 		return false;
@@ -842,63 +899,11 @@ bool ApplicationClass::InitCudaTextures(){
 	if (!water_continuity_rain_cuda_){
 		return false;
 	}
-	velocity_cuda_->width_  = size_WHD.x;
-	velocity_cuda_->height_ = size_WHD.y;
-	velocity_cuda_->depth_  = size_WHD.z;
-	
-	ZeroMemory(&desc, sizeof(D3D11_TEXTURE3D_DESC));
-	desc.Width = velocity_cuda_->width_;
-	desc.Height = velocity_cuda_->height_;
-	desc.Depth = velocity_cuda_->depth_;
-	desc.MipLevels = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_cuda_->texture_))){
-		return false;
-	}
-	if (FAILED(d3d_device->CreateShaderResourceView(velocity_cuda_->texture_, NULL, &velocity_cuda_->sr_view_))){
-		return false;
-	}
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_cuda_->sr_view_);
-
-	velocity_derivative_cuda_->width_  = size_WHD.x;
-	velocity_derivative_cuda_->height_ = size_WHD.y;
-	velocity_derivative_cuda_->depth_  = size_WHD.z;
-
-	desc.Width = velocity_derivative_cuda_->width_;
-	desc.Height = velocity_derivative_cuda_->height_;
-	desc.Depth = velocity_derivative_cuda_->depth_;
-
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &velocity_derivative_cuda_->texture_))){
-		return false;
-	}
-	if (FAILED(d3d_device->CreateShaderResourceView(velocity_derivative_cuda_->texture_, NULL, &velocity_derivative_cuda_->sr_view_))){
-		return false;
-	}
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_derivative_cuda_->sr_view_);
-
-	pressure_divergence_cuda_->width_  = size_WHD.x;
-	pressure_divergence_cuda_->height_ = size_WHD.y;
-	pressure_divergence_cuda_->depth_  = size_WHD.z;
-
-	desc.Width = pressure_divergence_cuda_->width_;
-	desc.Height = pressure_divergence_cuda_->height_;
-	desc.Depth = pressure_divergence_cuda_->depth_;
-
-	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &pressure_divergence_cuda_->texture_))){
-		return false;
-	}
-	if (FAILED(d3d_device->CreateShaderResourceView(pressure_divergence_cuda_->texture_, NULL, &pressure_divergence_cuda_->sr_view_))){
-		return false;
-	}
-	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &pressure_divergence_cuda_->sr_view_);
-
+	//set the correct width, height, and depth
 	water_continuity_cuda_->width_  = size_WHD.x;
 	water_continuity_cuda_->height_ = size_WHD.y;
 	water_continuity_cuda_->depth_  = size_WHD.z;
-
+	//set up a new description using the format DXGI_FORMAT_R32G32_FLOAT
 	ZeroMemory(&desc_two, sizeof(D3D11_TEXTURE3D_DESC));
 	desc_two.Width = water_continuity_cuda_->width_;
 	desc_two.Height = water_continuity_cuda_->height_;
@@ -907,65 +912,75 @@ bool ApplicationClass::InitCudaTextures(){
 	desc_two.Format = DXGI_FORMAT_R32G32_FLOAT;
 	desc_two.Usage = D3D11_USAGE_DEFAULT;
 	desc_two.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
+	//create 3d texture
 	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &water_continuity_cuda_->texture_))){
 		return false;
 	}
+	//create shader resource
 	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_cuda_->texture_, NULL, &water_continuity_cuda_->sr_view_))){
 		return false;
 	}
+	//set shader resource
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_cuda_->sr_view_);
-
+	//set rain cuda width,height, and depth
 	water_continuity_rain_cuda_->width_  = size_WHD.x;
 	water_continuity_rain_cuda_->height_ = size_WHD.y;
 	water_continuity_rain_cuda_->depth_  = size_WHD.z;
-
+	//update description
 	desc_two.Width = water_continuity_rain_cuda_->width_;
 	desc_two.Height = water_continuity_rain_cuda_->height_;
 	desc_two.Depth = water_continuity_rain_cuda_->depth_;
-
+	//create 3d texture
 	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &water_continuity_rain_cuda_->texture_))){
 		return false;
 	}
+	//create shader resource
 	if (FAILED(d3d_device->CreateShaderResourceView(water_continuity_rain_cuda_->texture_, NULL, &water_continuity_rain_cuda_->sr_view_))){
 		return false;
 	}
+	//set shader resource
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &water_continuity_rain_cuda_->sr_view_);
-
+	//set thermodynamic cuda width, height, depth
 	thermo_cuda_->width_  = size_WHD.x;
 	thermo_cuda_->height_ = size_WHD.y;
 	thermo_cuda_->depth_  = size_WHD.z;
-
+	//update description
 	desc_two.Width = thermo_cuda_->width_;
 	desc_two.Height = thermo_cuda_->height_;
 	desc_two.Depth = thermo_cuda_->depth_;
-
+	//create 3d texture
 	if (FAILED(d3d_device->CreateTexture3D(&desc_two, NULL, &thermo_cuda_->texture_))){
 		return false;
 	}
+	//create shader resource
 	if (FAILED(d3d_device->CreateShaderResourceView(thermo_cuda_->texture_, NULL, &thermo_cuda_->sr_view_))){
 		return false;
 	}
+	//set shader resoruce
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &thermo_cuda_->sr_view_);
-
+	//create texture for rain location.
 	rain_cuda_ = new rain_texture;
-	rain_cuda_->width_  = 64;
-    rain_cuda_->height_ = 64;
-
-    D3D11_TEXTURE2D_DESC desc2d;
-    ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
-    desc2d.Width = rain_cuda_->width_;
-    desc2d.Height = rain_cuda_->height_;
-    desc2d.MipLevels = 1;
-    desc2d.ArraySize = 1;
-    desc2d.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    desc2d.SampleDesc.Count = 1;
-    desc2d.Usage = D3D11_USAGE_DEFAULT;
-    desc2d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	if (!rain_cuda_){
+		return false;
+	}
+	//set width and height
+	rain_cuda_->width_  = size_WHD.x;
+	rain_cuda_->height_ = size_WHD.y;
+	//create description for 2d texture format DXGI_FORMAT_R32G32B32A32_FLOAT
+	D3D11_TEXTURE2D_DESC desc2d;
+	ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
+	desc2d.Width = rain_cuda_->width_;
+	desc2d.Height = rain_cuda_->height_;
+	desc2d.MipLevels = 1;
+	desc2d.ArraySize = 1;
+	desc2d.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	desc2d.SampleDesc.Count = 1;
+	desc2d.Usage = D3D11_USAGE_DEFAULT;
+	desc2d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 	if (FAILED(d3d_device->CreateTexture2D(&desc2d, NULL, &rain_cuda_->texture_))){
-        return E_FAIL;
-    }
+		return E_FAIL;
+	}
 
     if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
         return E_FAIL;
@@ -1119,6 +1134,7 @@ void ApplicationClass::Shutdown(){
 	//Shutdown functions
 	ShutdownText();
 	ShutdownTextures();
+	ShutdownCudaResources();
 	ShutdownShaders();
 	ShutdownObjects();
 	ShutdownCamera();
@@ -1197,6 +1213,8 @@ void ApplicationClass::ShutdownTextures(){
 		delete particle_texture_;
 		particle_texture_ = 0;
 	}
+}
+void ApplicationClass::ShutdownCudaResources(){
 	if (velocity_cuda_){
 		delete velocity_cuda_;
 		velocity_cuda_ = NULL;
