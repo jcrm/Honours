@@ -134,10 +134,10 @@ bool ParticleSystemClass::InitializeParticleSystem(){
 	particle_size_ = 0.1f;
 
 	// Set the number of particles to emit per second.
-	particles_per_second_ = 500.0f;
+	particles_per_second_ = 50.0f;
 
 	// Set the maximum number of particles allowed in the particle system.
-	max_particles_ = 10000;
+	max_particles_ = 100;
 
 	// Create the particle list.
 	particle_list_ = new ParticleType[max_particles_];
@@ -172,7 +172,7 @@ void ParticleSystemClass::ShutdownParticleSystem(){
 bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device){
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_data, index_data;
+	D3D11_SUBRESOURCE_DATA vertex_data, index_data;
 	HRESULT result;
 
 	// Set the maximum number of vertices in the vertex array.
@@ -202,34 +202,34 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device){
 	}
 
 	// Set up the description of the dynamic vertex buffer.
-    vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
-    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
-    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+	vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
+	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertex_buffer_desc.MiscFlags = 0;
 	vertex_buffer_desc.StructureByteStride = 0;
 
 	// Give the subresource structure a pointer to the vertex data.
-    vertex_data.pSysMem = vertices_;
+	vertex_data.pSysMem = vertices_;
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 
 	// Now finally create the vertex buffer.
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
+	result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
 
 	// Set up the description of the static index buffer.
-    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
-    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    index_buffer_desc.CPUAccessFlags = 0;
-    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
+	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	index_buffer_desc.CPUAccessFlags = 0;
+	index_buffer_desc.MiscFlags = 0;
 	index_buffer_desc.StructureByteStride = 0;
 
 	// Give the subresource structure a pointer to the index data.
-    index_data.pSysMem = indices;
+	index_data.pSysMem = indices;
 	index_data.SysMemPitch = 0;
 	index_data.SysMemSlicePitch = 0;
 
@@ -445,17 +445,17 @@ void ParticleSystemClass::RenderBuffers(ID3D11DeviceContext* device_context){
 	unsigned int offset;
 
 	// Set vertex buffer stride and offset.
-    stride = sizeof(VertexType); 
+	stride = sizeof(VertexType); 
 	offset = 0;
-    
+	
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
 
-    // Set the index buffer to active in the input assembler so it can be rendered.
-    device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+	// Set the index buffer to active in the input assembler so it can be rendered.
+	device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 
-    // Set the type of primitive that should be rendered from this vertex buffer.
-    device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// Set the type of primitive that should be rendered from this vertex buffer.
+	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	return;
 }

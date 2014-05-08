@@ -230,7 +230,7 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
 		return false;
 	}
-	for(int i = 0; i < 5; i++){
+	for(int i = 0; i < 900; i++){
 		ParticleSystemClass* temp_system = new ParticleSystemClass;
 		// Initialize the particle system object.
 		result = temp_system->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
