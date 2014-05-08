@@ -12,22 +12,26 @@ __global__ void cuda_kernel_rain(float *output, float *input, Size size, Size si
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 	float rain_sum = 0.f;
-
-	for(z_iter = 0; z_iter < size.depth_; ++z_iter){
-		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
-			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
-				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
-					float* cellRain = input + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
-					rain_sum += cellRain[F_identifier_];
+	int ident = 0;
+	for(z_iter = 0; z_iter < size_two.depth_; ++z_iter){
+		if(x_iter +1 < size_two.width_ && x_iter - 1 >= 0){
+			if(y_iter + 1 < size_two.height_ && y_iter - 1 >= 0){
+				if(z_iter + 1 < size_two.depth_ && z_iter - 1 >= 0){
+					float* cell_rain = input + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
+					rain_sum += cell_rain[F_identifier_];
 				}
 			}
 		}
 	}
+	if(x_iter%2 != 0 && y_iter%2 != 0){
+		ident = 3;
+	}else if(x_iter%2 != 0){
+		ident = 1;
+	}else if(y_iter%2 != 0){
+		ident = 2;
+	}
 	float* rain = output + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-	rain[0] = rain_sum;
-	rain[1] = 0.f;
-	rain[2] = 0.f;
-	rain[3] = 0.f;
+	rain[ident] += rain_sum;
 }
 extern "C"
 void cuda_fluid_rain(void *output, void *input, Size size, Size size_two){
@@ -35,7 +39,7 @@ void cuda_fluid_rain(void *output, void *input, Size size, Size size_two){
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	//dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
-	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
+	dim3 Dg = dim3((size_two.width_+Db.x-1)/Db.x, (size_two.height_+Db.y-1)/Db.y);
 
 	cuda_kernel_rain<<<Dg,Db>>>((float *)output, (float *)input, size, size_two);
 

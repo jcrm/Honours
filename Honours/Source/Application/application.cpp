@@ -96,10 +96,11 @@ void ApplicationClass::InitClouds(){
 	// cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
 	// Create a buffer so that cuda can write into it
 	// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-	cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * PIXEL_FMT_SIZE_RGBA * sizeof(float*), rain_cuda_->height_);
+	rain_cuda_->pitch_ = rain_cuda_->width_ * PIXEL_FMT_SIZE_RGBA;
+	cudaMalloc(&rain_cuda_->cuda_linear_memory_, rain_cuda_->pitch_ * rain_cuda_->height_ * sizeof(float));
 	getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
-	cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_);
-
+	cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_ * sizeof(float));
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// 3D
 	cudaGraphicsD3D11RegisterResource(&velocity_cuda_->cuda_resource_, velocity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
@@ -131,7 +132,7 @@ void ApplicationClass::InitClouds(){
 	cudaGraphicsD3D11RegisterResource(&thermo_cuda_->cuda_resource_, thermo_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&thermo_cuda_->cuda_linear_memory_, thermo_cuda_->width_ * PIXEL_FMT_SIZE_RG * sizeof(float*) * thermo_cuda_->height_ * thermo_cuda_->depth_);
+	cudaMalloc(&thermo_cuda_->cuda_linear_memory_, thermo_cuda_->width_ * PIXEL_FMT_SIZE_RG * sizeof(float) * thermo_cuda_->height_ * thermo_cuda_->depth_);
 	thermo_cuda_->pitch_ = thermo_cuda_->width_ * PIXEL_FMT_SIZE_RG;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(thermo_cuda_->cuda_linear_memory_, 1, thermo_cuda_->pitch_ * thermo_cuda_->height_ * thermo_cuda_->depth_);
@@ -570,8 +571,8 @@ bool ApplicationClass::InitCudaTextures(){
 		return false;
 	}
 	//set width and height
-	rain_cuda_->width_  = size_WHD.x;
-	rain_cuda_->height_ = size_WHD.y;
+	rain_cuda_->width_  = 32.f;
+	rain_cuda_->height_ = 32.f;
 	//create description for 2d texture format DXGI_FORMAT_R32G32B32A32_FLOAT
 	D3D11_TEXTURE2D_DESC desc2d;
 	ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
@@ -1024,6 +1025,13 @@ void ApplicationClass::RunCloudKernals(){
 	size_two.pitch_ = water_continuity_cuda_->pitch_;
 	size_two.pitch_slice_ = water_continuity_cuda_->pitch_ * water_continuity_cuda_->height_;
 
+	Size size_three;
+	size_three.width_ = rain_cuda_->width_;
+	size_three.height_ = rain_cuda_->height_;
+	size_three.pitch_ = rain_cuda_->pitch_;
+	size_three.depth_ = 0;
+	size_three.pitch_slice_ = 0;
+
 	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 
@@ -1048,6 +1056,10 @@ void ApplicationClass::RunCloudKernals(){
 
 		cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 310.f);
 		getLastCudaError("cuda_fluid_initial failed");
+
+		cuda_fluid_initial_float_2d(rain_cuda_->cuda_linear_memory_, size_three, 0.f);
+		getLastCudaError("cuda_fluid_initial failed");
+
 		is_done_once_ = true;
 	}
 
@@ -1100,9 +1112,9 @@ void ApplicationClass::RunCloudKernals(){
 	getLastCudaError("cudaMemcpy3D failed");
 	
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size, size_two);
+	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
 	getLastCudaError("cuda_texture_2d failed");
-	int tex_size = rain_cuda_->width_*rain_cuda_->height_*PIXEL_FMT_SIZE_RGBA* sizeof(float*);
+	int tex_size = rain_cuda_->width_ *rain_cuda_->height_ * PIXEL_FMT_SIZE_RGBA*4;
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
 }
 void ApplicationClass::Shutdown(){

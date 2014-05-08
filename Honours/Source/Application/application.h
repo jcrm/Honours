@@ -137,6 +137,6 @@ private:
 	fluid_texture *water_continuity_rain_cuda_;
 	rain_texture *rain_cuda_;
 	bool is_done_once_;
-	float output[GRID_X*GRID_Y*PIXEL_FMT_SIZE_RGBA* sizeof(float*)];
+	float output[(GRID_X/2)*(GRID_Y/2)*PIXEL_FMT_SIZE_RGBA];
 };
 #endif

@@ -4,6 +4,7 @@ extern "C"
 {
 	void cuda_fluid_initial(void*, Size, float);
 	void cuda_fluid_initial_float(void* , Size, float);
+	void cuda_fluid_initial_float_2d(void*, Size, float);
 	void cuda_fluid_advect_velocity(void*, void*, Size);
 	void cuda_fluid_advect_thermo(void*, Size);
 	void cuda_fluid_vorticity(void*, void*, Size);
