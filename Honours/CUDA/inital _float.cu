@@ -17,7 +17,7 @@ __global__ void cuda_kernel_initial_float(float *input, Size size, float value){
 		//location is z slide + y position + variable size time x position
 		float *cell_value = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
 		if(x_iter <= size.width_/2){
-			cell_value[0] = value-30;
+			cell_value[0] = value-5.f;
 		}else{
 			cell_value[0] = value;
 		}

@@ -121,6 +121,9 @@
     <Filter Include="Resource Files\CUDA Files\End Files">
       <UniqueIdentifier>{e080195e-6424-4533-8804-5b62b922fe86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\CUDA Files\End Files\Rain Files">
+      <UniqueIdentifier>{8f9e2861-fc89-4921-bbd3-ca68bbe31adb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\ground.dds">
@@ -206,9 +209,6 @@
     <CudaCompile Include="CUDA\vorticity.cu">
       <Filter>Resource Files\CUDA Files\Force Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\flatten.cu">
-      <Filter>Resource Files\CUDA Files\End Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\cloud.cu">
       <Filter>Resource Files\CUDA Files\End Files</Filter>
     </CudaCompile>
@@ -223,6 +223,12 @@
     </CudaCompile>
     <CudaCompile Include="CUDA\inital _float_2d.cu">
       <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\merge.cu">
+      <Filter>Resource Files\CUDA Files\End Files\Rain Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\flatten.cu">
+      <Filter>Resource Files\CUDA Files\End Files\Rain Files</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

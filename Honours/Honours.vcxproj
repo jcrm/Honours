@@ -44,6 +44,7 @@
     <CudaCompile Include="CUDA\inital _float_2d.cu" />
     <CudaCompile Include="CUDA\inital.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
+    <CudaCompile Include="CUDA\merge.cu" />
     <CudaCompile Include="CUDA\vorticity.cu" />
     <CudaCompile Include="CUDA\water_continuity.cu" />
   </ItemGroup>
