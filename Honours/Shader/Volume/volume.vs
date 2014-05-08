@@ -24,9 +24,9 @@ struct VertexShaderInput
 
 struct PixelShaderInput
 {
-    float4 position_ : SV_POSITION;
-    float3 tex_		: TEXCOORD0;
-    float4 pos_		: TEXCOORD1;
+	float4 position_ : SV_POSITION;
+	float3 tex_		: TEXCOORD0;
+	float4 pos_		: TEXCOORD1;
 	float3 step_size_ : TEXCOORD2;
 	int iterations_: TEXCOORD3;
 };

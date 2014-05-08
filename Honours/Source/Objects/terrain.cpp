@@ -316,7 +316,7 @@ bool TerrainClass::InitializeBuffers(ID3D11Device* device){
 	unsigned long* indices;
 	int index;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_data, index_data;
+	D3D11_SUBRESOURCE_DATA vertex_data, index_data;
 	HRESULT result;
 	int index1, index2, index3, index4;
 	float tu, tv;
@@ -410,30 +410,30 @@ bool TerrainClass::InitializeBuffers(ID3D11Device* device){
 		}
 	}
 	// Set up the description of the static vertex buffer.
-    vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
-    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertex_buffer_desc.CPUAccessFlags = 0;
-    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
+	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertex_buffer_desc.CPUAccessFlags = 0;
+	vertex_buffer_desc.MiscFlags = 0;
 	vertex_buffer_desc.StructureByteStride = 0;
 	// Give the subresource structure a pointer to the vertex data.
-    vertex_data.pSysMem = vertices;
+	vertex_data.pSysMem = vertices;
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 	// Now create the vertex buffer.
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
+	result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Set up the description of the static index buffer.
-    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
-    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    index_buffer_desc.CPUAccessFlags = 0;
-    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
+	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	index_buffer_desc.CPUAccessFlags = 0;
+	index_buffer_desc.MiscFlags = 0;
 	index_buffer_desc.StructureByteStride = 0;
 	// Give the subresource structure a pointer to the index data.
-    index_data.pSysMem = indices;
+	index_data.pSysMem = indices;
 	index_data.SysMemPitch = 0;
 	index_data.SysMemSlicePitch = 0;
 	// Create the index buffer.
@@ -467,12 +467,12 @@ void TerrainClass::RenderBuffers(ID3D11DeviceContext* device_context){
 	// Set vertex buffer stride and offset.
 	stride = sizeof(VertexType); 
 	offset = 0;
-    
+	
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	device_context->IASetVertexBuffers(0, 1, &vertex_buffer_, &stride, &offset);
-    // Set the index buffer to active in the input assembler so it can be rendered.
+	// Set the index buffer to active in the input assembler so it can be rendered.
 	device_context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	return;
 }

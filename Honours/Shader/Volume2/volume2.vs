@@ -18,8 +18,8 @@ struct VertexShaderInput
 
 struct PixelShaderInput
 {
-    float4 position_ : SV_POSITION;
-    float3 tex_		: TEXCOORD0;
+	float4 position_ : SV_POSITION;
+	float3 tex_		: TEXCOORD0;
 };
 PixelShaderInput VolumeVS(VertexShaderInput input)
 {

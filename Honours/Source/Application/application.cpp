@@ -88,16 +88,16 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_wid
 }
 void ApplicationClass::InitClouds(){
 	// 2D
-    // register the Direct3D resources that we'll use
-    // we'll read to and write from g_texture_2d, so don't set any special map flags for it
+	// register the Direct3D resources that we'll use
+	// we'll read to and write from g_texture_2d, so don't set any special map flags for it
 	cudaGraphicsD3D11RegisterResource(&rain_cuda_->cuda_resource_, rain_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
-    getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
-    // cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
-    // Create a buffer so that cuda can write into it
-    // pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
-    cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * PIXEL_FMT_SIZE_RGBA, rain_cuda_->height_);
-    getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
-    cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_2d) failed");
+	// cuda cannot write into the texture directly : the texture is seen as a cudaArray and can only be mapped as a texture
+	// Create a buffer so that cuda can write into it
+	// pixel fmt is DXGI_FORMAT_R32G32B32A32_FLOAT
+	cudaMallocPitch(&rain_cuda_->cuda_linear_memory_, &rain_cuda_->pitch_, rain_cuda_->width_ * PIXEL_FMT_SIZE_RGBA, rain_cuda_->height_);
+	getLastCudaError("cudaMallocPitch (g_texture_2d) failed");
+	cudaMemset(rain_cuda_->cuda_linear_memory_, 1, rain_cuda_->pitch_ * rain_cuda_->height_);
 
 	// 3D
 	cudaGraphicsD3D11RegisterResource(&velocity_cuda_->cuda_resource_, velocity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
@@ -982,9 +982,9 @@ bool ApplicationClass::InitCudaTextures(){
 		return E_FAIL;
 	}
 
-    if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
-        return E_FAIL;
-    }
+	if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
+		return E_FAIL;
+	}
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
 
 	rain_map = (float*)malloc(64*64*sizeof(float));
