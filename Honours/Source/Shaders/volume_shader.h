@@ -1,5 +1,10 @@
 #pragma once
 #include "shader.h"
+
+#define GRID_X 64
+#define GRID_Y 64
+#define GRID_Z 64
+
 class VolumeShader : public ShaderClass
 {
 public:

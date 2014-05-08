@@ -6,6 +6,9 @@
 /////////////
 // GLOBALS //
 /////////////
+#define GRID_X 64
+#define GRID_Y 64
+#define GRID_Z 64
 //const bool FULL_SCREEN = true;
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
@@ -134,6 +137,6 @@ private:
 	fluid_texture *water_continuity_rain_cuda_;
 	rain_texture *rain_cuda_;
 	bool is_done_once_;
-	float output[64*64*PIXEL_FMT_SIZE_RGBA* sizeof(float*)];
+	float output[GRID_X*GRID_Y*PIXEL_FMT_SIZE_RGBA* sizeof(float*)];
 };
 #endif

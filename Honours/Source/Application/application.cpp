@@ -415,7 +415,7 @@ bool ApplicationClass::InitObjectShaders(HWND hwnd){
 //-----------------------------------------------------------------------------
 bool ApplicationClass::InitCudaTextures(){
 	int offset_shader = 0;
-	int3 size_WHD = {64,64,64};
+	int3 size_WHD = {GRID_X,GRID_Y,GRID_Z};
 	ID3D11Device* d3d_device = direct_3d_->GetDevice();
 	ID3D11DeviceContext* d3d_device_context = direct_3d_->GetDeviceContext();
 	D3D11_TEXTURE3D_DESC desc;

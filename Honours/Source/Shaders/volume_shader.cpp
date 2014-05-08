@@ -183,12 +183,12 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	}
 	// Get a pointer to the data in the constant buffer.
 	data_ptr_two = (VolumeBufferType*)mapped_resource.pData;
-	float maxSize = 64.f;
+	float maxSize = GRID_X;
 	float mStepScale = 1.0f;
 	// Copy the lighting variables into the constant buffer.
 	data_ptr_two->scale_ = D3DXVECTOR4(1.f/scale.x,1.f/scale.y,1.f/scale.z,1.0f);
-	data_ptr_two->step_size_ = D3DXVECTOR3(1.0f / 64.f, 1.0f / 64.f, 1.0f / 64.f);
-	data_ptr_two->iterations_ = 64;
+	data_ptr_two->step_size_ = D3DXVECTOR3(1.0f / GRID_X, 1.0f / GRID_Y, 1.0f / GRID_Z);
+	data_ptr_two->iterations_ = (int)maxSize * (1.0f / mStepScale);
 	
 	// Unlock the constant buffer.
 	device_context->Unmap(volume_buffer_, 0);
