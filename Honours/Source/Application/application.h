@@ -46,7 +46,6 @@ const float SCREEN_NEAR = 0.1f;
 #include "../Shaders/texture_to_texture_shader.h"
 #include "../Shaders/shader.h"
 #include "../Shaders/volume_shader.h"
-#include "../Shaders/volume_shader2.h"
 #include "../Shaders/face_shader.h"
 #include "../Shaders/merge_texture_shader.h"
 #include "../Textures/render_texture.h"
@@ -122,7 +121,6 @@ private:
 	FontShaderClass* font_shader_;
 	TerrainShaderClass* terrain_shader_;
 	VolumeShader* volume_shader_;
-	VolumeShaderTWO* volume_shader_two_;
 	FaceShader* face_shader_;
 	ParticleShaderClass* particle_shader_;
 	MergeTextureShaderClass* merge_shader_;
