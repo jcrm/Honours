@@ -15,8 +15,8 @@ SamplerState sample_type_;
 //////////////
 struct PixelInputType
 {
-    float4 position_ : SV_POSITION;
-    float2 tex_ : TEXCOORD0;
+	float4 position_ : SV_POSITION;
+	float2 tex_ : TEXCOORD0;
 	float4 color_ : COLOR;
 };
 
@@ -30,13 +30,13 @@ float4 ParticlePixelShader(PixelInputType input) : SV_TARGET
 	float4 final_color;
 
 
-    // Sample the pixel color from the texture using the sampler at this texture coordinate location.
-    texture_color = shader_texture_.Sample(sample_type_, input.tex_);
+	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
+	texture_color = shader_texture_.Sample(sample_type_, input.tex_);
 
 	// Combine the texture color and the particle color to get the final color result.
-    final_color = texture_color * input.color_;
+	final_color = texture_color * input.color_;
 	/*if(final_color.r == 0 && final_color.g == 0 && final_color.b == 0){
 		final_color.r == 0 && final_color.g == 0 && final_color.b == 0;
 	}*/
-    return final_color;
+	return final_color;
 }

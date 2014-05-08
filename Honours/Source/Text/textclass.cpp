@@ -159,7 +159,7 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int max_length_, ID3
 	VertexType* vertices;
 	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, index_buffer_desc;
-    D3D11_SUBRESOURCE_DATA vertex_data, index_data;
+	D3D11_SUBRESOURCE_DATA vertex_data, index_data;
 	HRESULT result;
 	// Create a new sentence object.
 	*sentence = new SentenceType;
@@ -192,30 +192,30 @@ bool TextClass::InitializeSentence(SentenceType** sentence, int max_length_, ID3
 		indices[i] = i;
 	}
 	// Set up the description of the dynamic vertex buffer.
-    vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
-    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * (*sentence)->vertex_count_;
-    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+	vertex_buffer_desc.ByteWidth = sizeof(VertexType) * (*sentence)->vertex_count_;
+	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertex_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertex_buffer_desc.MiscFlags = 0;
 	vertex_buffer_desc.StructureByteStride = 0;
 	// Give the subresource structure a pointer to the vertex data.
-    vertex_data.pSysMem = vertices;
+	vertex_data.pSysMem = vertices;
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 	// Create the vertex buffer.
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &(*sentence)->vertex_buffer_);
+	result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &(*sentence)->vertex_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Set up the description of the static index buffer.
-    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    index_buffer_desc.ByteWidth = sizeof(unsigned long) * (*sentence)->index_count_;
-    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    index_buffer_desc.CPUAccessFlags = 0;
-    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_buffer_desc.ByteWidth = sizeof(unsigned long) * (*sentence)->index_count_;
+	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	index_buffer_desc.CPUAccessFlags = 0;
+	index_buffer_desc.MiscFlags = 0;
 	index_buffer_desc.StructureByteStride = 0;
 	// Give the subresource structure a pointer to the index data.
-    index_data.pSysMem = indices;
+	index_data.pSysMem = indices;
 	index_data.SysMemPitch = 0;
 	index_data.SysMemSlicePitch = 0;
 	// Create the index buffer.
@@ -299,13 +299,13 @@ bool TextClass::RenderSentence(SentenceType* sentence, ID3D11DeviceContext* devi
 	D3DXVECTOR4 pixel_color;
 	bool result;
 	// Set vertex buffer stride and offset.
-    stride = sizeof(VertexType); 
+	stride = sizeof(VertexType); 
 	offset = 0;
 	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	device_context->IASetVertexBuffers(0, 1, &sentence->vertex_buffer_, &stride, &offset);
-    // Set the index buffer to active in the input assembler so it can be rendered.
+	// Set the index buffer to active in the input assembler so it can be rendered.
 	device_context->IASetIndexBuffer(sentence->index_buffer_, DXGI_FORMAT_R32_UINT, 0);
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	// Create a pixel color vector with the input sentence color.
 	pixel_color = D3DXVECTOR4(sentence->red_, sentence->green_, sentence->blue_, 1.0f);

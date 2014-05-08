@@ -45,10 +45,10 @@ bool TerrainShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	ID3D10Blob* pixel_shader_buffer = 0;
 	D3D11_INPUT_ELEMENT_DESC polygon_layout[3];
 	unsigned int num_elements;
-    D3D11_SAMPLER_DESC sampler_desc;
+	D3D11_SAMPLER_DESC sampler_desc;
 	D3D11_BUFFER_DESC matrix_buffer_desc;
 	D3D11_BUFFER_DESC light_buffer_desc;
-    // Compile the vertex shader code.
+	// Compile the vertex shader code.
 	result = D3DX11CompileFromFile(vs_filename, NULL, NULL, "TerrainVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 								   &vertex_shader_buffer, &error_message, NULL);
 	if(FAILED(result))
@@ -65,7 +65,7 @@ bool TerrainShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		}
 		return false;
 	}
-    // Compile the pixel shader code.
+	// Compile the pixel shader code.
 	result = D3DX11CompileFromFile(ps_filename, NULL, NULL, "TerrainPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 								   &pixel_shader_buffer, &error_message, NULL);
 	if(FAILED(result))
@@ -82,14 +82,14 @@ bool TerrainShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 		}
 		return false;
 	}
-    // Create the vertex shader from the buffer.
-    result = device->CreateVertexShader(vertex_shader_buffer->GetBufferPointer(), vertex_shader_buffer->GetBufferSize(), NULL, &vertex_shader_);
+	// Create the vertex shader from the buffer.
+	result = device->CreateVertexShader(vertex_shader_buffer->GetBufferPointer(), vertex_shader_buffer->GetBufferSize(), NULL, &vertex_shader_);
 	if(FAILED(result))
 	{
 		return false;
 	}
-    // Create the pixel shader from the buffer.
-    result = device->CreatePixelShader(pixel_shader_buffer->GetBufferPointer(), pixel_shader_buffer->GetBufferSize(), NULL, &pixel_shader_);
+	// Create the pixel shader from the buffer.
+	result = device->CreatePixelShader(pixel_shader_buffer->GetBufferPointer(), pixel_shader_buffer->GetBufferSize(), NULL, &pixel_shader_);
 	if(FAILED(result))
 	{
 		return false;
@@ -117,7 +117,7 @@ bool TerrainShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	polygon_layout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygon_layout[2].InstanceDataStepRate = 0;
 	// Get a count of the elements in the layout.
-    num_elements = sizeof(polygon_layout) / sizeof(polygon_layout[0]);
+	num_elements = sizeof(polygon_layout) / sizeof(polygon_layout[0]);
 	// Create the vertex input layout.
 	result = device->CreateInputLayout(polygon_layout, num_elements, vertex_shader_buffer->GetBufferPointer(), vertex_shader_buffer->GetBufferSize(), 
 									   &layout_);
@@ -131,31 +131,31 @@ bool TerrainShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	pixel_shader_buffer->Release();
 	pixel_shader_buffer = 0;
 	// Create a texture sampler state description.
-    sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampler_desc.MipLODBias = 0.0f;
-    sampler_desc.MaxAnisotropy = 1;
-    sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-    sampler_desc.BorderColor[0] = 0;
+	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampler_desc.MipLODBias = 0.0f;
+	sampler_desc.MaxAnisotropy = 1;
+	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	sampler_desc.BorderColor[0] = 0;
 	sampler_desc.BorderColor[1] = 0;
 	sampler_desc.BorderColor[2] = 0;
 	sampler_desc.BorderColor[3] = 0;
-    sampler_desc.MinLOD = 0;
-    sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	sampler_desc.MinLOD = 0;
+	sampler_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Create the texture sampler state.
-    result = device->CreateSamplerState(&sampler_desc, &sample_state_);
+	result = device->CreateSamplerState(&sampler_desc, &sample_state_);
 	if(FAILED(result))
 	{
 		return false;
 	}
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-    matrix_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+	matrix_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
 	matrix_buffer_desc.ByteWidth = sizeof(MatrixBufferType);
-    matrix_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    matrix_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    matrix_buffer_desc.MiscFlags = 0;
+	matrix_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	matrix_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	matrix_buffer_desc.MiscFlags = 0;
 	matrix_buffer_desc.StructureByteStride = 0;
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
 	result = device->CreateBuffer(&matrix_buffer_desc, NULL, &matrix_buffer_);
@@ -249,7 +249,7 @@ bool TerrainShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 											 ID3D11ShaderResourceView* texture)
 {
 	HRESULT result;
-    D3D11_MAPPED_SUBRESOURCE mapped_resource;
+	D3D11_MAPPED_SUBRESOURCE mapped_resource;
 	unsigned int buffer_number;
 	MatrixBufferType* data_ptr;
 	LightBufferType* data_ptr_two;
@@ -270,11 +270,11 @@ bool TerrainShaderClass::SetShaderParameters(ID3D11DeviceContext* device_context
 	data_ptr->view_ = viewMatrix;
 	data_ptr->projection_ = projection_matrix;
 	// Unlock the constant buffer.
-    device_context->Unmap(matrix_buffer_, 0);
+	device_context->Unmap(matrix_buffer_, 0);
 	// Set the position of the constant buffer in the vertex shader.
 	buffer_number = 0;
 	// Now set the constant buffer in the vertex shader with the updated values.
-    device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
+	device_context->VSSetConstantBuffers(buffer_number, 1, &matrix_buffer_);
 	// Lock the light constant buffer so it can be written to.
 	result = device_context->Map(light_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
 	if(FAILED(result))
@@ -301,9 +301,9 @@ void TerrainShaderClass::RenderShader(ID3D11DeviceContext* device_context, int i
 {
 	// Set the vertex input layout.
 	device_context->IASetInputLayout(layout_);
-    // Set the vertex and pixel shaders that will be used to render this triangle.
-    device_context->VSSetShader(vertex_shader_, NULL, 0);
-    device_context->PSSetShader(pixel_shader_, NULL, 0);
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	device_context->VSSetShader(vertex_shader_, NULL, 0);
+	device_context->PSSetShader(pixel_shader_, NULL, 0);
 	// Set the sampler state in the pixel shader.
 	device_context->PSSetSamplers(0, 1, &sample_state_);
 	// Render the triangle.

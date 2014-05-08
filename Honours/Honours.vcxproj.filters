@@ -114,9 +114,6 @@
     <None Include="Data\font.dds">
       <Filter>Resource Files\Texture Files</Filter>
     </None>
-    <None Include="Data\cube.txt">
-      <Filter>Resource Files\Other Files</Filter>
-    </None>
     <None Include="Shader\Volume\volume.ps">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>

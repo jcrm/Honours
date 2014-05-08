@@ -40,7 +40,7 @@ void CpuClass::Frame(){
 		if((last_sample_time_ + 1000) < GetTickCount()){
 			last_sample_time_ = GetTickCount(); 
 			PdhCollectQueryData(query_handle_);
-        
+		
 			PdhGetFormattedCounterValue(counter_handle_, PDH_FMT_LONG, NULL, &value);
 			cpu_usage_ = value.longValue;
 		}

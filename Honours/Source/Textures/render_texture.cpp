@@ -35,7 +35,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	texture_desc.Usage = D3D11_USAGE_DEFAULT;
 	texture_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	texture_desc.CPUAccessFlags = 0;
-    texture_desc.MiscFlags = 0;
+	texture_desc.MiscFlags = 0;
 	// Create the render target texture.
 	result = device->CreateTexture2D(&texture_desc, NULL, &render_target_texture_);
 	if(FAILED(result)){
@@ -91,12 +91,12 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 		return false;
 	}
 	// Setup the viewport for rendering.
-    viewport_.Width = (float)textureWidth;
-    viewport_.Height = (float)textureHeight;
-    viewport_.MinDepth = 0.0f;
-    viewport_.MaxDepth = 1.0f;
-    viewport_.TopLeftX = 0.0f;
-    viewport_.TopLeftY = 0.0f;
+	viewport_.Width = (float)textureWidth;
+	viewport_.Height = (float)textureHeight;
+	viewport_.MinDepth = 0.0f;
+	viewport_.MaxDepth = 1.0f;
+	viewport_.TopLeftX = 0.0f;
+	viewport_.TopLeftY = 0.0f;
 	// Setup the projection matrix.
 	D3DXMatrixPerspectiveFovLH(&projection_matrix_, ((float)D3DX_PI / 4.0f), ((float)textureWidth / (float)textureHeight), screen_near, screen_depth);
 	// Create an orthographic projection matrix for 2D rendering.
@@ -131,7 +131,7 @@ void RenderTextureClass::SetRenderTarget(ID3D11DeviceContext* device_context){
 	device_context->OMSetRenderTargets(1, &render_target_view_, depth_stencil_view_);
 	
 	// Set the viewport.
-    device_context->RSSetViewports(1, &viewport_);
+	device_context->RSSetViewports(1, &viewport_);
 	return;
 }
 void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* device_context, float red, float green, float blue, float alpha){
@@ -143,7 +143,7 @@ void RenderTextureClass::ClearRenderTarget(ID3D11DeviceContext* device_context, 
 	color[3] = alpha;
 	// Clear the back buffer.
 	device_context->ClearRenderTargetView(render_target_view_, color);
-    
+	
 	// Clear the depth buffer.
 	device_context->ClearDepthStencilView(depth_stencil_view_, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	return;

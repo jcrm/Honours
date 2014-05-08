@@ -13,7 +13,7 @@ cbuffer LightBuffer
 {
 	float4 ambient_color_;
 	float4 diffuse_color_;
-    float3 light_direction_;
+	float3 light_direction_;
 	float padding_;
 };
 
@@ -22,7 +22,7 @@ cbuffer LightBuffer
 //////////////
 struct PixelInputType
 {
-    float4 position_ : SV_POSITION;
+	float4 position_ : SV_POSITION;
 	float2 tex_ : TEXCOORD0;
 	float3 normal_ : NORMAL;
 };
@@ -40,21 +40,21 @@ float4 TerrainPixelShader(PixelInputType input) : SV_TARGET
 	//get the texture color
 	texture_color = shader_texture_.Sample(sample_type_, input.tex_);
 	// Set the default output color to the ambient light value for all pixels.
-    color = ambient_color_;
+	color = ambient_color_;
 
 	// Invert the light direction for calculations.
-    light_dir = -light_direction_;
+	light_dir = -light_direction_;
 
-    // Calculate the amount of light on this pixel.
-    light_intensity = saturate(dot(input.normal_, light_dir));
+	// Calculate the amount of light on this pixel.
+	light_intensity = saturate(dot(input.normal_, light_dir));
 
 	if(light_intensity > 0.0f){
-        // Determine the final diffuse color based on the diffuse color and the amount of light intensity.
-        color += (diffuse_color_ * light_intensity);
-    }
-    // Saturate the final light color.
-    color = saturate(color);
+		// Determine the final diffuse color based on the diffuse color and the amount of light intensity.
+		color += (diffuse_color_ * light_intensity);
+	}
+	// Saturate the final light color.
+	color = saturate(color);
 	//multiple the colour by the texture colour to get the final colour.
 	color *= texture_color;
-    return color;
+	return color;
 }

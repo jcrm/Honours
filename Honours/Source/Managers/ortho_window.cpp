@@ -93,30 +93,30 @@ bool OrthoWindowClass::InitializeBuffers(ID3D11Device* device, int windowWidth, 
 		indices[i] = i;
 	}
 	// Set up the description of the vertex buffer.
-    vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
-    vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertex_buffer_desc.CPUAccessFlags = 0;
-    vertex_buffer_desc.MiscFlags = 0;
+	vertex_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	vertex_buffer_desc.ByteWidth = sizeof(VertexType) * vertex_count_;
+	vertex_buffer_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertex_buffer_desc.CPUAccessFlags = 0;
+	vertex_buffer_desc.MiscFlags = 0;
 	vertex_buffer_desc.StructureByteStride = 0;
 	// Give the subresource structure a pointer to the vertex data.
-    vertex_data.pSysMem = vertices;
+	vertex_data.pSysMem = vertices;
 	vertex_data.SysMemPitch = 0;
 	vertex_data.SysMemSlicePitch = 0;
 	// Now finally create the vertex buffer.
-    result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
+	result = device->CreateBuffer(&vertex_buffer_desc, &vertex_data, &vertex_buffer_);
 	if(FAILED(result)){
 		return false;
 	}
 	// Set up the description of the index buffer.
-    index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
-    index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
-    index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    index_buffer_desc.CPUAccessFlags = 0;
-    index_buffer_desc.MiscFlags = 0;
+	index_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+	index_buffer_desc.ByteWidth = sizeof(unsigned long) * index_count_;
+	index_buffer_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	index_buffer_desc.CPUAccessFlags = 0;
+	index_buffer_desc.MiscFlags = 0;
 	index_buffer_desc.StructureByteStride = 0;
 	// Give the subresource structure a pointer to the index data.
-    index_data.pSysMem = indices;
+	index_data.pSysMem = indices;
 	index_data.SysMemPitch = 0;
 	index_data.SysMemSlicePitch = 0;
 	// Create the index buffer.

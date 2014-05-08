@@ -17,15 +17,15 @@ cbuffer MatrixBuffer
 //////////////
 struct VertexInputType
 {
-    float4 position_ : POSITION;
-    float2 tex_ : TEXCOORD0;
+	float4 position_ : POSITION;
+	float2 tex_ : TEXCOORD0;
 	float4 color_ : COLOR;
 };
 
 struct PixelInputType
 {
-    float4 position_ : SV_POSITION;
-    float2 tex_ : TEXCOORD0;
+	float4 position_ : SV_POSITION;
+	float2 tex_ : TEXCOORD0;
 	float4 color_ : COLOR;
 };
 
@@ -34,7 +34,7 @@ struct PixelInputType
 ////////////////////////////////////////////////////////////////////////////////
 PixelInputType ParticleVertexShader(VertexInputType input)
 {
-    PixelInputType output;
+	PixelInputType output;
 
 	// Change the position vector to be 4 units for proper matrix calculations.
 	input.position_.w = 1.0f;

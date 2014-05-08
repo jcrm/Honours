@@ -21,8 +21,8 @@ cbuffer MergeBuffer
 //////////////
 struct PixelInputType
 {
-    float4 position_ : SV_POSITION;
-    float2 tex_ : TEXCOORD0;
+	float4 position_ : SV_POSITION;
+	float2 tex_ : TEXCOORD0;
 };
 
 
@@ -36,5 +36,5 @@ float4 MergePixelShader(PixelInputType input) : SV_TARGET
 	//add on a ration of the second texture to the first
 	color= color + (merge_ratio_*second_texture);
 	color.a = 1.0f;
-    return color;
+	return color;
 }
