@@ -3,18 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 #ifndef _APPLICATIONCLASS_H_
 #define _APPLICATIONCLASS_H_
-/////////////
-// GLOBALS //
-/////////////
-#define GRID_X 64
-#define GRID_Y 64
-#define GRID_Z 64
-#define RAIN_DATA_SIZE 32 * 32 * sizeof(float) * 4
-//const bool FULL_SCREEN = true;
-const bool FULL_SCREEN = false;
-const bool VSYNC_ENABLED = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
 ///////////////////////
 // MY CLASS INCLUDES //
 ///////////////////////
@@ -57,7 +45,20 @@ const float SCREEN_NEAR = 0.1f;
 #include "../CUDA/cuda_structs.h"
 #include "../CUDA/cuda_kernals.h"
 #include "../CUDA/cuda_header.h"
-
+/////////////
+// GLOBALS //
+/////////////
+#define GRID_X 64
+#define GRID_Y 64
+#define GRID_Z 64
+#define CLOUD_RAIN_TEXTURE_RATIO 2
+#define RAIN_ARRAY_SIZE (GRID_X/CLOUD_RAIN_TEXTURE_RATIO) * (GRID_Y/CLOUD_RAIN_TEXTURE_RATIO) * PIXEL_FMT_SIZE_RGBA
+#define RAIN_DATA_SIZE RAIN_ARRAY_SIZE * sizeof(float)
+//const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
+const bool VSYNC_ENABLED = true;
+const float SCREEN_DEPTH = 1000.0f;
+const float SCREEN_NEAR = 0.1f;
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +139,6 @@ private:
 	fluid_texture *water_continuity_rain_cuda_;
 	rain_texture *rain_cuda_;
 	bool is_done_once_;
-	float output[(GRID_X/2)*(GRID_Y/2)*PIXEL_FMT_SIZE_RGBA];
+	float output[RAIN_ARRAY_SIZE];
 };
 #endif

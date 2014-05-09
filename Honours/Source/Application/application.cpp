@@ -571,8 +571,8 @@ bool ApplicationClass::InitCudaTextures(){
 		return false;
 	}
 	//set width and height
-	rain_cuda_->width_  = 32.f;
-	rain_cuda_->height_ = 32.f;
+	rain_cuda_->width_  = size_WHD.x/CLOUD_RAIN_TEXTURE_RATIO;
+	rain_cuda_->height_ = size_WHD.y/CLOUD_RAIN_TEXTURE_RATIO;
 	//create description for 2d texture format DXGI_FORMAT_R32G32B32A32_FLOAT
 	D3D11_TEXTURE2D_DESC desc2d;
 	ZeroMemory(&desc2d, sizeof(D3D11_TEXTURE2D_DESC));
@@ -586,10 +586,10 @@ bool ApplicationClass::InitCudaTextures(){
 	desc2d.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
 	if (FAILED(d3d_device->CreateTexture2D(&desc2d, NULL, &rain_cuda_->texture_))){
-		return E_FAIL;
+		return false;
 	}
 	if (FAILED(d3d_device->CreateShaderResourceView(rain_cuda_->texture_, NULL, &rain_cuda_->sr_view_))) {
-		return E_FAIL;
+		return false;
 	}
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
 
@@ -1115,8 +1115,7 @@ void ApplicationClass::RunCloudKernals(){
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
 	getLastCudaError("cuda_texture_2d failed");
 
-	int tex_size = rain_cuda_->width_ *rain_cuda_->height_ * PIXEL_FMT_SIZE_RGBA*4;
-	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
+	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, RAIN_DATA_SIZE, cudaMemcpyDeviceToHost);
 }
 void ApplicationClass::Shutdown(){
 
