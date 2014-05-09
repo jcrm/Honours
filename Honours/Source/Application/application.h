@@ -55,8 +55,8 @@
 #define TOTAL_RAIN (GRID_X/CLOUD_RAIN_TEXTURE_RATIO) * (GRID_Y/CLOUD_RAIN_TEXTURE_RATIO)
 #define RAIN_ARRAY_SIZE TOTAL_RAIN * PIXEL_FMT_SIZE_RGBA
 #define RAIN_DATA_SIZE RAIN_ARRAY_SIZE * sizeof(float)
-const bool FULL_SCREEN = true;
-//const bool FULL_SCREEN = false;
+//const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;

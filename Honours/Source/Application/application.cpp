@@ -603,9 +603,10 @@ bool ApplicationClass::HandleInput(float frame_time){
 }
 bool ApplicationClass::Render(){
 	bool result;
+	// Generate the view matrix based on the camera's position.
+	camera_->Render();
 
 	RenderClouds();
-	
 	// First render the scene to a render texture.
 	result = RenderScene();
 	if(!result){
@@ -622,13 +623,8 @@ bool ApplicationClass::RenderScene(){
 	D3DXVECTOR4 camera_pos;
 	bool result;
 
-	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);/*
-	// Set the render target to be the render to texture.
-	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
-	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);*/
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
+	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
 	camera_->GetViewMatrix(view_matrix);
@@ -706,20 +702,21 @@ bool ApplicationClass::RenderScene(){
 }
 bool ApplicationClass::RenderClouds(){
 	D3DXMATRIX world_matrix, model_world_matrix, view_matrix, projection_matrix;
+	D3DXMATRIX translation;
 	bool result;
+
 	// Set the render target to be the render to texture.
 	cloud_object_->GetFrontTexture()->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
 	cloud_object_->GetFrontTexture()->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
+	
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
 	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 
 	model_world_matrix = world_matrix;
-	D3DXMATRIX translation = cloud_object_->GetTranslation();
+	translation = cloud_object_->GetTranslation();
 	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 
 	// Render the terrain buffers.
@@ -738,14 +735,8 @@ bool ApplicationClass::RenderClouds(){
 	cloud_object_->GetBackTexture()->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
 	cloud_object_->GetBackTexture()->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	direct_3d_->GetWorldMatrix(world_matrix);
-	camera_->GetViewMatrix(view_matrix);
-	direct_3d_->GetProjectionMatrix(projection_matrix);
-	// Render the terrain buffers.
 
+	// Render the terrain buffers.
 	model_world_matrix = world_matrix;
 	translation = cloud_object_->GetTranslation();
 	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
