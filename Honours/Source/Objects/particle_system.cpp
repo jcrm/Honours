@@ -68,7 +68,7 @@ bool ParticleSystemClass::Frame(float frame_time, ID3D11DeviceContext* device_co
 
 		// Update the dynamic vertex buffer with the new position of each particle.
 		result = UpdateBuffers(device_context);
-		if(!result)	{
+		if(!result){
 			return false;
 		}
 	}
