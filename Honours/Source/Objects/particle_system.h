@@ -16,7 +16,7 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "../Textures/texture.h"
-#define MAX_NUP_PARTICLES 100
+#define MAX_NUM_PARTICLES 200
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ParticleSystemClass
@@ -59,7 +59,7 @@ public:
 	inline void SetKillCount(int count){kill_count_ = count;}
 	inline void SetClear(bool c){is_clear_ = c;}
 	inline bool GetClear(){return is_clear_;}
-	inline void UpdateParticleSystem(){UpdateParticleSystem(D3DXVECTOR3(1.5f,1.1f,2.0f), D3DXVECTOR2(1.0f,0.2f), D3DXVECTOR3(0.05f,50.0f,MAX_NUP_PARTICLES));}
+	inline void UpdateParticleSystem(){UpdateParticleSystem(D3DXVECTOR3(256.f/32.f,256.f/32.f,0.2f), D3DXVECTOR2(16.0f,0.2f), D3DXVECTOR3(0.1f,32.0f,MAX_NUM_PARTICLES));}
 private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
@@ -91,7 +91,7 @@ private:
 	ParticleType* particle_list_;
 	int vertex_count_, instance_count_;
 	VertexType vertices_[6];
-	InstanceType instances_[100];
+	InstanceType instances_[MAX_NUM_PARTICLES];
 	ID3D11Buffer *vertex_buffer_, *instance_buffer_;
 
 	int kill_count_;

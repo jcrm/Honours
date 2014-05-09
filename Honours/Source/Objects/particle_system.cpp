@@ -9,7 +9,7 @@ ParticleSystemClass::ParticleSystemClass(){
 	vertex_buffer_ = 0;
 	instance_buffer_ = 0;
 	//D3DXMatrixIdentity(&translation_);
-	D3DXMatrixTranslation(&translation_, float(rand()%129), float(rand()%10), float(rand()%129));
+	D3DXMatrixTranslation(&translation_, float(rand()%256), 20.f, float(rand()%256));
 }
 
 ParticleSystemClass::ParticleSystemClass(const ParticleSystemClass& other){
@@ -128,10 +128,10 @@ void ParticleSystemClass::UpdateParticleSystem(D3DXVECTOR3 part_dev, D3DXVECTOR2
 	particles_per_second_ = part_feat.y;
 
 	// Set the maximum number of particles allowed in the particle system.
-	max_particles_ = part_feat.z;
+	max_particles_ = part_feat.z-10;
 
 	// Initialize the particle list.
-	for(int i=0; i<MAX_NUP_PARTICLES; i++){
+	for(int i=0; i<MAX_NUM_PARTICLES; i++){
 		particle_list_[i].active_ = false;
 	}
 
@@ -149,20 +149,20 @@ bool ParticleSystemClass::InitializeParticleSystem(){
 	particle_deviation_z_ = 2.0f;
 
 	// Set the speed and speed variation of particles.
-	particle_velocity_ = 1.0f;
+	particle_velocity_ = 2.0f;
 	particle_velocity_variation_ = 0.2f;
 
 	// Set the physical size of the particles.
-	particle_size_ =0.05f;
+	particle_size_ =0.08f;
 
 	// Set the number of particles to emit per second.
-	particles_per_second_ = 50.0f;
+	particles_per_second_ = 8.0f;
 
 	// Set the maximum number of particles allowed in the particle system.
-	max_particles_ = MAX_NUP_PARTICLES;
+	max_particles_ = MAX_NUM_PARTICLES;
 
 	// Create the particle list.
-	particle_list_ = new ParticleType[MAX_NUP_PARTICLES];
+	particle_list_ = new ParticleType[MAX_NUM_PARTICLES];
 	if(!particle_list_){
 		return false;
 	}
@@ -214,37 +214,37 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device){
 	// Bottom left.
 	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ - particle_size_, particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(0.0f, 1.0f);
-	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 0.5f);
+	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 1.0f);
 	index++;
 
 	// Top left.
 	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ + particle_size_, particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(0.0f, 0.0f);
-	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 0.5f);
+	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,1.0f);
 	index++;
 
 	// Top right.
 	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ + particle_size_, particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(1.0f, 0.0f);
-	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 0.5f);
+	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 1.0f);
 	index++;
 
 	// Top right.
 	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ + particle_size_, particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(1.0f, 0.0f);
-	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 0.5f);
+	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,1.0f);
 	index++;
 
 	// Bottom right.
 	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ - particle_size_, particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(1.0f, 1.0f);
-	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 0.5f);
+	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 1.0f);
 	index++;
 
 	// Bottom left.
 	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ - particle_size_, particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(0.0f, 1.0f);
-	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,0.5f);
+	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,1.0f);
 	index++;
 
 	// Set up the description of the dynamic vertex buffer.
@@ -267,10 +267,10 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device){
 	}
 
 	// Set the maximum number of indices in the index array.
-	instance_count_ = MAX_NUP_PARTICLES;
+	instance_count_ = max_particles_;
 
 	for(int i=0; i<instance_count_; i++){
-		instances_[i].position_ = D3DXVECTOR4(particle_list_[0].position_x_ , particle_list_[0].position_y_, particle_list_[0].position_z_,-1);
+		instances_[i].position_ = D3DXVECTOR4(particle_list_[i].position_x_ , particle_list_[i].position_y_, particle_list_[i].position_z_,-1);
 	}
 
 	// Set up the description of the instance buffer.
@@ -399,7 +399,7 @@ void ParticleSystemClass::UpdateParticles(float frame_time){
 void ParticleSystemClass::KillParticles(){
 	// Kill all the particles that have gone below a certain height range.
 	for(int i=0; i<max_particles_; i++){
-		if((particle_list_[i].active_ == true) && (particle_list_[i].position_y_ < -3.0f)){
+		if((particle_list_[i].active_ == true) && (particle_list_[i].position_y_ < -20.05f)){
 			particle_list_[i].active_ = false;
 			current_particle_count_--;
 			kill_count_++;

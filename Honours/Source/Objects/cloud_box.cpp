@@ -22,7 +22,7 @@ CloudClass::CloudClass(): vertex_buffer_(0), index_buffer_(0)
 
 	D3DXMatrixTranslation(&trans, size_.y/2.f, size_.x/2.f, size_.z/2.f);
 	D3DXMatrixMultiply(&transform_,&transform_,&trans);
-	D3DXMatrixTranslation(&trans, 0.0f, 30.f, 0.0f);
+	D3DXMatrixTranslation(&trans, 0.0f, 20.f, 0.0f);
 	D3DXMatrixMultiply(&transform_,&transform_,&trans);
 }
 CloudClass::CloudClass(const CloudClass& other): vertex_buffer_(0), index_buffer_(0)
