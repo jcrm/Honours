@@ -128,7 +128,7 @@ void ParticleSystemClass::UpdateParticleSystem(D3DXVECTOR3 part_dev, D3DXVECTOR2
 	particles_per_second_ = part_feat.y;
 
 	// Set the maximum number of particles allowed in the particle system.
-	max_particles_ = part_feat.z-10;
+	max_particles_ = part_feat.z;
 
 	// Initialize the particle list.
 	for(int i=0; i<MAX_NUM_PARTICLES; i++){
@@ -149,8 +149,8 @@ bool ParticleSystemClass::InitializeParticleSystem(){
 	particle_deviation_z_ = 2.0f;
 
 	// Set the speed and speed variation of particles.
-	particle_velocity_ = 2.0f;
-	particle_velocity_variation_ = 0.2f;
+	particle_velocity_ = 16.0f;
+	particle_velocity_variation_ = 0.0f;
 
 	// Set the physical size of the particles.
 	particle_size_ =0.08f;

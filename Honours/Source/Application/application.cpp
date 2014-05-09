@@ -2,23 +2,22 @@
 // Filename: applicationclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "application.h"
+#include <time.h>
 ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), player_position_(0),
-	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
-	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
-	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
+	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
-	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0)
 {
+	srand((int)time(NULL));
 }
 ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0), input_(0),  camera_(0), player_position_(0),
-	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), 
-	cloud_object_(0), merge_shader_(0), font_shader_(0), terrain_shader_(0), texture_shader_(0), 
-	texture_to_texture_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
+	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), render_fullsize_texture_(0), merge_texture_(0), fullsize_texture_(0),
-	particle_texture_(0), full_screen_window_(0), is_done_once_(false)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0)
 {
+	srand((int)time(NULL));
 }
 ApplicationClass::~ApplicationClass(){
 }
@@ -51,7 +50,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_wid
 	//Initialize the camera and position objects
 	InitCamera();
 	//Initialize the terrain, water, and cubes
-	InitObjects(hwnd);
+	InitObjects(hwnd, screen_width, screen_height);
 	//Initialize the text on screen. 
 	InitText(hwnd, screen_width, screen_height);
 	// Create the light object.
@@ -63,8 +62,6 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_wid
 	light_object_->SetAmbientColor(0.05f, 0.05f, 0.05f, 1.0f);
 	light_object_->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	light_object_->SetDirection(1.0f,-1.0f, 0.0f);
-	//Initialize the texture to render to
-	InitTextures(hwnd, screen_width, screen_height);
 	//Initialize the sahders to be used.
 	InitShaders(hwnd);
 	// Create the full screen ortho window object.
@@ -208,7 +205,7 @@ bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height)
 	}
 	return true;
 }
-bool ApplicationClass::InitObjects(HWND hwnd){
+bool ApplicationClass::InitObjects(HWND hwnd, int screen_width, int screen_height){
 	bool result;
 	// Create the terrain object.
 	terrain_object_ = new TerrainClass;
@@ -226,7 +223,7 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		return false;
 	}
 	// Initialize the terrain object.
-	result = cloud_object_->Initialize(direct_3d_->GetDevice(), 800,600,SCREEN_DEPTH, SCREEN_NEAR);
+	result = cloud_object_->Initialize(direct_3d_->GetDevice(), screen_width,screen_height,SCREEN_DEPTH, SCREEN_NEAR);
 	if(!result){
 		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
 		return false;
@@ -236,53 +233,6 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		rain_systems_[i]->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
 	}
 
-	return true;
-}
-bool ApplicationClass::InitTextures(HWND hwnd, int screen_width, int screen_height){
-	bool result;
-	// Create the render to texture object.
-	render_fullsize_texture_ = new RenderTextureClass;
-	if(!render_fullsize_texture_){
-		return false;
-	}
-	// Initialize the render to texture object.
-	result = render_fullsize_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the up sample render to texture object.
-	fullsize_texture_ = new RenderTextureClass;
-	if(!fullsize_texture_){
-		return false;
-	}
-	// Initialize the up sample render to texture object.
-	result = fullsize_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the full size render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the down sample render to texture object.
-	merge_texture_ = new RenderTextureClass;
-	if(!merge_texture_){
-		return false;
-	}
-	// Initialize the down sample render to texture object.
-	result = merge_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the down sample render to texture object.", L"Error", MB_OK);
-		return false;
-	}
-	//create a second down sample texture for performing convolutions on
-	particle_texture_ = new RenderTextureClass;
-	if (!particle_texture_){
-		return false;
-	}
-	result = particle_texture_->Initialize(direct_3d_->GetDevice(), screen_width, screen_height, SCREEN_DEPTH, SCREEN_NEAR);
-	if (!result){
-		MessageBox(hwnd, L"Could not initialize the second half size to texture object.", L"Error", MB_OK);		
-		return false;
-	}
 	return true;
 }
 bool ApplicationClass::InitCamera(){
@@ -317,38 +267,8 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
 		return false;
 	}
-	if(!InitTextureShaders(hwnd)){
-		MessageBox(hwnd, L"Could not initialize the texture shaders.", L"Error", MB_OK);
-		return false;
-	}	
 	if(!InitObjectShaders(hwnd)){
 		MessageBox(hwnd, L"Could not initialize the object shaders.", L"Error", MB_OK);
-		return false;
-	}
-	return true;
-}
-bool ApplicationClass::InitTextureShaders(HWND hwnd){
-	bool result;
-	// Create the texture to texture shader object.
-	texture_to_texture_shader_ = new TextureToTextureShaderClass;
-	if(!texture_to_texture_shader_){
-		return false;
-	}
-	// Initialize the texture to texture shader object.
-	result = texture_to_texture_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the texture to texture shader object.", L"Error", MB_OK);
-		return false;
-	}
-	//create the texture shader object
-	texture_shader_ = new TextureShaderClass;
-	if(!texture_shader_){
-		return false;
-	}
-	// Initialize the texture shader object.
-	result = texture_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
 		return false;
 	}
 	return true;
@@ -388,17 +308,6 @@ bool ApplicationClass::InitObjectShaders(HWND hwnd){
 	}
 	// Initialize the particle shader object.
 	result = particle_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
-	if(!result){
-		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
-		return false;
-	}
-	// Create the particle shader object.
-	merge_shader_ = new MergeTextureShaderClass;
-	if(!merge_shader_){
-		return false;
-	}
-	// Initialize the particle shader object.
-	result = merge_shader_->Initialize(direct_3d_->GetDevice(), hwnd);
 	if(!result){
 		MessageBox(hwnd, L"Could not initialize the particle shader object.", L"Error", MB_OK);
 		return false;
@@ -625,12 +534,11 @@ bool ApplicationClass::Frame(){
 			return false;
 		}
 	}
-	
 	for(int i = 0; i < TOTAL_RAIN; i++){
 		// Run the frame processing for the particle system.
 		rain_systems_[i]->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
 	}
-	
+	CudaCalculations();
 	// Render the graphics scene.
 	result = Render();
 	if(!result){
@@ -695,34 +603,25 @@ bool ApplicationClass::HandleInput(float frame_time){
 }
 bool ApplicationClass::Render(){
 	bool result;
-	CudaRender();
+
 	RenderClouds();
 	
 	// First render the scene to a render texture.
-	result = RenderSceneToTexture(render_fullsize_texture_);
-	if(!result){
-		return false;
-	}/*
-	// First render the scene to a render texture.
-	result = RenderParticlesToTexture(particle_texture_);
+	result = RenderScene();
 	if(!result){
 		return false;
 	}
-	result = RenderMergeTexture(render_fullsize_texture_,particle_texture_, merge_texture_);*/
-	//render the texture to the scene
-	/*
-	result = Render2DTextureScene(render_fullsize_texture_);
-	if(!result){
-		return false;
-	}*/
 	return true;
 }
 /*
 *	Renders the objects on screen to a texture ready for post-processing.
 */
-bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
-	D3DXMATRIX world_matrix, view_matrix, projection_matrix, ortho_matrix;
+bool ApplicationClass::RenderScene(){
+	D3DXMATRIX world_matrix, view_matrix, projection_matrix, ortho_matrix, model_world_matrix;
+	D3DXMATRIX translation;
+	D3DXVECTOR4 camera_pos;
 	bool result;
+
 	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);/*
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
@@ -734,6 +633,7 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	direct_3d_->GetWorldMatrix(world_matrix);
 	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
+
 	// Render the terrain buffers.
 	terrain_object_->Render(direct_3d_->GetDeviceContext());
 	// Render the terrain using the terrain shader.
@@ -742,20 +642,22 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	if(!result){
 		return false;
 	}
+
 	// Turn on the alpha blending before rendering the text.
 	direct_3d_->TurnOnAlphaBlending();
-	D3DXMATRIX model_world_matrix = world_matrix;
-	D3DXMATRIX translation = cloud_object_->GetTranslation();
+
+	model_world_matrix = world_matrix;
+	translation = cloud_object_->GetTranslation();
 	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
-	D3DXVECTOR4 camera_pos = D3DXVECTOR4(camera_->GetPosition(), 1.f);
+	camera_pos = D3DXVECTOR4(camera_->GetPosition(), 1.f);
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 	
 	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
 		cloud_object_->GetFrontShaderResource(), cloud_object_->GetBackShaderResource(), velocity_cuda_->sr_view_,cloud_object_->GetScale());
-	
 	if(!result){
 		return false;
 	}
+
 	// Turn off alpha blending after rendering the text.
 	direct_3d_->TurnOffAlphaBlending();
 
@@ -763,8 +665,8 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	for(int i = 0; i< TOTAL_RAIN; i++){
 		if(rain_systems_[i]->GetClear()== false){
 			//add code for rotating based upon the camera angle
-			D3DXMATRIX model_world_matrix = world_matrix;
-			D3DXMATRIX translation = rain_systems_[i]->GetTranslation();
+			model_world_matrix = world_matrix;
+			translation = rain_systems_[i]->GetTranslation();
 			D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 			// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
 			rain_systems_[i]->Render(direct_3d_->GetDeviceContext());
@@ -800,68 +702,6 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	direct_3d_->ResetViewport();
 
 	direct_3d_->EndScene();
-	return true;
-}
-/*
-*	Takes two textures and combines them to make a third texture;
-*/
-bool ApplicationClass::RenderMergeTexture(RenderTextureClass *read_texture, RenderTextureClass *read_texture_two, RenderTextureClass *write_texture){
-	bool result;
-
-	// Set the render target to be the render to texture.
-	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
-
-	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
-
-	// Turn off the Z buffer to begin all 2D rendering.
-	direct_3d_->TurnZBufferOff();
-
-	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	full_screen_window_->Render(direct_3d_->GetDeviceContext());
-
-	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
-	result = merge_shader_->Render(direct_3d_->GetDeviceContext(), full_screen_window_->GetIndexCount(), read_texture->GetShaderResourceView(), 
-		read_texture_two->GetShaderResourceView());
-	if(!result){
-		return false;
-	}
-
-	// Turn the Z buffer back on now that all 2D rendering has completed.
-	direct_3d_->TurnZBufferOn();
-
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	direct_3d_->SetBackBufferRenderTarget();
-
-	// Reset the viewport back to the original.
-	direct_3d_->ResetViewport();
-	return true;
-}
-/*
-*	Renders the objects on screen to a texture ready for post-processing.
-*/
-bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_texture){
-	D3DXMATRIX world_matrix, model_world_matrix, view_matrix, projection_matrix;
-	bool result;
-	// Set the render target to be the render to texture.
-	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
-	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
-	// Get the world, view, and projection matrices from the camera and d3d objects.
-	direct_3d_->GetWorldMatrix(world_matrix);
-	camera_->GetViewMatrix(view_matrix);
-	direct_3d_->GetProjectionMatrix(projection_matrix);
-
-	
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	direct_3d_->SetBackBufferRenderTarget();
-	// Reset the viewport back to the original.
-	direct_3d_->ResetViewport();
 	return true;
 }
 bool ApplicationClass::RenderClouds(){
@@ -923,86 +763,12 @@ bool ApplicationClass::RenderClouds(){
 	direct_3d_->CreateRaster();
 	return true;
 }
-/*
-*	Takes a texture and performs shader actions on it.
-*/
-bool ApplicationClass::RenderTexture(ShaderClass *shader, RenderTextureClass *read_texture, RenderTextureClass *write_texture, OrthoWindowClass *window){
-	D3DXMATRIX ortho_matrix;
-	bool result;
-
-	float screen_size_Y = (float)write_texture->GetTextureHeight();
-	float screen_size_X = (float)write_texture->GetTextureWidth();
-
-	// Set the render target to be the render to texture.
-	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
-	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
-	// Get the ortho matrix from the render to texture since texture has different dimensions being that it is smaller.
-	write_texture->GetOrthoMatrix(ortho_matrix);
-	// Turn off the Z buffer to begin all 2D rendering.
-	direct_3d_->TurnZBufferOff();
-	// Put the small ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	window->Render(direct_3d_->GetDeviceContext());
-	// Render the small ortho window using the texture shader and the render to texture of the scene as the texture resource.
-	result = shader->Render(direct_3d_->GetDeviceContext(), window->GetIndexCount(), ortho_matrix, 
-		read_texture->GetShaderResourceView(),screen_size_Y,screen_size_X);
-	if(!result){
-		return false;
-	}
-	// Turn the Z buffer back on now that all 2D rendering has completed.
-	direct_3d_->TurnZBufferOn();
-	// Reset the render target back to the original back buffer and not the render to texture anymore.
-	direct_3d_->SetBackBufferRenderTarget();
-	// Reset the viewport back to the original.
-	direct_3d_->ResetViewport();
-	return true;
-}
-/*
-* Renders a texture to the screen.
-*/
-bool ApplicationClass::Render2DTextureScene(RenderTextureClass* read_texture){
-	D3DXMATRIX world_matrix, view_matrix, ortho_matrix, projection_matrix;
-	bool result;
-	// Clear the buffers to begin the scene.
-	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-	// Generate the view matrix based on the camera's position.
-	camera_->Render();
-	// Get the world, view, and ortho matrices from the camera and d3d objects.
-	camera_->GetViewMatrix(view_matrix);
-	direct_3d_->GetWorldMatrix(world_matrix);
-	direct_3d_->GetOrthoMatrix(ortho_matrix);
-	// Turn off the Z buffer to begin all 2D rendering.
-	direct_3d_->TurnZBufferOff();
-	// Put the full screen ortho window vertex and index buffers on the graphics pipeline to prepare them for drawing.
-	full_screen_window_->Render(direct_3d_->GetDeviceContext());
-	//Render the full screen ortho window using the texture shader and the full screen sized blurred render to texture resource.
-	result = texture_to_texture_shader_->Render(direct_3d_->GetDeviceContext(), full_screen_window_->GetIndexCount(), ortho_matrix, read_texture->GetShaderResourceView());
-	if(!result){
-		return false;
-	}
-	// Turn on the alpha blending before rendering the text.
-	direct_3d_->TurnOnAlphaBlending();
-	// Render the text user interface elements.
-	result = text_->Render(direct_3d_->GetDeviceContext(), font_shader_, world_matrix, ortho_matrix);
-	if(!result){
-		return false;
-	}
-	// Turn off alpha blending after rendering the text.
-	direct_3d_->TurnOffAlphaBlending();
-	// Turn the Z buffer back on now that all 2D rendering has completed.
-	direct_3d_->TurnZBufferOn();
-	// Present the rendered scene to the screen.
-	direct_3d_->EndScene();
-	return true;
-}
-
 //-----------------------------------------------------------------------------
 // Name: CudaRender()
 // Desc: Launches the CUDA kernels to fill in the texture data
 //-----------------------------------------------------------------------------
-void ApplicationClass::CudaRender(){
+void ApplicationClass::CudaCalculations(){
+	static bool is_done_once = false;
 	//map the resources we've registered so we can access them in Cuda
 	//it is most efficient to map and unmap all resources in a single call,
 	//and to have the map/unmap calls be the boundary between using the GPU
@@ -1020,19 +786,20 @@ void ApplicationClass::CudaRender(){
 	};
 	cudaGraphicsMapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
+
+	if(is_done_once == false){
+		RunInitKernals();
+		is_done_once = true;
+	}
 	// run kernels which will populate the contents of those textures
 	RunCloudKernals();
+	CudaMemoryCopy();
+
 	// unmap the resources
 	cudaGraphicsUnmapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsUnmapResources(3) failed");
 }
-void ApplicationClass::RunCloudKernals(){
-	// populate the volume texture
-	int pressure_index = 0;
-	int divergence_index = 1;
-	cudaArray *cuda_velocity_array;
-	cudaArray *cuda_rain_array;
-
+void ApplicationClass::RunInitKernals(){
 	Size size;
 	size.width_ = velocity_cuda_->width_;
 	size.height_ = velocity_cuda_->height_;
@@ -1051,36 +818,49 @@ void ApplicationClass::RunCloudKernals(){
 	size_three.depth_ = 0;
 	size_three.pitch_slice_ = 0;
 
-	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
-	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
+	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 10.f);
+	getLastCudaError("cuda_fluid_initial failed");
 
-	cudaGraphicsSubResourceGetMappedArray(&cuda_rain_array, rain_cuda_->cuda_resource_, 0, 0);
-	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_2d) failed");
+	cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size, 0.f);
+	getLastCudaError("cuda_fluid_initial failed");
 
-	if(is_done_once_ == false){
-		cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 10.f);
-		getLastCudaError("cuda_fluid_initial failed");
+	cuda_fluid_initial(pressure_divergence_cuda_->cuda_linear_memory_, size, 0.f);
+	getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size, 0.f);
-		getLastCudaError("cuda_fluid_initial failed");
+	cuda_fluid_initial_float(water_continuity_cuda_->cuda_linear_memory_, size_two, 0.f);
+	getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial(pressure_divergence_cuda_->cuda_linear_memory_, size, 0.f);
-		getLastCudaError("cuda_fluid_initial failed");
+	cuda_fluid_initial_float(water_continuity_rain_cuda_->cuda_linear_memory_, size_two, 0.f);
+	getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial_float(water_continuity_cuda_->cuda_linear_memory_, size_two, 0.f);
-		getLastCudaError("cuda_fluid_initial failed");
+	cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 310.f);
+	getLastCudaError("cuda_fluid_initial failed");
 
-		cuda_fluid_initial_float(water_continuity_rain_cuda_->cuda_linear_memory_, size_two, 0.f);
-		getLastCudaError("cuda_fluid_initial failed");
+	cuda_fluid_initial_float_2d(rain_cuda_->cuda_linear_memory_, size_three, 0.f);
+	getLastCudaError("cuda_fluid_initial failed");
+}
+void ApplicationClass::RunCloudKernals(){
+	// populate the volume texture
+	int pressure_index = 0;
+	int divergence_index = 1;
 
-		cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 310.f);
-		getLastCudaError("cuda_fluid_initial failed");
+	Size size;
+	size.width_ = velocity_cuda_->width_;
+	size.height_ = velocity_cuda_->height_;
+	size.depth_ = velocity_cuda_->depth_;
+	size.pitch_ = velocity_cuda_->pitch_;
+	size.pitch_slice_ = velocity_cuda_->pitch_ * velocity_cuda_->height_;
+	
+	Size size_two = size;
+	size_two.pitch_ = water_continuity_cuda_->pitch_;
+	size_two.pitch_slice_ = water_continuity_cuda_->pitch_ * water_continuity_cuda_->height_;
 
-		cuda_fluid_initial_float_2d(rain_cuda_->cuda_linear_memory_, size_three, 0.f);
-		getLastCudaError("cuda_fluid_initial failed");
-
-		is_done_once_ = true;
-	}
+	Size size_three;
+	size_three.width_ = rain_cuda_->width_;
+	size_three.height_ = rain_cuda_->height_;
+	size_three.pitch_ = rain_cuda_->pitch_;
+	size_three.depth_ = 0;
+	size_three.pitch_slice_ = 0;
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_advect_velocity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
@@ -1115,7 +895,21 @@ void ApplicationClass::RunCloudKernals(){
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size, pressure_index);
 	getLastCudaError("cuda_fluid_project failed");
-	
+
+	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
+	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
+	getLastCudaError("cuda_texture_2d failed");
+}
+void ApplicationClass::CudaMemoryCopy(){
+	cudaArray *cuda_velocity_array;
+	cudaArray *cuda_rain_array;
+
+	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
+	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
+
+	cudaGraphicsSubResourceGetMappedArray(&cuda_rain_array, rain_cuda_->cuda_resource_, 0, 0);
+	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_2d) failed");
+
 	// then we want to copy cuda_linear_memory_ to the D3D texture, via its mapped form : cudaArray
 	struct cudaMemcpy3DParms memcpyParams = {0};
 	memcpyParams.dstArray = cuda_velocity_array;
@@ -1129,10 +923,6 @@ void ApplicationClass::RunCloudKernals(){
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
 	getLastCudaError("cudaMemcpy3D failed");
-	
-	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
-	getLastCudaError("cuda_texture_2d failed");
 
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, RAIN_DATA_SIZE, cudaMemcpyDeviceToHost);
 	
@@ -1150,7 +940,6 @@ void ApplicationClass::RunCloudKernals(){
 	}
 }
 void ApplicationClass::Shutdown(){
-
 	if(full_screen_window_){
 		full_screen_window_->Shutdown();
 		delete full_screen_window_;
@@ -1163,7 +952,6 @@ void ApplicationClass::Shutdown(){
 	}
 	//Shutdown functions
 	ShutdownText();
-	ShutdownTextures();
 	ShutdownCudaResources();
 	ShutdownShaders();
 	ShutdownObjects();
@@ -1219,32 +1007,6 @@ void ApplicationClass::ShutdownObjects(){
 		rain_systems_[i] = NULL;
 	}
 }
-void ApplicationClass::ShutdownTextures(){
-	// Release the up sample render to texture object.
-	if(fullsize_texture_){
-		fullsize_texture_->Shutdown();
-		delete fullsize_texture_;
-		fullsize_texture_ = 0;
-	}
-	// Release the down sample render to texture object.
-	if(merge_texture_){
-		merge_texture_->Shutdown();
-		delete merge_texture_;
-		merge_texture_ = 0;
-	}
-	// Release the render to texture object.
-	if(render_fullsize_texture_){
-		render_fullsize_texture_->Shutdown();
-		delete render_fullsize_texture_;
-		render_fullsize_texture_ = 0;
-	}
-	//release half size texture
-	if (particle_texture_){
-		particle_texture_->Shutdown();
-		delete particle_texture_;
-		particle_texture_ = 0;
-	}
-}
 void ApplicationClass::ShutdownCudaResources(){
 	if (velocity_cuda_){
 		delete velocity_cuda_;
@@ -1283,18 +1045,6 @@ void ApplicationClass::ShutdownCamera(){
 	}
 }
 void ApplicationClass::ShutdownShaders(){
-	// Release the texture shader object.
-	if(texture_shader_){
-		texture_shader_->Shutdown();
-		delete texture_shader_;
-		texture_shader_ = 0;
-	}
-	//release texture to texture shader
-	if(texture_to_texture_shader_){
-		texture_to_texture_shader_->Shutdown();
-		delete texture_to_texture_shader_;
-		texture_to_texture_shader_ = 0;
-	}
 	// Release the font shader object.
 	if(font_shader_){
 		font_shader_->Shutdown();
@@ -1312,11 +1062,5 @@ void ApplicationClass::ShutdownShaders(){
 		particle_shader_->Shutdown();
 		delete particle_shader_;
 		particle_shader_ = 0;
-	}
-	// Release the particle shader object.
-	if(merge_shader_){
-		merge_shader_->Shutdown();
-		delete merge_shader_;
-		merge_shader_ = 0;
 	}
 }

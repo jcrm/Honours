@@ -55,8 +55,8 @@
 #define TOTAL_RAIN (GRID_X/CLOUD_RAIN_TEXTURE_RATIO) * (GRID_Y/CLOUD_RAIN_TEXTURE_RATIO)
 #define RAIN_ARRAY_SIZE TOTAL_RAIN * PIXEL_FMT_SIZE_RGBA
 #define RAIN_DATA_SIZE RAIN_ARRAY_SIZE * sizeof(float)
-//const bool FULL_SCREEN = true;
-const bool FULL_SCREEN = false;
+const bool FULL_SCREEN = true;
+//const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -76,32 +76,27 @@ private:
 	bool HandleInput(float);
 	//Render Functions
 	bool Render();
-	bool RenderSceneToTexture(RenderTextureClass* );
-	bool RenderMergeTexture(RenderTextureClass*, RenderTextureClass*, RenderTextureClass*);
-	bool RenderParticlesToTexture(RenderTextureClass* );
-	bool RenderTexture(ShaderClass*, RenderTextureClass*, RenderTextureClass*, OrthoWindowClass*);
-	bool Render2DTextureScene(RenderTextureClass*);
+	bool RenderScene();
 	//Init functions
-	bool InitObjects(HWND);
-	bool InitTextures(HWND, int, int);
+	bool InitObjects(HWND, int, int);
 	bool InitText(HWND, int, int);
 	bool InitShaders(HWND);
 	bool InitObjectShaders(HWND);
-	bool InitTextureShaders(HWND);
 	bool InitCamera();
 	//Shutdown functions
 	void ShutdownObjects();
 	void ShutdownText();
-	void ShutdownTextures();
 	void ShutdownCamera();
 	void ShutdownShaders();
 	void ShutdownCudaResources();
 
 	bool InitCudaTextures();
-	void CudaRender();
+	void CudaCalculations();
 	void RunKernels();
 	void InitClouds();
 	void RunCloudKernals();
+	void RunInitKernals();
+	void CudaMemoryCopy();
 	bool RenderClouds();
 
 private:
@@ -120,17 +115,12 @@ private:
 	TerrainClass* terrain_object_;
 	CloudClass* cloud_object_;
 	ParticleSystemClass *rain_systems_[TOTAL_RAIN];
-	//textures to render to
-	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *merge_texture_, *particle_texture_;
 	//the different shaders used
-	TextureShaderClass* texture_shader_;
-	TextureToTextureShaderClass* texture_to_texture_shader_;
 	FontShaderClass* font_shader_;
 	TerrainShaderClass* terrain_shader_;
 	VolumeShader* volume_shader_;
 	FaceShader* face_shader_;
 	ParticleShaderClass* particle_shader_;
-	MergeTextureShaderClass* merge_shader_;
 	//cuda textures
 	fluid_texture *velocity_cuda_;
 	fluid_texture *velocity_derivative_cuda_;
@@ -139,7 +129,6 @@ private:
 	fluid_texture *water_continuity_cuda_;
 	fluid_texture *water_continuity_rain_cuda_;
 	rain_texture *rain_cuda_;
-	bool is_done_once_;
 	float output[RAIN_ARRAY_SIZE];
 };
 #endif

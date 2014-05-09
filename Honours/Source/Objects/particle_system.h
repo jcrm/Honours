@@ -16,7 +16,7 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "../Textures/texture.h"
-#define MAX_NUM_PARTICLES 200
+#define MAX_NUM_PARTICLES 300
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ParticleSystemClass
