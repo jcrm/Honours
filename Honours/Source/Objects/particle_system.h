@@ -4,13 +4,11 @@
 #ifndef _PARTICLESYSTEMCLASS_H_
 #define _PARTICLESYSTEMCLASS_H_
 
-
 //////////////
 // INCLUDES //
 //////////////
 #include <d3d11.h>
 #include <d3dx10math.h>
-
 
 ///////////////////////
 // MY CLASS INCLUDES //
@@ -62,7 +60,7 @@ public:
 	inline void SetKillCount(int count){kill_count_ = count;}
 	inline void SetClear(bool c){is_clear_ = c;}
 	inline bool GetClear(){return is_clear_;}
-	inline void UpdateParticleSystem(){UpdateParticleSystem(D3DXVECTOR3(256.f/32.f,256.f/32.f,0.2f), D3DXVECTOR2(16.0f,0.2f), D3DXVECTOR3(0.1f,32.0f,MAX_NUM_PARTICLES));}
+	inline void UpdateParticleSystem(){UpdateParticleSystem(D3DXVECTOR3(256.f/32.f,256.f/32.f,0.2f), D3DXVECTOR2(16.0f,0.2f), D3DXVECTOR3(0.1f,50.0f,MAX_NUM_PARTICLES));}
 private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();

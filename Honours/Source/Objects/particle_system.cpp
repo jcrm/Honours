@@ -156,7 +156,7 @@ bool ParticleSystemClass::InitializeParticleSystem(){
 	particle_size_ =0.08f;
 
 	// Set the number of particles to emit per second.
-	particles_per_second_ = 8.0f;
+	particles_per_second_ = 50.0f;
 
 	// Set the maximum number of particles allowed in the particle system.
 	max_particles_ = MAX_NUM_PARTICLES;
@@ -173,9 +173,9 @@ bool ParticleSystemClass::InitializeParticleSystem(){
 		particle_list_[i].position_x_ = 0.0f;
 		particle_list_[i].position_y_ = 0.0f;
 		particle_list_[i].position_z_ = -5.0f;
-		particle_list_[i].red_ = 1.f;
-		particle_list_[i].green_ = 1.f;
-		particle_list_[i].blue_ = 1.f;
+		particle_list_[i].red_ = 0.f;
+		particle_list_[i].green_ = 0.f;
+		particle_list_[i].blue_ = 0.f;
 		particle_list_[i].velocity_ = particle_velocity_;
 	}
 
@@ -212,37 +212,37 @@ bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device){
 	int i = 0;
 
 	// Bottom left.
-	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ - particle_size_, particle_list_[i].position_z_);
+	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ - (particle_size_*2), particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(0.0f, 1.0f);
 	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 1.0f);
 	index++;
 
 	// Top left.
-	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ + particle_size_, particle_list_[i].position_z_);
+	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ + (particle_size_*2), particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(0.0f, 0.0f);
 	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,1.0f);
 	index++;
 
 	// Top right.
-	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ + particle_size_, particle_list_[i].position_z_);
+	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ + (particle_size_*2), particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(1.0f, 0.0f);
 	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 1.0f);
 	index++;
 
 	// Top right.
-	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ + particle_size_, particle_list_[i].position_z_);
+	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ + (particle_size_*2), particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(1.0f, 0.0f);
 	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,1.0f);
 	index++;
 
 	// Bottom right.
-	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ - particle_size_, particle_list_[i].position_z_);
+	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ + particle_size_, particle_list_[i].position_y_ - (particle_size_*2), particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(1.0f, 1.0f);
 	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_, 1.0f);
 	index++;
 
 	// Bottom left.
-	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ - particle_size_, particle_list_[i].position_z_);
+	vertices_[index].position_ = D3DXVECTOR3(particle_list_[i].position_x_ - particle_size_, particle_list_[i].position_y_ - (particle_size_*2), particle_list_[i].position_z_);
 	vertices_[index].texture_ = D3DXVECTOR2(0.0f, 1.0f);
 	vertices_[index].color_ = D3DXVECTOR4(particle_list_[i].red_, particle_list_[i].green_, particle_list_[i].blue_,1.0f);
 	index++;

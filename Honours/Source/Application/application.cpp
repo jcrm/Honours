@@ -655,9 +655,9 @@ bool ApplicationClass::RenderScene(){
 	}
 
 	// Turn off alpha blending after rendering the text.
-	direct_3d_->TurnOffAlphaBlending();
+	//direct_3d_->TurnOffAlphaBlending();
 
-	direct_3d_->EnableAlphaBlending();
+	//direct_3d_->EnableAlphaBlending();
 	for(int i = 0; i< TOTAL_RAIN; i++){
 		if(rain_systems_[i]->GetClear()== false){
 			//add code for rotating based upon the camera angle
@@ -675,7 +675,7 @@ bool ApplicationClass::RenderScene(){
 		}
 	}
 	// Turn off alpha blending after rendering the text.
-	direct_3d_->DisableAlphaBlending();
+	//direct_3d_->DisableAlphaBlending();
 
 	direct_3d_->GetOrthoMatrix(ortho_matrix);
 	// Turn off the Z buffer to begin all 2D rendering.

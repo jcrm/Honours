@@ -38,5 +38,9 @@ float4 ParticlePixelShader(PixelInputType input) : SV_TARGET
 		texture_color.a == 0;
 	}
 	final_color = texture_color * input.color_;
-	return final_color;
+	saturate(texture_color);
+	if(input.color_.a == 0){
+		texture_color = float4(0,0,0,0);
+	}
+	return texture_color;
 }

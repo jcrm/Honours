@@ -67,9 +67,6 @@
     <Filter Include="Resource Files\Shader Files\Terrain Files">
       <UniqueIdentifier>{2eb04101-9820-4746-825f-5522cdd84a6a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shader Files\Texture To Texture Files">
-      <UniqueIdentifier>{1e244dd8-cd02-44fd-8905-bac464e9cbff}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shader Files\Volume Files">
       <UniqueIdentifier>{20a29f43-5e08-432a-8924-0c804e6493ed}</UniqueIdentifier>
     </Filter>
@@ -81,12 +78,6 @@
     </Filter>
     <Filter Include="Source Files\Shader Files\Object Files">
       <UniqueIdentifier>{fd09b761-0ec3-4d91-8329-57edaaadc520}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Shader Files\Texture Files">
-      <UniqueIdentifier>{71eac90c-a163-410f-97ea-f57e745b1302}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Shader Files\Texture Files">
-      <UniqueIdentifier>{1893eba7-cceb-40ba-9478-4fbe1bcb0f11}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Shader Files\Object Files">
       <UniqueIdentifier>{4bacd499-b9c0-4074-8abf-2e24cefb2ab0}</UniqueIdentifier>
@@ -102,9 +93,6 @@
     </Filter>
     <Filter Include="Resource Files\Shader Files\Particle Files">
       <UniqueIdentifier>{68a532f2-1766-4d08-bf00-e209e33adcfa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shader Files\Merge Files">
-      <UniqueIdentifier>{ad7acef6-2b42-4347-83fe-66cda7bb18ca}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files\CUDA Files\Initialise Files">
       <UniqueIdentifier>{80d465c2-0e51-4cb7-a9f2-c91b5c0a7f2a}</UniqueIdentifier>
@@ -159,12 +147,6 @@
     <None Include="Shader\Face\face.vs">
       <Filter>Resource Files\Shader Files\Face Files</Filter>
     </None>
-    <None Include="Shader\TextureToTexture\texturetotexture.vs">
-      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
-    </None>
-    <None Include="Shader\TextureToTexture\texturetotexture.ps">
-      <Filter>Resource Files\Shader Files\Texture To Texture Files</Filter>
-    </None>
     <None Include="Shader\Volume\volume.vs">
       <Filter>Resource Files\Shader Files\Volume Files</Filter>
     </None>
@@ -174,19 +156,13 @@
     <None Include="Shader\Particle\particle.ps">
       <Filter>Resource Files\Shader Files\Particle Files</Filter>
     </None>
-    <None Include="Data\star.dds">
-      <Filter>Resource Files\Other Files</Filter>
-    </None>
-    <None Include="Shader\Merge\merge.vs">
-      <Filter>Resource Files\Shader Files\Merge Files</Filter>
-    </None>
-    <None Include="Shader\Merge\merge.ps">
-      <Filter>Resource Files\Shader Files\Merge Files</Filter>
-    </None>
     <None Include="Data\font_data.txt">
       <Filter>Resource Files\Other Files</Filter>
     </None>
     <None Include="Data\height_map.bmp">
+      <Filter>Resource Files\Other Files</Filter>
+    </None>
+    <None Include="Data\rain.dds">
       <Filter>Resource Files\Other Files</Filter>
     </None>
   </ItemGroup>
@@ -262,15 +238,6 @@
     <ClInclude Include="Source\Textures\texture.h">
       <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Textures\render_texture.h">
-      <Filter>Header Files\Texture Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shaders\texture_to_texture_shader.h">
-      <Filter>Header Files\Shader Files\Texture Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Shaders\texture_shader.h">
-      <Filter>Header Files\Shader Files\Texture Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Shaders\volume_shader.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
@@ -313,14 +280,14 @@
     <ClInclude Include="Source\Shaders\particle_shader.h">
       <Filter>Header Files\Shader Files\Object Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Shaders\merge_texture_shader.h">
-      <Filter>Header Files\Shader Files\Texture Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\CUDA\cuda_header.h">
       <Filter>Header Files\CUDA</Filter>
     </ClInclude>
     <ClInclude Include="Source\Objects\cloud_box.h">
       <Filter>Header Files\Object Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Textures\render_texture.h">
+      <Filter>Header Files\Texture Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -351,17 +318,8 @@
     <ClCompile Include="Source\Textures\texture.cpp">
       <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Textures\render_texture.cpp">
-      <Filter>Source Files\Texture Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Shaders\shader.cpp">
       <Filter>Source Files\Shader Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shaders\texture_to_texture_shader.cpp">
-      <Filter>Source Files\Shader Files\Texture Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Shaders\texture_shader.cpp">
-      <Filter>Source Files\Shader Files\Texture Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Shaders\volume_shader.cpp">
       <Filter>Source Files\Shader Files\Object Files</Filter>
@@ -408,8 +366,8 @@
     <ClCompile Include="Source\Shaders\particle_shader.cpp">
       <Filter>Source Files\Shader Files\Object Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shaders\merge_texture_shader.cpp">
-      <Filter>Source Files\Shader Files\Texture Files</Filter>
+    <ClCompile Include="Source\Textures\render_texture.cpp">
+      <Filter>Source Files\Texture Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
