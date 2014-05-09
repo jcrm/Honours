@@ -20,6 +20,7 @@ struct VertexInputType
 	float4 position_ : POSITION;
 	float2 tex_ : TEXCOORD0;
 	float4 color_ : COLOR;
+	float4 instance_position_ : TEXCOORD1;
 };
 
 struct PixelInputType
@@ -36,6 +37,10 @@ PixelInputType ParticleVertexShader(VertexInputType input)
 {
 	PixelInputType output;
 
+	// Update the position of the vertices based on the data for this particular instance.
+	input.position_.x += input.instance_position_.x;
+	input.position_.y += input.instance_position_.y;
+	input.position_.z += input.instance_position_.z;
 	// Change the position vector to be 4 units for proper matrix calculations.
 	input.position_.w = 1.0f;
 
@@ -49,6 +54,8 @@ PixelInputType ParticleVertexShader(VertexInputType input)
 
 	// Store the particle color for the pixel shader. 
 	output.color_ = input.color_;
-
+	if(input.instance_position_.w == -1){
+		output.color_ = float4(0.f, 0.f, 0.f, 0.f);
+	}
 	return output;
 }

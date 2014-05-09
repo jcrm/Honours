@@ -232,15 +232,8 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		return false;
 	}
 	for(int i = 0; i < TOTAL_RAIN; i++){
-		Rain temp_rain;
-		temp_rain.rain_systems_ = new ParticleSystemClass;
-		// Initialize the particle system object.
-		result = temp_rain.rain_systems_->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
-		if(!result){
-			return false;
-		}
-		temp_rain.grid_id_ = i;
-		rain_systems_.push_back(temp_rain);
+		rain_systems_[i] = new ParticleSystemClass;
+		rain_systems_[i]->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
 	}
 
 	return true;
@@ -632,17 +625,10 @@ bool ApplicationClass::Frame(){
 			return false;
 		}
 	}
-	/* TEST
-	for(int i = 0; i < rain_systems_.size(); i++){
-		Rain temp_rain = rain_systems_.at(i);
-		if(temp_rain.grid_id_%4 ==0){
-			std::vector<Rain>::iterator iter = rain_systems_.begin() + i;
-			rain_systems_.erase(iter);
-		}
-	}*/
-	for(std::vector<Rain>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+	
+	for(int i = 0; i < TOTAL_RAIN; i++){
 		// Run the frame processing for the particle system.
-		iter->rain_systems_->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
+		rain_systems_[i]->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
 	}
 	
 	// Render the graphics scene.
@@ -716,30 +702,32 @@ bool ApplicationClass::Render(){
 	result = RenderSceneToTexture(render_fullsize_texture_);
 	if(!result){
 		return false;
-	}
+	}/*
 	// First render the scene to a render texture.
 	result = RenderParticlesToTexture(particle_texture_);
 	if(!result){
 		return false;
 	}
-	result = RenderMergeTexture(render_fullsize_texture_,particle_texture_, merge_texture_);
+	result = RenderMergeTexture(render_fullsize_texture_,particle_texture_, merge_texture_);*/
 	//render the texture to the scene
-	result = Render2DTextureScene(merge_texture_);
+	/*
+	result = Render2DTextureScene(render_fullsize_texture_);
 	if(!result){
 		return false;
-	}
+	}*/
 	return true;
 }
 /*
 *	Renders the objects on screen to a texture ready for post-processing.
 */
 bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
-	D3DXMATRIX world_matrix, view_matrix, projection_matrix;
+	D3DXMATRIX world_matrix, view_matrix, projection_matrix, ortho_matrix;
 	bool result;
+	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);/*
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.6f, 0.0f, 0.0f, 1.0f);
+	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);*/
 	// Generate the view matrix based on the camera's position.
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
@@ -770,10 +758,48 @@ bool ApplicationClass::RenderSceneToTexture(RenderTextureClass* write_texture){
 	}
 	// Turn off alpha blending after rendering the text.
 	direct_3d_->TurnOffAlphaBlending();
+
+	direct_3d_->EnableAlphaBlending();
+	for(int i = 0; i< TOTAL_RAIN; i++){
+		if(rain_systems_[i]->GetClear()== false){
+			//add code for rotating based upon the camera angle
+			D3DXMATRIX model_world_matrix = world_matrix;
+			D3DXMATRIX translation = rain_systems_[i]->GetTranslation();
+			D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
+			// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
+			rain_systems_[i]->Render(direct_3d_->GetDeviceContext());
+			// Render the model using the texture shader.
+			result = particle_shader_->Render(direct_3d_->GetDeviceContext(), rain_systems_[i]->GetVertexCount(), rain_systems_[i]->GetInstanceCount(), model_world_matrix, 
+										view_matrix, projection_matrix, rain_systems_[i]->GetTexture());
+			if(!result){
+				return false;
+			}
+		}
+	}
+	// Turn off alpha blending after rendering the text.
+	direct_3d_->DisableAlphaBlending();
+
+	direct_3d_->GetOrthoMatrix(ortho_matrix);
+	// Turn off the Z buffer to begin all 2D rendering.
+	direct_3d_->TurnZBufferOff();
+	// Turn on the alpha blending before rendering the text.
+	direct_3d_->TurnOnAlphaBlending();
+	// Render the text user interface elements.
+	result = text_->Render(direct_3d_->GetDeviceContext(), font_shader_, world_matrix, ortho_matrix);
+	if(!result){
+		return false;
+	}
+	// Turn off alpha blending after rendering the text.
+	direct_3d_->TurnOffAlphaBlending();
+	// Turn the Z buffer back on now that all 2D rendering has completed.
+	direct_3d_->TurnZBufferOn();
+
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	direct_3d_->SetBackBufferRenderTarget();
 	// Reset the viewport back to the original.
 	direct_3d_->ResetViewport();
+
+	direct_3d_->EndScene();
 	return true;
 }
 /*
@@ -823,7 +849,7 @@ bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_textur
 	// Set the render target to be the render to texture.
 	write_texture->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
-	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.1f, 1.0f);
+	write_texture->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.0f, 0.0f, 0.0f, 1.0f);
 	// Generate the view matrix based on the camera's position.
 	camera_->Render();
 	// Get the world, view, and projection matrices from the camera and d3d objects.
@@ -831,24 +857,7 @@ bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_textur
 	camera_->GetViewMatrix(view_matrix);
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 
-	direct_3d_->EnableAlphaBlending();
-	for(std::vector<Rain>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
-		//add code for rotating based upon the camera angle
-		D3DXMATRIX model_world_matrix = world_matrix;
-		D3DXMATRIX translation = iter->rain_systems_->GetTranslation();
-		D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
-		// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
-		iter->rain_systems_->Render(direct_3d_->GetDeviceContext());
-		// Render the model using the texture shader.
-		result = particle_shader_->Render(direct_3d_->GetDeviceContext(), iter->rain_systems_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
-									iter->rain_systems_->GetTexture());
-		if(!result){
-			return false;
-		}
-	}
 	
-	// Turn off alpha blending after rendering the text.
-	direct_3d_->DisableAlphaBlending();
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	direct_3d_->SetBackBufferRenderTarget();
 	// Reset the viewport back to the original.
@@ -1126,6 +1135,19 @@ void ApplicationClass::RunCloudKernals(){
 	getLastCudaError("cuda_texture_2d failed");
 
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, RAIN_DATA_SIZE, cudaMemcpyDeviceToHost);
+	
+	for(int i = 0; i < TOTAL_RAIN; i++){
+		if(output[i*4] == 0){
+			if(rain_systems_[i]->GetClear() == false){
+				rain_systems_[i]->SetClear(true);
+			}
+		}else if(output[i*4] != 0){
+			if(rain_systems_[i]->GetClear() == true){
+				rain_systems_[i]->SetClear(false);
+				rain_systems_[i]->UpdateParticleSystem();
+			}
+		}
+	}
 }
 void ApplicationClass::Shutdown(){
 
@@ -1191,10 +1213,11 @@ void ApplicationClass::ShutdownObjects(){
 		delete terrain_object_;
 		terrain_object_ = 0;
 	}
-	for(std::vector<Rain>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
-		iter->rain_systems_->Shutdown();
+	for(int i = 0; i < TOTAL_RAIN; i++){
+		rain_systems_[i]->Shutdown();
+		delete rain_systems_[i];
+		rain_systems_[i] = NULL;
 	}
-	rain_systems_.clear();
 }
 void ApplicationClass::ShutdownTextures(){
 	// Release the up sample render to texture object.

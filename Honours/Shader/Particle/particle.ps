@@ -34,9 +34,9 @@ float4 ParticlePixelShader(PixelInputType input) : SV_TARGET
 	texture_color = shader_texture_.Sample(sample_type_, input.tex_);
 
 	// Combine the texture color and the particle color to get the final color result.
+	if(texture_color.r == 0 && texture_color.g == 0 && texture_color.b == 0){
+		texture_color.a == 0;
+	}
 	final_color = texture_color * input.color_;
-	/*if(final_color.r == 0 && final_color.g == 0 && final_color.b == 0){
-		final_color.r == 0 && final_color.g == 0 && final_color.b == 0;
-	}*/
 	return final_color;
 }

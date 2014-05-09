@@ -16,7 +16,7 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "../Textures/texture.h"
-
+#define MAX_NUP_PARTICLES 100
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ParticleSystemClass
@@ -36,7 +36,9 @@ private:
 		D3DXVECTOR2 texture_;
 		D3DXVECTOR4 color_;
 	};
-
+	struct InstanceType{
+		D3DXVECTOR4 position_;
+	};
 public:
 	ParticleSystemClass();
 	ParticleSystemClass(const ParticleSystemClass&);
@@ -46,13 +48,18 @@ public:
 	void Shutdown();
 	bool Frame(float, ID3D11DeviceContext*);
 	void Render(ID3D11DeviceContext*);
+	void UpdateParticleSystem(D3DXVECTOR3, D3DXVECTOR2, D3DXVECTOR3);
 
-	ID3D11ShaderResourceView* GetTexture();
-	int GetIndexCount();
+	inline int GetVertexCount(){return vertex_count_;}
+	inline int GetInstanceCount(){return instance_count_;}
+	inline ID3D11ShaderResourceView* GetTexture(){return texture_->GetTexture();}
 	inline int GetKillCount(){return kill_count_;}
 	inline D3DXMATRIX GetTranslation() {return translation_;}
 	inline void RandomizeTranslation() {D3DXMatrixTranslation(&translation_, float(rand()%129), float(rand()%10), float(rand()%129));}
 	inline void SetKillCount(int count){kill_count_ = count;}
+	inline void SetClear(bool c){is_clear_ = c;}
+	inline bool GetClear(){return is_clear_;}
+	inline void UpdateParticleSystem(){UpdateParticleSystem(D3DXVECTOR3(1.5f,1.1f,2.0f), D3DXVECTOR2(1.0f,0.2f), D3DXVECTOR3(0.05f,50.0f,MAX_NUP_PARTICLES));}
 private:
 	bool LoadTexture(ID3D11Device*, WCHAR*);
 	void ReleaseTexture();
@@ -82,12 +89,15 @@ private:
 
 	TextureClass* texture_;
 	ParticleType* particle_list_;
-	int vertex_count_, index_count_;
-	VertexType* vertices_;
-	ID3D11Buffer *vertex_buffer_, *index_buffer_;
+	int vertex_count_, instance_count_;
+	VertexType vertices_[6];
+	InstanceType instances_[100];
+	ID3D11Buffer *vertex_buffer_, *instance_buffer_;
+
 	int kill_count_;
 	//where the model is in 3d space
 	D3DXMATRIX translation_;
+	bool is_clear_;
 };
 
 #endif

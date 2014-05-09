@@ -60,11 +60,6 @@ const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
-
-struct Rain{
-	ParticleSystemClass *rain_systems_ ;
-	int grid_id_;
-};
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +103,7 @@ private:
 	void InitClouds();
 	void RunCloudKernals();
 	bool RenderClouds();
-	
+
 private:
 	InputClass* input_;
 	CUDAD3D* direct_3d_;
@@ -124,7 +119,7 @@ private:
 	//the points for the different objects
 	TerrainClass* terrain_object_;
 	CloudClass* cloud_object_;
-	std::vector<Rain> rain_systems_;
+	ParticleSystemClass *rain_systems_[TOTAL_RAIN];
 	//textures to render to
 	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *merge_texture_, *particle_texture_;
 	//the different shaders used
