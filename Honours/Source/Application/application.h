@@ -52,13 +52,19 @@
 #define GRID_Y 64
 #define GRID_Z 64
 #define CLOUD_RAIN_TEXTURE_RATIO 2
-#define RAIN_ARRAY_SIZE (GRID_X/CLOUD_RAIN_TEXTURE_RATIO) * (GRID_Y/CLOUD_RAIN_TEXTURE_RATIO) * PIXEL_FMT_SIZE_RGBA
+#define TOTAL_RAIN (GRID_X/CLOUD_RAIN_TEXTURE_RATIO) * (GRID_Y/CLOUD_RAIN_TEXTURE_RATIO)
+#define RAIN_ARRAY_SIZE TOTAL_RAIN * PIXEL_FMT_SIZE_RGBA
 #define RAIN_DATA_SIZE RAIN_ARRAY_SIZE * sizeof(float)
 //const bool FULL_SCREEN = true;
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
+
+struct Rain{
+	ParticleSystemClass *rain_systems_ ;
+	int grid_id_;
+};
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +124,7 @@ private:
 	//the points for the different objects
 	TerrainClass* terrain_object_;
 	CloudClass* cloud_object_;
-	std::vector<ParticleSystemClass*> rain_systems_;
+	std::vector<Rain> rain_systems_;
 	//textures to render to
 	RenderTextureClass *render_fullsize_texture_, *fullsize_texture_, *merge_texture_, *particle_texture_;
 	//the different shaders used

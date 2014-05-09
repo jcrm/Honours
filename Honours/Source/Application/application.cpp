@@ -231,14 +231,16 @@ bool ApplicationClass::InitObjects(HWND hwnd){
 		MessageBox(hwnd, L"Could not initialize the cloud object.", L"Error", MB_OK);
 		return false;
 	}
-	for(int i = 0; i < 900; i++){
-		ParticleSystemClass* temp_system = new ParticleSystemClass;
+	for(int i = 0; i < TOTAL_RAIN; i++){
+		Rain temp_rain;
+		temp_rain.rain_systems_ = new ParticleSystemClass;
 		// Initialize the particle system object.
-		result = temp_system->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
+		result = temp_rain.rain_systems_->Initialize(direct_3d_->GetDevice(), L"Data/rain.dds");
 		if(!result){
 			return false;
 		}
-		rain_systems_.push_back(temp_system);
+		temp_rain.grid_id_ = i;
+		rain_systems_.push_back(temp_rain);
 	}
 
 	return true;
@@ -630,9 +632,17 @@ bool ApplicationClass::Frame(){
 			return false;
 		}
 	}
-	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+	/* TEST
+	for(int i = 0; i < rain_systems_.size(); i++){
+		Rain temp_rain = rain_systems_.at(i);
+		if(temp_rain.grid_id_%4 ==0){
+			std::vector<Rain>::iterator iter = rain_systems_.begin() + i;
+			rain_systems_.erase(iter);
+		}
+	}*/
+	for(std::vector<Rain>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
 		// Run the frame processing for the particle system.
-		(*iter)->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
+		iter->rain_systems_->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
 	}
 	
 	// Render the graphics scene.
@@ -822,16 +832,16 @@ bool ApplicationClass::RenderParticlesToTexture(RenderTextureClass* write_textur
 	direct_3d_->GetProjectionMatrix(projection_matrix);
 
 	direct_3d_->EnableAlphaBlending();
-	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+	for(std::vector<Rain>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
 		//add code for rotating based upon the camera angle
 		D3DXMATRIX model_world_matrix = world_matrix;
-		D3DXMATRIX translation = (*iter)->GetTranslation();
+		D3DXMATRIX translation = iter->rain_systems_->GetTranslation();
 		D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 		// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
-		(*iter)->Render(direct_3d_->GetDeviceContext());
+		iter->rain_systems_->Render(direct_3d_->GetDeviceContext());
 		// Render the model using the texture shader.
-		result = particle_shader_->Render(direct_3d_->GetDeviceContext(), (*iter)->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
-						  (*iter)->GetTexture());
+		result = particle_shader_->Render(direct_3d_->GetDeviceContext(), iter->rain_systems_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
+									iter->rain_systems_->GetTexture());
 		if(!result){
 			return false;
 		}
@@ -1181,8 +1191,8 @@ void ApplicationClass::ShutdownObjects(){
 		delete terrain_object_;
 		terrain_object_ = 0;
 	}
-	for(std::vector<ParticleSystemClass*>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
-		(*iter)->Shutdown();
+	for(std::vector<Rain>::iterator iter = rain_systems_.begin(); iter != rain_systems_.end(); iter++){
+		iter->rain_systems_->Shutdown();
 	}
 	rain_systems_.clear();
 }
