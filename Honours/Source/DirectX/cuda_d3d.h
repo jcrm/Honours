@@ -1,5 +1,8 @@
-#pragma once
+#ifndef _CUDA_D3D_H
+#define _CUDA_D3D_H
+
 #include "d3dclass.h"
+
 class CUDAD3D :	public D3DClass
 {
 public:
@@ -15,3 +18,4 @@ protected:
 private:
 	IDXGIAdapter *cuda_capable_adapter_;  // Adapter to use
 };
+#endif

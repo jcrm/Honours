@@ -1,3 +1,5 @@
+#ifndef _CUDA_STRUCTS_
+#define _CUDA_STRUCTS_
 // This header inclues all the necessary D3D11 and CUDA includes
 #include <dynlink_d3d11.h>
 #include <cuda_runtime_api.h>
@@ -27,3 +29,5 @@ struct rain_texture{
 	int width_;
 	int height_;
 };
+
+#endif

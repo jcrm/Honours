@@ -1115,10 +1115,6 @@ void ApplicationClass::RunCloudKernals(){
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
 	getLastCudaError("cuda_texture_2d failed");
 
-	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
-	cuda_fluid_merge(rain_cuda_->cuda_linear_memory_, size_three);
-	getLastCudaError("cuda_texture_2d failed");
-
 	int tex_size = rain_cuda_->width_ *rain_cuda_->height_ * PIXEL_FMT_SIZE_RGBA*4;
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, tex_size, cudaMemcpyDeviceToHost);
 }

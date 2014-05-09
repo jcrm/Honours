@@ -1,9 +1,12 @@
-#pragma once
+#ifndef _DIVERGENCE_CUDA_
+#define _DIVERGENCE_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+#include "device_launch_parameters.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 //output diverrgnece texture //input velocity derrivitive teture
@@ -46,3 +49,4 @@ void cuda_fluid_divergence(void *divergence, void *input, Size size, int diverge
 		printf("cuda_kernel_divergence() failed to launch error = %d\n", error);
 	}
 }
+#endif

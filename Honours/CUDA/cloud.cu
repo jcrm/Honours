@@ -1,10 +1,13 @@
-#pragma once
+#ifndef _CLOUD_CUDA_
+#define _CLOUD_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+#include "device_launch_parameters.h"
 #include "math.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
@@ -53,3 +56,4 @@ void cuda_fluid_project(void *pressure, void *velocityInput, Size size, int pres
 		printf("cuda_fluid_project() failed to launch error = %d\n", error);
 	}
 }
+#endif

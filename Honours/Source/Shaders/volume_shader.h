@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _VOLUME_SHADER_
+#define _VOLUME_SHADER_
 #include "shader.h"
 
 #define GRID_X 64
@@ -26,3 +27,5 @@ private:
 private:
 	ID3D11Buffer* volume_buffer_;
 };
+
+#endif

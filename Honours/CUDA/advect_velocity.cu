@@ -1,9 +1,12 @@
-#pragma once
+#ifndef ADVECT_VELOCITY_CUDA_
+#define ADVECT_VELOCITY_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+#include "device_launch_parameters.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
@@ -76,3 +79,4 @@ void cuda_fluid_advect_velocity(void *output, void *input, Size size){
 		printf("cuda_kernel_advect() failed to launch error = %d\n", error);
 	}
 }
+#endif

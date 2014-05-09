@@ -1,10 +1,12 @@
-#pragma once
+#ifndef _FLATTERN_CUDA_
+#define _FLATTERN_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-#include "math.h"
+#include "device_launch_parameters.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 __global__ void cuda_kernel_rain(float *output, float *input, Size size, Size size_two){
@@ -12,7 +14,6 @@ __global__ void cuda_kernel_rain(float *output, float *input, Size size, Size si
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 	float rain_sum = 0.f;
-	int ident = 0;
 	for(z_iter = 0; z_iter < size_two.depth_; ++z_iter){
 		if(x_iter +1 < size_two.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size_two.height_ && y_iter - 1 >= 0){
@@ -28,18 +29,15 @@ __global__ void cuda_kernel_rain(float *output, float *input, Size size, Size si
 	if(x_iter%2 != 0 && y_iter%2 != 0){
 		xIter--;
 		yIter--;
-		ident = 3;
 	}else if(x_iter%2 != 0){
 		xIter--;
-		ident = 1;
 	}else if(y_iter%2 != 0){
 		yIter--;
-		ident = 2;
 	}
 	xIter /= 2;
 	yIter /= 2;
 	float* rain = output + (yIter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * xIter);
-	rain[ident] = rain_sum;
+	rain[0] = rain_sum;
 }
 extern "C"
 void cuda_fluid_rain(void *output, void *input, Size size, Size size_two){
@@ -56,3 +54,4 @@ void cuda_fluid_rain(void *output, void *input, Size size, Size size_two){
 		printf("cuda_kernel_jacobi() failed to launch error = %d\n", error);
 	}
 }
+#endif

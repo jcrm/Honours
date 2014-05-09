@@ -9,6 +9,7 @@
 #define GRID_X 64
 #define GRID_Y 64
 #define GRID_Z 64
+#define RAIN_DATA_SIZE 32 * 32 * sizeof(float) * 4
 //const bool FULL_SCREEN = true;
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;

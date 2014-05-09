@@ -1,13 +1,13 @@
-#pragma once
+#ifndef _BOUYANCY_CUDA_
+#define _BOUYANCY_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-#include <math.h>
+#include "device_launch_parameters.h"
+
 #include "../Source/CUDA/cuda_header.h"
-
-
 
 //output velocity derrivitive teture //input velcoity texutre
 __global__ void cuda_kernel_bouyancy(unsigned char *output, float *input, float *input_two, Size size, Size size_two){ 
@@ -47,3 +47,4 @@ void cuda_fluid_bouyancy(void *output, void *input, void *input_two, Size size, 
 		printf("cuda_kernel_advect() failed to launch error = %d\n", error);
 	}
 }
+#endif

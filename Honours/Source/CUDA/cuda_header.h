@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _CUDA_HEADER_
+#define _CUDA_HEADER_
 
 struct Size{
 	int width_;
@@ -44,4 +45,6 @@ struct Size{
 #define latent_heat 2.501
 #define cp 1005
 #define k 0.286
+
+#endif
 #define T T0-gamma*z_alt

@@ -1,12 +1,13 @@
-#pragma once
+#ifndef _INITIAL_CUDA_
+#define _INITIAL_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-#include "../Source/CUDA/cuda_header.h"
-#include "math.h"
+#include "device_launch_parameters.h"
 
+#include "../Source/CUDA/cuda_header.h"
 
 __global__ void cuda_kernel_initial(unsigned char *input, Size size, float value){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
@@ -64,3 +65,4 @@ void cuda_fluid_initial(void *input, Size size, float value){
 		printf("cuda_kernel_initial() failed to launch error = %d\n", error);
 	}
 }
+#endif

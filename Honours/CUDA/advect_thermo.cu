@@ -1,9 +1,12 @@
-#pragma once
+#ifndef _ADVECT_THERMO_CUDA_
+#define _ADVECT_THERMO_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+#include "device_launch_parameters.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 __global__ void cuda_kernel_advect_thermo(float *input, Size size){ 
@@ -58,3 +61,4 @@ void cuda_fluid_advect_thermo(void *input, Size size){
 		printf("cuda_kernel_advect() failed to launch error = %d\n", error);
 	}
 }
+#endif

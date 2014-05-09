@@ -1,3 +1,6 @@
+#ifndef _CUDA_KERNALS_
+#define _CUDA_KERNALS_
+
 #include "../CUDA/cuda_header.h"
 // The CUDA kernel launchers that get called
 extern "C"
@@ -14,5 +17,6 @@ extern "C"
 	void cuda_fluid_jacobi(void*, Size, int, int);
 	void cuda_fluid_project(void*, void*, Size, int);
 	void cuda_fluid_rain(void*, void*, Size, Size);
-	void cuda_fluid_merge(void*, Size);
 }
+
+#endif

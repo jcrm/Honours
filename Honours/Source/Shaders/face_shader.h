@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _FACE_SHADER_
+#define _FACE_SHADER_
+
 #include "shader.h"
 class FaceShader : public ShaderClass
 {
@@ -18,3 +20,4 @@ protected:
 	void RenderShader(ID3D11DeviceContext*, int);
 	ID3D11Buffer* scale_buffer_;
 };
+#endif

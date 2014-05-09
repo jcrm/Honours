@@ -1,10 +1,13 @@
-#pragma once
+#ifndef _VORTICITY_CUDA_
+#define _VORTICITY_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
-#include <math.h>
+#include "device_launch_parameters.h"
+#include "math.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
@@ -103,3 +106,4 @@ void cuda_fluid_vorticity(void *output, void *input, Size size){
 		printf("cuda_kernel_advect() failed to launch error = %d\n", error);
 	}
 }
+#endif

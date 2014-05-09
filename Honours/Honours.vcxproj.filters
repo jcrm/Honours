@@ -191,17 +191,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CUDA\inital _float.cu">
-      <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\advect_thermo.cu">
       <Filter>Resource Files\CUDA Files\Advect Files</Filter>
     </CudaCompile>
     <CudaCompile Include="CUDA\advect_velocity.cu">
       <Filter>Resource Files\CUDA Files\Advect Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="CUDA\inital.cu">
-      <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
     </CudaCompile>
     <CudaCompile Include="CUDA\bouyancy.cu">
       <Filter>Resource Files\CUDA Files\Force Files</Filter>
@@ -221,14 +215,17 @@
     <CudaCompile Include="CUDA\water_continuity.cu">
       <Filter>Resource Files\CUDA Files\Force Files</Filter>
     </CudaCompile>
-    <CudaCompile Include="CUDA\inital _float_2d.cu">
-      <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
-    </CudaCompile>
-    <CudaCompile Include="CUDA\merge.cu">
-      <Filter>Resource Files\CUDA Files\End Files\Rain Files</Filter>
-    </CudaCompile>
     <CudaCompile Include="CUDA\flatten.cu">
       <Filter>Resource Files\CUDA Files\End Files\Rain Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\initial.cu">
+      <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\initial _float_2d.cu">
+      <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\initial_float.cu">
+      <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

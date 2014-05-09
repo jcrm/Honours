@@ -1,10 +1,13 @@
-#pragma once
+#ifndef _WATER_CONTINUITY_CUDA_
+#define _WATER_CONTINUITY_CUDA_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "device_launch_parameters.h"
 #include <cuda_runtime.h>
+#include "device_launch_parameters.h"
 #include "math.h"
+
 #include "../Source/CUDA/cuda_header.h"
 
 __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *input_tree, Size size){
@@ -13,7 +16,7 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){
-		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
+		if(x_iter + 1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 
@@ -38,11 +41,11 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 					float temperature = theta * powf((p0/pressure),k);
 					float est = (es0/pressure)*exp(a*(temperature-273)/(temperature-b));
 					float pres_minus_est = pow((pressure-est),2);
-					float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
+					float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
 
-					qv = (-C/W)*100;
-					qc = ((-A-K+C)/W)*100;
-					qr = ((A+K+F)/W)*100;
+					qv = (-C/W)*100.f;
+					qc = ((-A-K+C)/W)*100.f;
+					qr = ((A+K+F)/W)*100.f;
 
 					theta = theta_advect - (latent_heat / (cp * powf(pressure/p0,k))) * C * time_step;
 
@@ -72,3 +75,4 @@ void cuda_fluid_water_thermo(void *input, void *input_two, void* input_three, Si
 		printf("cuda_kernel_jacobi() failed to launch error = %d\n", error);
 	}
 }
+#endif
