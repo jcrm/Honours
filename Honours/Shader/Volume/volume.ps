@@ -1,40 +1,45 @@
-Texture3D volume_;
-SamplerState sample_type_;
-
-cbuffer ScaleBuffer
-{
-	float3 step_size_;
-	float iterations_;
-};
-cbuffer CameraData
-{
-	float4 CameraPosition;
-	matrix inverse;
-};
 struct PixelShaderInput
 {
 	float4 position_ : SV_POSITION;
 	float3 tex_		: TEXCOORD0;
+	float4 pos_		: TEXCOORD1;
+	float3 step_size_ : TEXCOORD2;
+	int iterations_: TEXCOORD3;
 };
+Texture2D front_;
+Texture2D back_;
+Texture3D volume_;
+SamplerState sample_type_;
 
 float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 { 
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
+	float2 tex = input.pos_.xy /= input.pos_.w;
+	tex.x =  0.5f*tex.x + 0.5f;
+	tex.y = -0.5f*tex.y + 0.5f;
 
-	float4 CameraPositionTS =  mul(CameraPosition, inverse);
-	float4 dst = float4(0.f, 0.f, 0.f, 0.f);
-	float4 src = float4(0.f, 0.f, 0.f, 0.f);
-	float4 value = 0.f;
-	float3 dir = normalize(input.position_ - CameraPosition.xyz);
-	float3 pos = input.position_;
-	float3 step = dir * step_size_;
+	float3 front = front_.Sample(sample_type_, tex).rgb;
+	float3 back = back_.Sample(sample_type_, tex).rgb;
 
-	for(int i = 0; i <iterations_; i++){
+	float3 dir = normalize(back - front);
+	float4 pos = float4(front, 0);
+
+	float4 dst = float4(0, 0, 0, 0);
+	float4 src = 0;
+	float4 value = float4(0, 0, 0, 0);
+
+	float3 step = dir * input.step_size_;
+	for(int i = 0; i <64; i++){
+
+		pos.w = 0;
 		//value = volume_.SampleLevel(sample_type_, pos,0).a;
-		value = volume_.SampleGrad(sample_type_, input.tex_, 1.f , 1.f );
-		
-		src = (float4)value;
+		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f ).a;
+		if(value.a < 0){
+			value.a = 0;
+		}
+
+		src = (float4)value.a;
 
 		src.a *= .1f;
 		//reduce the alpha to have a more transparent result
@@ -53,12 +58,15 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		}
 
 		//advance the current position
-		pos += step;
+		pos.xyz += step;
 
-	}
-	//return float4(dir,1);
-	if(dst.a ==0){
-	dst.a = 1;
-	}
-	return float4(dir,1);
+		//break if the position is greater than <1, 1, 1>
+		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f){
+			break;
+		}
+	}/*
+	if(dst.b >= 1.f  && dst.r < 0.4f && dst.g < 0.4f){
+		dst.b -= 0.1f;
+	}*/
+	return dst;
 }

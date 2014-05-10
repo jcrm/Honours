@@ -649,7 +649,8 @@ bool ApplicationClass::RenderScene(){
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 
 	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
-		velocity_cuda_->sr_view_, camera_pos);
+		cloud_object_->GetFrontShaderResource(), cloud_object_->GetBackShaderResource(), velocity_cuda_->sr_view_,cloud_object_->GetScale());
+
 	if(!result){
 		return false;
 	}
