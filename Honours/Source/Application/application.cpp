@@ -654,14 +654,23 @@ bool ApplicationClass::RenderScene(){
 		return false;
 	}
 
-	// Turn off alpha blending after rendering the text.
-	//direct_3d_->TurnOffAlphaBlending();
-
 	//direct_3d_->EnableAlphaBlending();
 	for(int i = 0; i< TOTAL_RAIN; i++){
 		if(rain_systems_[i]->GetClear()== false){
-			//add code for rotating based upon the camera angle
-			model_world_matrix = world_matrix;
+			D3DXVECTOR3 system_position = rain_systems_[i]->GetPosition();
+			D3DXVECTOR3 camera_position = camera_->GetPosition();
+			// Calculate the rotation that needs to be applied to the billboard model to face the current camera position using the arc tangent function.
+			double angle = atan2(system_position.x - camera_position.x, system_position.z - camera_position.z) * (180.0 / D3DX_PI);
+
+			// Convert rotation into radians.
+			float rotation = (float)angle * 0.0174532925f;
+
+			// Setup the rotation the billboard at the origin using the world matrix.
+			D3DXMatrixRotationY(&model_world_matrix, rotation);
+
+			// Finally combine the rotation and translation matrices to create the final world matrix for the billboard model.
+			D3DXMatrixMultiply(&model_world_matrix, &model_world_matrix, &world_matrix); 
+
 			translation = rain_systems_[i]->GetTranslation();
 			D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 			// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
@@ -674,8 +683,6 @@ bool ApplicationClass::RenderScene(){
 			}
 		}
 	}
-	// Turn off alpha blending after rendering the text.
-	//direct_3d_->DisableAlphaBlending();
 
 	direct_3d_->GetOrthoMatrix(ortho_matrix);
 	// Turn off the Z buffer to begin all 2D rendering.

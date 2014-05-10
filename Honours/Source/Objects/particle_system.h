@@ -51,6 +51,7 @@ public:
 	void Render(ID3D11DeviceContext*);
 	void UpdateParticleSystem(D3DXVECTOR3, D3DXVECTOR2, D3DXVECTOR3);
 
+	inline D3DXVECTOR3 GetPosition(){return system_position_;}
 	inline int GetVertexCount(){return vertex_count_;}
 	inline int GetInstanceCount(){return instance_count_;}
 	inline ID3D11ShaderResourceView* GetTexture(){return texture_->GetTexture();}
@@ -99,6 +100,7 @@ private:
 	//where the model is in 3d space
 	D3DXMATRIX translation_;
 	bool is_clear_;
+	D3DXVECTOR3 system_position_;
 };
 
 #endif

@@ -9,7 +9,8 @@ ParticleSystemClass::ParticleSystemClass(){
 	vertex_buffer_ = 0;
 	instance_buffer_ = 0;
 	//D3DXMatrixIdentity(&translation_);
-	D3DXMatrixTranslation(&translation_, float(rand()%256), 20.f, float(rand()%256));
+	system_position_ = D3DXVECTOR3(float(rand()%256), 20.f, float(rand()%256));
+	D3DXMatrixTranslation(&translation_, system_position_.x,system_position_.y,system_position_.z);
 }
 
 ParticleSystemClass::ParticleSystemClass(const ParticleSystemClass& other){
