@@ -17,6 +17,7 @@ extern "C"
 	void cuda_fluid_jacobi(void*, Size, int, int);
 	void cuda_fluid_project(void*, void*, Size, int);
 	void cuda_fluid_rain(void*, void*, Size, Size);
+	void cuda_fluid_display(void*, void*, Size, Size);
 }
 
 #endif

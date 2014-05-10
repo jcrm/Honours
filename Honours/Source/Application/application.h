@@ -125,6 +125,7 @@ private:
 	fluid_texture *thermo_cuda_;
 	fluid_texture *water_continuity_cuda_;
 	fluid_texture *water_continuity_rain_cuda_;
+	//fluid_texture *display_;
 	rain_texture *rain_cuda_;
 	float output[RAIN_ARRAY_SIZE];
 };
