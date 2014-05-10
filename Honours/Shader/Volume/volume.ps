@@ -31,8 +31,8 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	
 	for(int i = 0; i <iterations_; i++){
 		//value = volume_.SampleLevel(sample_type_, pos,0).a;
-		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f ).a;
-		src = (float4)value.a;
+		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f );
+		src = (float4)value;
 
 		src.a *= .1f;
 		//reduce the alpha to have a more transparent result
@@ -52,16 +52,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 
 		//advance the current position
 		pos = pos + step;
-	}/*
-	if(value.r ==0){
-		value.r = 1;
 	}
-	if(value.g ==0){
-		value.g = 1;
-	}
-	if(value.b ==0){
-		value.b = 1;
-	}*/
 	//return float4(input.tex_,0.5);
-	return value;
+	return dst;
 }

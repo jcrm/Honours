@@ -7,7 +7,7 @@ ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), play
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0), display_(0)
 {
 	srand((int)time(NULL));
 }
@@ -15,7 +15,7 @@ ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0), display_(0)
 {
 	srand((int)time(NULL));
 }
@@ -107,7 +107,7 @@ void ApplicationClass::InitClouds(){
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(velocity_cuda_->cuda_linear_memory_, 1, velocity_cuda_->pitch_ * velocity_cuda_->height_ * velocity_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
-
+	
 	cudaGraphicsD3D11RegisterResource(&velocity_derivative_cuda_->cuda_resource_, velocity_derivative_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
@@ -116,7 +116,7 @@ void ApplicationClass::InitClouds(){
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(velocity_derivative_cuda_->cuda_linear_memory_, 1, velocity_derivative_cuda_->pitch_ * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
-
+	
 	cudaGraphicsD3D11RegisterResource(&pressure_divergence_cuda_->cuda_resource_, pressure_divergence_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
@@ -151,6 +151,15 @@ void ApplicationClass::InitClouds(){
 	water_continuity_rain_cuda_->pitch_ = water_continuity_rain_cuda_->width_ * PIXEL_FMT_SIZE_RG;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(water_continuity_rain_cuda_->cuda_linear_memory_, 1, water_continuity_rain_cuda_->pitch_ * water_continuity_rain_cuda_->height_ * water_continuity_rain_cuda_->depth_);
+	getLastCudaError("cudaMemset (g_texture_cloud) failed");
+
+	cudaGraphicsD3D11RegisterResource(&display_->cuda_resource_, display_->texture_, cudaGraphicsRegisterFlagsNone);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
+	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+	cudaMalloc(&display_->cuda_linear_memory_, display_->width_ * sizeof(float*) * display_->height_ * display_->depth_);
+	display_->pitch_ = display_->width_;
+	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
+	cudaMemset(display_->cuda_linear_memory_, 1, display_->pitch_ * display_->height_ * display_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 }
 bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height){
@@ -325,6 +334,7 @@ bool ApplicationClass::InitCudaTextures(){
 	ID3D11DeviceContext* d3d_device_context = direct_3d_->GetDeviceContext();
 	D3D11_TEXTURE3D_DESC desc;
 	D3D11_TEXTURE3D_DESC desc_two;
+	D3D11_TEXTURE3D_DESC desc_three;
 	//Create cuda textures
 	velocity_cuda_ = new fluid_texture;
 	if (!velocity_cuda_){
@@ -497,6 +507,35 @@ bool ApplicationClass::InitCudaTextures(){
 	}
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &rain_cuda_->sr_view_);
 
+
+	display_ = new fluid_texture;
+	if (!display_){
+		return false;
+	}
+	//set the correct width, height, and depth
+	display_->width_  = size_WHD.x;
+	display_->height_ = size_WHD.y;
+	display_->depth_  = size_WHD.z;
+	//set up a new description using the format DXGI_FORMAT_R32G32_FLOAT
+	ZeroMemory(&desc_three, sizeof(D3D11_TEXTURE3D_DESC));
+	desc_three.Width = display_->width_;
+	desc_three.Height = display_->height_;
+	desc_three.Depth = display_->depth_;
+	desc_three.MipLevels = 1;
+	desc_three.Format = DXGI_FORMAT_R32_FLOAT;
+	desc_three.Usage = D3D11_USAGE_DEFAULT;
+	desc_three.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc_three, NULL, &display_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(display_->texture_, NULL, &display_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &display_->sr_view_);
+
 	return true;
 }
 
@@ -649,19 +688,28 @@ bool ApplicationClass::RenderScene(){
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 
 	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
-		velocity_cuda_->sr_view_,camera_pos);
+		display_->sr_view_, camera_pos);
 	if(!result){
 		return false;
 	}
 
-	// Turn off alpha blending after rendering the text.
-	direct_3d_->TurnOffAlphaBlending();
-
-	direct_3d_->EnableAlphaBlending();
+	//direct_3d_->EnableAlphaBlending();
 	for(int i = 0; i< TOTAL_RAIN; i++){
 		if(rain_systems_[i]->GetClear()== false){
-			//add code for rotating based upon the camera angle
-			model_world_matrix = world_matrix;
+			D3DXVECTOR3 system_position = rain_systems_[i]->GetPosition();
+			D3DXVECTOR3 camera_position = camera_->GetPosition();
+			// Calculate the rotation that needs to be applied to the billboard model to face the current camera position using the arc tangent function.
+			double angle = atan2(system_position.x - camera_position.x, system_position.z - camera_position.z) * (180.0 / D3DX_PI);
+
+			// Convert rotation into radians.
+			float rotation = (float)angle * 0.0174532925f;
+
+			// Setup the rotation the billboard at the origin using the world matrix.
+			D3DXMatrixRotationY(&model_world_matrix, rotation);
+
+			// Finally combine the rotation and translation matrices to create the final world matrix for the billboard model.
+			D3DXMatrixMultiply(&model_world_matrix, &model_world_matrix, &world_matrix); 
+
 			translation = rain_systems_[i]->GetTranslation();
 			D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
 			// Put the particle system vertex and index buffers on the graphics pipeline to prepare them for drawing.
@@ -674,8 +722,6 @@ bool ApplicationClass::RenderScene(){
 			}
 		}
 	}
-	// Turn off alpha blending after rendering the text.
-	direct_3d_->DisableAlphaBlending();
 
 	direct_3d_->GetOrthoMatrix(ortho_matrix);
 	// Turn off the Z buffer to begin all 2D rendering.
@@ -709,7 +755,7 @@ bool ApplicationClass::RenderClouds(){
 	cloud_object_->GetFrontTexture()->SetRenderTarget(direct_3d_->GetDeviceContext());
 	// Clear the render to texture.
 	cloud_object_->GetFrontTexture()->ClearRenderTarget(direct_3d_->GetDeviceContext(), 0.f, 0.f, 0.f, 1.0f);
-
+	
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
 	camera_->GetViewMatrix(view_matrix);
@@ -765,7 +811,7 @@ void ApplicationClass::CudaCalculations(){
 	//and to have the map/unmap calls be the boundary between using the GPU
 	//for Direct3D and Cuda
 	cudaStream_t stream = 0;
-	const int num_resources = 7;
+	const int num_resources = 8;
 	cudaGraphicsResource *resources[num_resources] ={
 		velocity_cuda_->cuda_resource_,
 		velocity_derivative_cuda_->cuda_resource_,
@@ -773,7 +819,8 @@ void ApplicationClass::CudaCalculations(){
 		water_continuity_cuda_->cuda_resource_,
 		water_continuity_rain_cuda_->cuda_resource_,
 		thermo_cuda_->cuda_resource_,
-		rain_cuda_->cuda_resource_
+		rain_cuda_->cuda_resource_,
+		display_->cuda_resource_
 	};
 	cudaGraphicsMapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
@@ -797,7 +844,7 @@ void ApplicationClass::RunInitKernals(){
 	size.depth_ = velocity_cuda_->depth_;
 	size.pitch_ = velocity_cuda_->pitch_;
 	size.pitch_slice_ = velocity_cuda_->pitch_ * velocity_cuda_->height_;
-
+	
 	Size size_two = size;
 	size_two.pitch_ = water_continuity_cuda_->pitch_;
 	size_two.pitch_slice_ = water_continuity_cuda_->pitch_ * water_continuity_cuda_->height_;
@@ -841,7 +888,7 @@ void ApplicationClass::RunCloudKernals(){
 	size.depth_ = velocity_cuda_->depth_;
 	size.pitch_ = velocity_cuda_->pitch_;
 	size.pitch_slice_ = velocity_cuda_->pitch_ * velocity_cuda_->height_;
-
+	
 	Size size_two = size;
 	size_two.pitch_ = water_continuity_cuda_->pitch_;
 	size_two.pitch_slice_ = water_continuity_cuda_->pitch_ * water_continuity_cuda_->height_;
@@ -852,6 +899,13 @@ void ApplicationClass::RunCloudKernals(){
 	size_three.pitch_ = rain_cuda_->pitch_;
 	size_three.depth_ = 0;
 	size_three.pitch_slice_ = 0;
+
+	Size size_four;
+	size_four.width_ = display_->width_;
+	size_four.height_ = display_->height_;
+	size_four.depth_ = display_->depth_;
+	size_four.pitch_ = display_->pitch_;
+	size_four.pitch_slice_ = display_->pitch_ * display_->height_;
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_advect_velocity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
@@ -890,12 +944,14 @@ void ApplicationClass::RunCloudKernals(){
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
 	getLastCudaError("cuda_texture_2d failed");
+
+	cuda_fluid_display(display_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_,size,size_four);
 }
 void ApplicationClass::CudaMemoryCopy(){
 	cudaArray *cuda_velocity_array;
 	cudaArray *cuda_rain_array;
 
-	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, velocity_cuda_->cuda_resource_, 0, 0);
+	cudaGraphicsSubResourceGetMappedArray(&cuda_velocity_array, display_->cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_3d) failed");
 
 	cudaGraphicsSubResourceGetMappedArray(&cuda_rain_array, rain_cuda_->cuda_resource_, 0, 0);
@@ -904,19 +960,19 @@ void ApplicationClass::CudaMemoryCopy(){
 	// then we want to copy cuda_linear_memory_ to the D3D texture, via its mapped form : cudaArray
 	struct cudaMemcpy3DParms memcpyParams = {0};
 	memcpyParams.dstArray = cuda_velocity_array;
-	memcpyParams.srcPtr.ptr = velocity_cuda_->cuda_linear_memory_;
-	memcpyParams.srcPtr.pitch = velocity_cuda_->pitch_;
-	memcpyParams.srcPtr.xsize = velocity_cuda_->width_;
-	memcpyParams.srcPtr.ysize = velocity_cuda_->height_;
-	memcpyParams.extent.width = velocity_cuda_->width_;
-	memcpyParams.extent.height = velocity_cuda_->height_;
-	memcpyParams.extent.depth = velocity_cuda_->depth_;
+	memcpyParams.srcPtr.ptr = display_->cuda_linear_memory_;
+	memcpyParams.srcPtr.pitch = display_->pitch_*4;
+	memcpyParams.srcPtr.xsize = display_->width_;
+	memcpyParams.srcPtr.ysize = display_->height_;
+	memcpyParams.extent.width = display_->width_;
+	memcpyParams.extent.height = display_->height_;
+	memcpyParams.extent.depth = display_->depth_;
 	memcpyParams.kind = cudaMemcpyDeviceToDevice;
 	cudaMemcpy3D(&memcpyParams);
 	getLastCudaError("cudaMemcpy3D failed");
 
 	cudaMemcpy(output, rain_cuda_->cuda_linear_memory_, RAIN_DATA_SIZE, cudaMemcpyDeviceToHost);
-
+	
 	for(int i = 0; i < TOTAL_RAIN; i++){
 		if(output[i*4] == 0){
 			if(rain_systems_[i]->GetClear() == false){
@@ -1022,6 +1078,11 @@ void ApplicationClass::ShutdownCudaResources(){
 		delete thermo_cuda_;
 		thermo_cuda_ = NULL;;
 	}
+	if (display_){
+		delete display_;
+		display_ = NULL;;
+	}
+	
 }
 void ApplicationClass::ShutdownCamera(){
 	//relase position object
