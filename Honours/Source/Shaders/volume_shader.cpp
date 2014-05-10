@@ -13,7 +13,7 @@ bool VolumeShader::Initialize(ID3D11Device* device, HWND hwnd){
 	return true;
 }
 bool VolumeShader::Render(ID3D11DeviceContext* device_context, int index_count_, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, D3DXMATRIX projection_matrix, 
-						  ID3D11ShaderResourceView* volumeTexture, D3DXVECTOR4 camera_position){
+						 ID3D11ShaderResourceView* volumeTexture, D3DXVECTOR4 camera_position){
 	// Set the shader parameters that it will use for rendering.
 	bool result = SetShaderParameters(device_context, world_matrix, viewMatrix, projection_matrix, volumeTexture, camera_position);
 	if(!result){
@@ -79,7 +79,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 	polygon_layout[0].InstanceDataStepRate = 0;
 	polygon_layout[1].SemanticName = "TEXCOORD";
 	polygon_layout[1].SemanticIndex = 0;
-	polygon_layout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
+	polygon_layout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	polygon_layout[1].InputSlot = 0;
 	polygon_layout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygon_layout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -92,11 +92,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 	if(FAILED(result)){
 		return false;
 	}
-	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
-	vertex_shader_buffer->Release();
-	vertex_shader_buffer = 0;
-	pixel_shader_buffer->Release();
-	pixel_shader_buffer = 0;
+	
 	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
 	matrix_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
 	matrix_buffer_desc.ByteWidth = sizeof(MatrixBufferType);
@@ -144,7 +140,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
 	camera_buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
-	camera_buffer_desc.ByteWidth = sizeof(ScaleBuffer);
+	camera_buffer_desc.ByteWidth = sizeof(CameraBufferType);
 	camera_buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	camera_buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	camera_buffer_desc.MiscFlags = 0;
@@ -154,16 +150,23 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 	if(FAILED(result)){
 		return false;
 	}
+
+	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
+	vertex_shader_buffer->Release();
+	vertex_shader_buffer = 0;
+	pixel_shader_buffer->Release();
+	pixel_shader_buffer = 0;
 	return true;
 }
 bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DXMATRIX world_matrix, D3DXMATRIX viewMatrix, D3DXMATRIX projection_matrix,
-									   ID3D11ShaderResourceView* volumeTexture, D3DXVECTOR4 camera_position){
+									  ID3D11ShaderResourceView* volumeTexture, D3DXVECTOR4 camera_position){
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mapped_resource;
 	MatrixBufferType* data_ptr;
 	ScaleBuffer* data_ptr_two;
 	CameraBufferType* data_ptr_three;
 	unsigned int buffer_number = 0;
+	unsigned int shader_number = 0;
 	// Transpose the matrices to prepare them for the shader.
 	D3DXMatrixTranspose(&world_matrix, &world_matrix);
 	D3DXMatrixTranspose(&viewMatrix, &viewMatrix);
@@ -184,8 +187,6 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 
 	// Now set the constant buffer in the vertex shader with the updated values.
 	device_context->VSSetConstantBuffers(buffer_number++, 1, &matrix_buffer_);
-	// Set shader texture resource in the pixel shader.
-	device_context->PSSetShaderResources(0, 1, &volumeTexture);
 	
 	result = device_context->Map(scale_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_resource);
 	if(FAILED(result)){
@@ -225,6 +226,10 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	device_context->Unmap(camera_buffer_, 0);
 	// Finally set the light constant buffer in the pixel shader with the updated values.
 	device_context->VSSetConstantBuffers(buffer_number++, 1, &camera_buffer_);
+
+	// Set shader texture resource in the pixel shader.
+	device_context->PSSetShaderResources(0, 1, &volumeTexture);
+
 	return true;
 }
 void VolumeShader::RenderShader(ID3D11DeviceContext* device_context, int index_count_){

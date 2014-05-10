@@ -31,5 +31,4 @@ private:
 	ID3D11Buffer* scale_buffer_;
 	ID3D11Buffer* camera_buffer_;
 };
-
 #endif
