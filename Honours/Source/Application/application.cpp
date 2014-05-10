@@ -961,7 +961,7 @@ void ApplicationClass::CudaMemoryCopy(){
 	struct cudaMemcpy3DParms memcpyParams = {0};
 	memcpyParams.dstArray = cuda_velocity_array;
 	memcpyParams.srcPtr.ptr = display_->cuda_linear_memory_;
-	memcpyParams.srcPtr.pitch = display_->pitch_*4;
+	memcpyParams.srcPtr.pitch = display_->pitch_*sizeof(float);
 	memcpyParams.srcPtr.xsize = display_->width_;
 	memcpyParams.srcPtr.ysize = display_->height_;
 	memcpyParams.extent.width = display_->width_;

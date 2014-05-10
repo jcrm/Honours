@@ -30,11 +30,11 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	float3 step = dir /64;
 	
 	for(int i = 0; i <iterations_; i++){
-		//value = volume_.SampleLevel(sample_type_, pos,0).a;
-		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f );
-		src = (float4)value;
+		value = volume_.SampleLevel(sample_type_, pos,0).r;
+		//value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f ).a;
+		src = (float4)value.r;
 
-		src.a *= .1f;
+		src.a *= .5f;
 		//reduce the alpha to have a more transparent result
 		//this needs to be adjusted based on the step size
 		//i.e. the more steps we take, the faster the alpha will grow
@@ -46,7 +46,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		dst = (1.0f - dst.a)*src + dst;
 
 		//break from the loop when alpha gets high enough
-		if(dst.a >= 1.f){
+		if(dst.a >= 1.f && value.r == 0){
 			break;
 		}
 
