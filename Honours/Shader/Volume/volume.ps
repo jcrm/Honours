@@ -1,3 +1,8 @@
+cbuffer CameraData
+{
+	float4 CameraPosition;
+	matrix inverse;
+};
 struct PixelShaderInput
 {
 	float4 position_ : SV_POSITION;
@@ -18,11 +23,13 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 	float2 tex = input.pos_.xy /= input.pos_.w;
 	tex.x =  0.5f*tex.x + 0.5f;
 	tex.y = -0.5f*tex.y + 0.5f;
-
+	float4 CameraPositionTS =  mul(CameraPosition, inverse);
 	float3 front = front_.Sample(sample_type_, tex).rgb;
 	float3 back = back_.Sample(sample_type_, tex).rgb;
 
 	float3 dir = normalize(back - front);
+	//float3 dir = normalize( input.tex_ - CameraPositionTS.xyz );
+	
 	float4 pos = float4(front, 0);
 
 	float4 dst = float4(0, 0, 0, 0);
@@ -34,7 +41,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 
 		pos.w = 0;
 		//value = volume_.SampleLevel(sample_type_, pos,0).a;
-		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f ).a;
+		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f );
 		if(value.a < 0){
 			value.a = 0;
 		}
