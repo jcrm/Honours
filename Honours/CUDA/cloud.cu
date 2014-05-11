@@ -37,9 +37,9 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, Size size, 
 					float new_y = cell_velocity[y_identifier_];
 					float new_z = cell_velocity[z_identifier_];
 
-					new_x = new_x - (0.5f *temp_x);
-					new_y = new_y - (0.5f *temp_y);
-					new_z = new_z - (0.5f *temp_z);
+					new_x = new_x - (time_step * temp_x);
+					new_y = new_y - (time_step * temp_y);
+					new_z = new_z - (time_step * temp_z);
 
 					cell_velocity[x_identifier_] = new_x;
 					cell_velocity[y_identifier_] = new_y;

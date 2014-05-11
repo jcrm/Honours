@@ -19,16 +19,28 @@ __global__ void cuda_kernel_divergence(float* output, float* input, Size size, i
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
-					float *fieldLeft = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
 					float*fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-					float*fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 					float*fieldUp = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-					float*fieldTop = input + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					float*fieldBottom = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					float*fieldTop = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+
+					float *field= input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+
 					float*output_divergence = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					output_divergence[divergence_index] = 0.5f * ((fieldRight[x_identifier_] - fieldLeft[x_identifier_]) + 
-						(fieldTop[y_identifier_] - fieldBottom[y_identifier_]) + 
-						(fieldUp[z_identifier_] - fieldDown[z_identifier_]));
+					float temp_x = field[x_identifier_];
+					float temp_y = field[y_identifier_];
+					float temp_z = field[z_identifier_];
+
+					float temp_x_2 = fieldRight[x_identifier_];
+					float temp_y_2 = fieldUp[y_identifier_];
+					float temp_z_2 = fieldTop[z_identifier_];
+
+					float frl_x = temp_x_2 - temp_x;
+					float frl_y = temp_y_2 - temp_y;
+					float frl_z = temp_z_2 - temp_z;
+					float value = (frl_x+frl_y+frl_z);
+					value *= dx;
+					output_divergence[divergence_index] = value;
+					value = output_divergence[divergence_index];
 					// Compute the velocity's divergence using central differences.  
 				}
 			}
