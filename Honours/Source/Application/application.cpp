@@ -102,28 +102,28 @@ void ApplicationClass::InitClouds(){
 	cudaGraphicsD3D11RegisterResource(&velocity_cuda_->cuda_resource_, velocity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&velocity_cuda_->cuda_linear_memory_, velocity_cuda_->width_ * PIXEL_FMT_SIZE_RGBA * velocity_cuda_->height_ * velocity_cuda_->depth_);
+	cudaMalloc(&velocity_cuda_->cuda_linear_memory_, velocity_cuda_->width_ * PIXEL_FMT_SIZE_RGBA* sizeof(float) * velocity_cuda_->height_ * velocity_cuda_->depth_);
 	velocity_cuda_->pitch_ = velocity_cuda_->width_ * PIXEL_FMT_SIZE_RGBA;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(velocity_cuda_->cuda_linear_memory_, 1, velocity_cuda_->pitch_ * velocity_cuda_->height_ * velocity_cuda_->depth_);
+	cudaMemset(velocity_cuda_->cuda_linear_memory_, 1, velocity_cuda_->pitch_ * velocity_cuda_->height_* sizeof(float) * velocity_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 	
 	cudaGraphicsD3D11RegisterResource(&velocity_derivative_cuda_->cuda_resource_, velocity_derivative_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&velocity_derivative_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->width_ * PIXEL_FMT_SIZE_RGBA * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
+	cudaMalloc(&velocity_derivative_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->width_ * PIXEL_FMT_SIZE_RGBA* sizeof(float) * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
 	velocity_derivative_cuda_->pitch_ = velocity_derivative_cuda_->width_ * PIXEL_FMT_SIZE_RGBA;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(velocity_derivative_cuda_->cuda_linear_memory_, 1, velocity_derivative_cuda_->pitch_ * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
+	cudaMemset(velocity_derivative_cuda_->cuda_linear_memory_, 1, velocity_derivative_cuda_->pitch_* sizeof(float) * velocity_derivative_cuda_->height_ * velocity_derivative_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 	
 	cudaGraphicsD3D11RegisterResource(&pressure_divergence_cuda_->cuda_resource_, pressure_divergence_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
 	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
 	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
-	cudaMalloc(&pressure_divergence_cuda_->cuda_linear_memory_, pressure_divergence_cuda_->width_ * PIXEL_FMT_SIZE_RGBA * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
+	cudaMalloc(&pressure_divergence_cuda_->cuda_linear_memory_, pressure_divergence_cuda_->width_* sizeof(float) * PIXEL_FMT_SIZE_RGBA * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
 	pressure_divergence_cuda_->pitch_ = pressure_divergence_cuda_->width_ * PIXEL_FMT_SIZE_RGBA;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
-	cudaMemset(pressure_divergence_cuda_->cuda_linear_memory_, 1, pressure_divergence_cuda_->pitch_ * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
+	cudaMemset(pressure_divergence_cuda_->cuda_linear_memory_, 1, pressure_divergence_cuda_->pitch_* sizeof(float) * pressure_divergence_cuda_->height_ * pressure_divergence_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 
 	cudaGraphicsD3D11RegisterResource(&thermo_cuda_->cuda_resource_, thermo_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
@@ -348,7 +348,7 @@ bool ApplicationClass::InitCudaTextures(){
 	desc.Height = velocity_cuda_->height_;
 	desc.Depth = velocity_cuda_->depth_;
 	desc.MipLevels = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+	desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	//create the 3d texture
@@ -913,7 +913,7 @@ void ApplicationClass::CudaMemoryCopy(){
 	struct cudaMemcpy3DParms memcpyParams = {0};
 	memcpyParams.dstArray = cuda_velocity_array;
 	memcpyParams.srcPtr.ptr = velocity_cuda_->cuda_linear_memory_;
-	memcpyParams.srcPtr.pitch = velocity_cuda_->pitch_;
+	memcpyParams.srcPtr.pitch = velocity_cuda_->pitch_*sizeof(float);
 	memcpyParams.srcPtr.xsize = velocity_cuda_->width_;
 	memcpyParams.srcPtr.ysize = velocity_cuda_->height_;
 	memcpyParams.extent.width = velocity_cuda_->width_;

@@ -19,7 +19,7 @@ cbuffer ScaleBuffer
 struct VertexShaderInput
 {
 	float4 position_ : POSITION;
-	float2 texcoord_ : TEXCOORD0;
+	float3 texcoord_ : TEXCOORD0;
 };
 
 struct PixelShaderInput

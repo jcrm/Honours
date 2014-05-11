@@ -10,7 +10,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_advect_velocity(unsigned char *output, unsigned char *input, Size size){ 
+__global__ void cuda_kernel_advect_velocity(float *output, float*input, Size size){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -19,15 +19,15 @@ __global__ void cuda_kernel_advect_velocity(unsigned char *output, unsigned char
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
-					unsigned char *fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-					unsigned char *fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-					unsigned char *fieldRightCorner = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-					unsigned char *field = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					float *fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+					float *fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+					float*fieldRightCorner = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+					float *field = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
-					unsigned char *fieldRightBack = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-					unsigned char *fieldDownBack = input + ((z_iter+1)*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-					unsigned char *fieldRightCornerBack = input + ((z_iter+1)*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-					unsigned char *fieldBack = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					float *fieldRightBack = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+					float *fieldDownBack = input + ((z_iter+1)*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+					float *fieldRightCornerBack = input + ((z_iter+1)*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+					float *fieldBack = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 					float temp_X_1 = field[x_identifier_] +((fieldRight[x_identifier_]-field[x_identifier_])*0.5f);
 					float temp_Y_1 = field[y_identifier_] +((fieldRight[y_identifier_]-field[y_identifier_])*0.5f);
@@ -53,10 +53,10 @@ __global__ void cuda_kernel_advect_velocity(unsigned char *output, unsigned char
 					temp_Y_3 =(temp_Y_3 + (temp_Y_4-temp_Y_3)*0.5f);
 					temp_Z_3 =(temp_Z_3 + (temp_Z_4-temp_Z_3)*0.5f);
 
-					unsigned char *output_velocity = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					output_velocity[x_identifier_] = signed int(temp_X_1 + ((temp_X_3-temp_X_1)*0.5f));
-					output_velocity[y_identifier_] = signed int(temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f));
-					output_velocity[z_identifier_] = signed int(temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f));
+					float*output_velocity = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					output_velocity[x_identifier_] = temp_X_1 + ((temp_X_3-temp_X_1)*0.5f);
+					output_velocity[y_identifier_] = temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f);
+					output_velocity[z_identifier_] = temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f);
 				}
 			}
 		}
@@ -72,7 +72,7 @@ void cuda_fluid_advect_velocity(void *output, void *input, Size size){
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_advect_velocity<<<Dg,Db>>>((unsigned char *)output, (unsigned char *)input, size);
+	cuda_kernel_advect_velocity<<<Dg,Db>>>((float *)output, (float *)input, size);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){
