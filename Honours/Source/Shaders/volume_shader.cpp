@@ -77,6 +77,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 	polygon_layout[0].AlignedByteOffset = 0;
 	polygon_layout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygon_layout[0].InstanceDataStepRate = 0;
+
 	polygon_layout[1].SemanticName = "TEXCOORD";
 	polygon_layout[1].SemanticIndex = 0;
 	polygon_layout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;

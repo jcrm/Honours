@@ -956,7 +956,7 @@ void ApplicationClass::CudaMemoryCopy(){
 
 	cudaGraphicsSubResourceGetMappedArray(&cuda_rain_array, rain_cuda_->cuda_resource_, 0, 0);
 	getLastCudaError("cudaGraphicsSubResourceGetMappedArray (cuda_texture_2d) failed");
-
+	
 	// then we want to copy cuda_linear_memory_ to the D3D texture, via its mapped form : cudaArray
 	struct cudaMemcpy3DParms memcpyParams = {0};
 	memcpyParams.dstArray = cuda_velocity_array;

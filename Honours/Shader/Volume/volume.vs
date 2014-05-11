@@ -7,6 +7,16 @@ cbuffer MatrixBuffer
 	matrix view_matrix_;
 	matrix projection_matrix_;
 };
+cbuffer ScaleBuffer
+{
+	float3 step_size_;
+	float iterations_;
+};
+cbuffer CameraData
+{
+	float4 CameraPosition;
+	matrix inverse;
+};
 //////////////
 // TYPEDEFS //
 //////////////
@@ -19,6 +29,9 @@ struct PixelShaderInput
 {
 	float4 position_ : SV_POSITION;
 	float3 tex_		: TEXCOORD0;
+	float4 camera_position_ :CAMERA_POSITION;
+	float3 step_size_ :STEP;
+	float iterations_ :ITER;
 };
 PixelShaderInput VolumeVS(VertexShaderInput input)
 {
@@ -32,5 +45,10 @@ PixelShaderInput VolumeVS(VertexShaderInput input)
 	output.position_ = mul(output.position_, projection_matrix_);
 
 	output.tex_ = input.texcoord_;
+
+	float4 CameraPositionTS =  mul(CameraPosition, inverse);
+	output.camera_position_ = CameraPositionTS;
+	output.step_size_ = step_size_;
+	output.iterations_ = iterations_;
 	return output;
 }
