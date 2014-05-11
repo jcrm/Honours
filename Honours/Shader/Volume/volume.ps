@@ -42,6 +42,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 		pos.w = 0;
 		//value = volume_.SampleLevel(sample_type_, pos,0).a;
 		value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f );
+
 		if(value.a < 0){
 			value.a = 0;
 		}

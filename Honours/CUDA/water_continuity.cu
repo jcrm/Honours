@@ -39,7 +39,7 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 
 					float pressure = p0*pow((T/T0),(g/R/gamma));
 					float temperature = theta * powf((p0/pressure),k);
-					float est = (es0/pressure)*exp(a*(temperature-273)/(temperature-b));
+					float est = (es0/pressure)*exp(a*(temperature-273.f)/(temperature-b));
 					float pres_minus_est = pow((pressure-est),2);
 					float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
 

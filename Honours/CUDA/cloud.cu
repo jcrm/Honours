@@ -28,19 +28,28 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, Size size, 
 					float*pUp = pressure + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 					float*pTop = pressure + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 					float*pBottom = pressure + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					
-					cell_velocity[x_identifier_] = cell_velocity[x_identifier_] - (0.5f *(pRight[pressure_index] - pLeft[pressure_index]));
-					cell_velocity[y_identifier_] = cell_velocity[y_identifier_] - (0.5f *(pTop[pressure_index] - pBottom[pressure_index]));
-					cell_velocity[z_identifier_] = cell_velocity[2] - (0.5f *(pUp[pressure_index] - pDown[pressure_index])); 
+
+					float temp_x = (-pRight[pressure_index]) - pLeft[pressure_index];
+					float temp_y = (-pTop[pressure_index]) - pBottom[pressure_index];
+					float temp_z = (-pUp[pressure_index]) - pDown[pressure_index];
+
+					float new_x = cell_velocity[x_identifier_];
+					float new_y = cell_velocity[y_identifier_];
+					float new_z = cell_velocity[z_identifier_];
+
+					new_x = new_x - (0.5f *temp_x);
+					new_y = new_y - (0.5f *temp_y);
+					new_z = new_z - (0.5f *temp_z);
+
+					cell_velocity[x_identifier_] = new_x;
+					cell_velocity[y_identifier_] = new_y;
+					cell_velocity[z_identifier_] = new_z; 
+
 					float density = (cell_velocity[x_identifier_] * cell_velocity[x_identifier_]) + 
 						(cell_velocity[y_identifier_] * cell_velocity[y_identifier_]) + 
 						(cell_velocity[z_identifier_] * cell_velocity[z_identifier_]);
 					density = sqrt(density);
-					if(density <= 100.0f){
-						density /=2.f;
-					}else if(density > 100.0f){
-						density /=2.f;
-					}
+					//density =0.5f;
 					cell_velocity[3] = density;
 				}
 			}

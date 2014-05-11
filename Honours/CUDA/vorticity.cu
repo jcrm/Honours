@@ -45,14 +45,18 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 						curl_value.y * invLen,
 						curl_value.z * invLen
 					};
-
-					output_velocity[x_identifier_] += ((norm_value.y * curl_value.z) - (norm_value.z * curl_value.y)) * dx * scalar * time_step;
-					output_velocity[y_identifier_] += ((norm_value.z * curl_value.x) - (norm_value.x * curl_value.z)) * dx * scalar * time_step;
-					output_velocity[z_identifier_] += ((norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)) * dx * scalar * time_step;
+					float3 vect = {
+						(norm_value.y * curl_value.z) - (norm_value.z * curl_value.y),
+						(norm_value.z * curl_value.x) - (norm_value.x * curl_value.z),
+						(norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)
+					};
+					output_velocity[x_identifier_] += (vect.x) * dx * scalar * time_step;
+					output_velocity[y_identifier_] += (vect.y) * dx * scalar * time_step;
+					output_velocity[z_identifier_] += (vect.z) * dx * scalar * time_step;
 				}
 			}
-		}
-		float*output_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);/*
+		}/*
+		float*output_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 		if(x_iter +1 == size.width_ || x_iter - 1 < 0){
 			if(y_iter == 0 && z_iter == 0){
 				float x = output_velocity[x_identifier_] - 1;

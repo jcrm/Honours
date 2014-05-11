@@ -25,8 +25,11 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 					float theta = input_thermo[theta_identifier_];
 					float qv = input_water[qv_identifier_];
 					float qh = input_water[qc_identifier_];
+					float temp = ((((theta-273)*(1.f+(0.61f*qv))) / (T0-273)) - qh );
 					//buoyancy
-					output_velocity[y_identifier_] += 9.8f * (((theta*(1.f+(0.61f*qv))) / T0) - qh )* time_step;
+					float delta = output_velocity[y_identifier_];
+					delta += 9.8f * temp * time_step;
+					output_velocity[y_identifier_] = delta;
 				}
 			}
 		}
