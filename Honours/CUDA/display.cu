@@ -20,14 +20,23 @@ __global__ void cuda_kernel_display(float *output, unsigned char* input, Size si
 		float data;
 		unsigned char *cell_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 		float *display_output = output + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + x_iter;
-		signed int x = cell_velocity[x_identifier_] * cell_velocity[x_identifier_];
-		signed int y = cell_velocity[y_identifier_] * cell_velocity[y_identifier_];
-		signed int z = cell_velocity[z_identifier_] * cell_velocity[z_identifier_];
+		float x = cell_velocity[x_identifier_] * cell_velocity[x_identifier_];
+		float y = cell_velocity[y_identifier_] * cell_velocity[y_identifier_];
+		float z = cell_velocity[z_identifier_] * cell_velocity[z_identifier_];
 
 		float density = x + y + z;
 		density = sqrt(density);
 		cell_velocity[3] = density;
-		display_output[0] = density/10;
+		display_output[0] = 0.0f;
+		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
+			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
+				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
+					if(density > 0){
+						display_output[0] = density/220;
+					}
+				}
+			}
+		}
 	}
 }
 

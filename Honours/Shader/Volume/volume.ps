@@ -13,41 +13,44 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 { 
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
-
 	float4 dst = float4(0.f, 0.f, 0.f, 0.f);
 	float4 src = float4(0.f, 0.f, 0.f, 0.f);
 	float4 value = 0.f;
 	float3 dir = normalize(input.tex_ - input.camera_position_);
 	float3 pos = input.tex_;
-	float3 step = dir /64;
+	float3 step = dir * 1.0f/80.0f;
 	
-	for(int i = 0; i <input.iterations_+100; i++){
-		value = volume_.SampleLevel(sample_type_, pos,0);
-		//value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f );
-		value = saturate(value);
-		src = (float4)value.r;
-		
-		src.a *= .05f;
+	for(int i = 0; i <input.iterations_*10; i++){
+		value.r = volume_.SampleLevel(sample_type_, pos,0).r;
+		//value.r = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f ).r;
+		if(value.r == 0 && value.g==0 && value.b==0){
+			value.a = 0.0f;
+		}else{
+			value.a = 1.0f;
+		}
+		src = float4(value.r,value.r,value.r,value.a);
+
+		src.a *= .01f;
 		//reduce the alpha to have a more transparent result
 		//this needs to be adjusted based on the step size
 		//i.e. the more steps we take, the faster the alpha will grow
 
 		//Front to back blending
-		dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
-		dst.a   = dst.a   + (1 - dst.a) * src.a;
-		/*src.rgb *= src.a;
-		dst = (1.0f - dst.a)*src + dst;*/
+		//dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
+		//dst.a   = dst.a   + (1 - dst.a) * src.a;
+		src.rgb *= src.a;
+		dst = (1.0f - dst.a)*src + dst;
 
 		//break from the loop when alpha gets high enough
-		if(dst.a >= 1.f){
+		if(dst.a >= 0.9f){
 			break;
 		}
 
 		//advance the current position
-		pos = pos + step;
+		pos += step;
 	}
-
-	//return float4(dir,1.0f);
-	//return input.camera_position_;
 	return dst;
+	return (float4)value.r;
+	return float4(dir,1.0f);
+	return input.camera_position_;
 }

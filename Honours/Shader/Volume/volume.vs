@@ -15,7 +15,6 @@ cbuffer ScaleBuffer
 cbuffer CameraData
 {
 	float4 CameraPosition;
-	matrix inverse;
 };
 //////////////
 // TYPEDEFS //
@@ -46,8 +45,7 @@ PixelShaderInput VolumeVS(VertexShaderInput input)
 
 	output.tex_ = input.texcoord_;
 
-	float4 CameraPositionTS =  mul(CameraPosition, inverse);
-	output.camera_position_ = CameraPositionTS;
+	output.camera_position_ = CameraPosition;
 	output.step_size_ = step_size_;
 	output.iterations_ = iterations_;
 	return output;

@@ -21,7 +21,6 @@ private:
 	};
 	struct CameraBufferType{
 		D3DXVECTOR4 camera_position_;
-		D3DXMATRIX inverse_;
 	};
 private:
 	bool InitializeShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);

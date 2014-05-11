@@ -659,10 +659,10 @@ bool ApplicationClass::Render(){
 bool ApplicationClass::RenderScene(){
 	D3DXMATRIX world_matrix, view_matrix, projection_matrix, ortho_matrix, model_world_matrix;
 	D3DXMATRIX translation;
-	D3DXVECTOR4 camera_pos;
+	D3DXVECTOR3 camera_pos;
 	bool result;
 
-	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	direct_3d_->BeginScene(0.6f, 0.0f, 0.0f, 1.0f);
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
@@ -684,11 +684,24 @@ bool ApplicationClass::RenderScene(){
 	model_world_matrix = world_matrix;
 	translation = cloud_object_->GetTranslation();
 	D3DXMatrixMultiply(&model_world_matrix,&model_world_matrix,&translation);
-	camera_pos = D3DXVECTOR4(camera_->GetPosition(), 1.f);
+	camera_pos = camera_->GetPosition();
 	cloud_object_->Render(direct_3d_->GetDeviceContext());
 
+	D3DXMATRIX InverseMatrix;
+	D3DXMatrixInverse(&InverseMatrix, NULL, &world_matrix);
+
+	D3DXMATRIX TranslationMatrix;
+	D3DXMatrixTranslation(&TranslationMatrix, 1.0f, -1.0f, 1.0f );
+	D3DXMATRIX ScaleMatrixXYZ;
+	D3DXMatrixScaling(&ScaleMatrixXYZ, 0.5f, -0.5f, 0.5f );
+	D3DXMATRIX ObjectToTextureSpaceMatrix; 
+	D3DXMatrixMultiply(&ObjectToTextureSpaceMatrix,&TranslationMatrix,&ScaleMatrixXYZ);
+
+	D3DXMatrixMultiply(&ObjectToTextureSpaceMatrix,&InverseMatrix,&ObjectToTextureSpaceMatrix);
+	D3DXVec3TransformCoord(&camera_pos, &camera_pos, &ObjectToTextureSpaceMatrix);
+
 	result = volume_shader_->Render(direct_3d_->GetDeviceContext(), cloud_object_->GetIndexCount(), model_world_matrix, view_matrix, projection_matrix, 
-		display_->sr_view_, camera_pos);
+		display_->sr_view_, D3DXVECTOR4(camera_pos,1.f));
 	if(!result){
 		return false;
 	}

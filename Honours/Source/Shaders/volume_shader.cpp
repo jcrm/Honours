@@ -213,16 +213,6 @@ bool VolumeShader::SetShaderParameters(ID3D11DeviceContext* device_context, D3DX
 	// Get a pointer to the data in the constant buffer.
 	data_ptr_three = (CameraBufferType*)mapped_resource.pData;
 	data_ptr_three->camera_position_ = camera_position;
-
-	D3DXMATRIX TranslationMatrix;
-	D3DXMatrixTranslation(&TranslationMatrix, 1.0f, -1.0f, 1.0f );
-	D3DXMATRIX ScaleMatrixXYZ;
-	D3DXMatrixScaling(&ScaleMatrixXYZ, 0.5f, -0.5f, 0.5f );
-	D3DXMATRIX ObjectToTextureSpaceMatrix; 
-	D3DXMatrixMultiply(&ObjectToTextureSpaceMatrix,&TranslationMatrix,&ScaleMatrixXYZ);
-
-	data_ptr_three->inverse_ = ObjectToTextureSpaceMatrix;
-	
 	// Unlock the constant buffer.
 	device_context->Unmap(camera_buffer_, 0);
 	// Finally set the light constant buffer in the pixel shader with the updated values.
