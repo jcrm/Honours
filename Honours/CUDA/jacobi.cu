@@ -13,7 +13,7 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
-	for(int i = 0; i < 32; i++){
+	for(int i = 0; i < 1; i++){
 		if(i%2 == 0){
 			pressure_index = 0;
 			divergence_index = 1;
@@ -21,7 +21,57 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 			pressure_index = 1;
 			divergence_index = 0;
 		}
-		for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
+		for(z_iter = 0; z_iter < size.depth_; ++z_iter){
+		float* cellPressure = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			if(x_iter == 0){
+				float* pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float fr = pRight[pressure_index];
+
+				// Compute the new pressure value for the center cell.
+				cellPressure[pressure_index] = -fr/6.f;
+			}else if(x_iter + 1 == size.width_){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float fl = pLeft[pressure_index];
+
+				// Compute the new pressure value for the center cell.
+				cellPressure[pressure_index] = -fl/6.f;
+			}else if(y_iter == 0){
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float fu = pUp[pressure_index];
+
+				// Compute the new pressure value for the center cell.
+				cellPressure[pressure_index] = -fu/6.f;
+			}else if(y_iter + 1 == size.height_){
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float fd = pDown[pressure_index];
+
+				// Compute the new pressure value for the center cell.
+				cellPressure[pressure_index] = -fd/6.f;
+			}else if(z_iter == 0){
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float fb = pBottom[pressure_index];
+
+				// Compute the new pressure value for the center cell.
+				cellPressure[pressure_index] = -fb/6.f;
+			}else if(z_iter + 1 == size.depth_){
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float ft = pTop[pressure_index];
+
+				// Compute the new pressure value for the center cell.
+				cellPressure[pressure_index] = -ft/6.f;
+			}else if( (x_iter == 0 && ((y_iter == 0 || z_iter == 0) || (y_iter == size.height_ || z_iter == size.depth_)))){
+				cellPressure[pressure_index] = 0.f;
+			}else if( (x_iter  + 1 == size.width_ && ((y_iter == 0 || z_iter == 0) || (y_iter == size.height_ || z_iter == size.depth_)))){
+				cellPressure[pressure_index] = 0.f;
+			}else if( (y_iter == 0 && ((x_iter == 0 || z_iter == 0) || (x_iter == size.width_ || z_iter == size.depth_)))){
+				cellPressure[pressure_index] = 0.f;
+			}else if( (y_iter  + 1 == size.height_ && ((x_iter == 0 || z_iter == 0) || (x_iter == size.width_ || z_iter == size.depth_)))){
+				cellPressure[pressure_index] = 0.f;
+			}else if( (z_iter == 0 && ((y_iter == 0 || x_iter == 0) || (y_iter == size.height_ || x_iter == size.width_)))){
+				cellPressure[pressure_index] = 0.f;
+			}else if( (z_iter  + 1 == size.depth_ && ((y_iter == 0 || x_iter == 0) || (y_iter == size.height_ || x_iter == size.width_)))){
+				cellPressure[pressure_index] = 0.f;
+			}
 			if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 				if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 					if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
@@ -31,7 +81,6 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 						float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 						float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 						float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-						float* cellPressure = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 						// Get the divergence at the current cell.  
 						float dCentre = cellPressure[divergence_index];
