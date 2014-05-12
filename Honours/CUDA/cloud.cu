@@ -29,9 +29,16 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, Size size, 
 					float*pTop = pressure + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 					float*pBottom = pressure + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
-					float temp_x = (-pRight[pressure_index]) - pLeft[pressure_index];
-					float temp_y = (-pTop[pressure_index]) - pBottom[pressure_index];
-					float temp_z = (-pUp[pressure_index]) - pDown[pressure_index];
+					float fr = pRight[pressure_index];
+					float fl = pLeft[pressure_index];
+					float ft = pTop[pressure_index];
+					float fb = pBottom[pressure_index];
+					float fu = pUp[pressure_index];
+					float fd = pDown[pressure_index];
+
+					float temp_x = (fr - fl);
+					float temp_y = (fu - fd);
+					float temp_z = (fb - ft);
 
 					float new_x = cell_velocity[x_identifier_];
 					float new_y = cell_velocity[y_identifier_];

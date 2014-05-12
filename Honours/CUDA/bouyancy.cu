@@ -6,7 +6,7 @@
 #include <string.h>
 #include <cuda_runtime.h>
 #include "device_launch_parameters.h"
-
+#include "math.h"
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
@@ -25,12 +25,17 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 					float theta = input_thermo[theta_identifier_];
 					float qv = input_water[qv_identifier_];
 					float qh = input_water[qc_identifier_];
+					float pressure = p0*pow((T/T0),(g/R/gamma));
+					float pcap = pressure/p0;
+					pcap = powf(pcap,k);
+					pcap *= theta;
+
 					float temp = (0.61f*qv);
 					temp = 1.f+temp;
-					temp = (theta*temp);
+					temp = (pcap*temp);
 					temp = (temp / T0);
 					temp = temp - qh;
-					temp = temp * 9.8f;
+					temp = temp * g;
 					temp = temp * time_step;
 					//buoyancy
 					float delta = output_velocity[y_identifier_];

@@ -39,7 +39,8 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 					if(temp == 0){
 						temp = 1;
 					}
-					float invLen = 1.0f / sqrt(temp);
+					temp = sqrt(temp);
+					float invLen = 1.0f / temp;
 					float3 norm_value = {
 						curl_value.x * invLen,
 						curl_value.y * invLen,
