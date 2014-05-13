@@ -63,17 +63,14 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 			float *field_right_up_back = input + (location_two.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
 			float *field_right_down_back = input + (location_two.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
 
-			float temp_X_1 = field_left_up[theta_identifier_] +((field_left_down[theta_identifier_]-field_left_up[theta_identifier_])*0.5f);
-			float temp_X_2 = field_right_up[theta_identifier_] +((field_right_down[theta_identifier_]-field_right_up[theta_identifier_])*0.5f);
+			float temp_1 = field_left_up[theta_identifier_] + field_left_down[theta_identifier_] +  field_right_up[theta_identifier_] + field_right_down[theta_identifier_];
+			float temp_2 = field_left_up_back[theta_identifier_] + field_left_down_back[theta_identifier_] + field_right_down_back[theta_identifier_] + field_right_up_back[theta_identifier_];
 
-			float temp_X_3 = field_left_up_back[theta_identifier_] +((field_left_down_back[theta_identifier_]-field_left_up_back[theta_identifier_])*0.5f);
-			float temp_X_4 = field_right_up_back[theta_identifier_] +((field_right_down_back[theta_identifier_]-field_right_up_back[theta_identifier_])*0.5f);
-
-			temp_X_1 =(temp_X_1 + (temp_X_2-temp_X_1)*0.5f);
-			temp_X_3 =(temp_X_3 + (temp_X_4-temp_X_3)*0.5f);
+			temp_1 /=4.f;
+			temp_2 /=4.f;
 			
 			float*output_thermo = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
-			output_thermo[theta_advect_identifier_] = temp_X_1 + ((temp_X_3-temp_X_1)*0.5f);
+			output_thermo[theta_advect_identifier_] = (temp_1 + temp_2)/2.f;
 		}
 	}
 }

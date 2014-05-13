@@ -42,7 +42,7 @@ __global__ void cuda_kernel_initial(float *input, Size size, float value){
 				}
 			}
 		}*/
-		if(y_iter +1 <= size.width_-5){
+		if(y_iter >= 5){
 			
 				cell_value[0] = 0.5f;
 				cell_value[1] = 0.f;

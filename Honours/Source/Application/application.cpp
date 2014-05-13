@@ -889,8 +889,6 @@ void ApplicationClass::RunCloudKernals(){
 	cuda_fluid_jacobi(pressure_divergence_cuda_->cuda_linear_memory_, size, pressure_index, divergence_index);
 	getLastCudaError("cuda_fluid_jacobi failed");
 
-	pressure_index = 1;
-	divergence_index = 0;
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, pressure_index);
 	getLastCudaError("cuda_fluid_project failed");

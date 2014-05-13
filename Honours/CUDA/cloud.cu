@@ -18,7 +18,7 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, float* adve
 
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
 		float*cell_velocity = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-		float*cell_velocity_advect = advect + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+		float*cell_velocity_advect = advect + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);/*
 		if(x_iter == 0){
 				float* pRight = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 				float fr_x = pRight[x_identifier_];
@@ -103,7 +103,7 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, float* adve
 				cell_velocity[x_identifier_] = 0.f;
 				cell_velocity[y_identifier_] = 0.f;
 				cell_velocity[z_identifier_] = 0.f;
-			}
+			}*/
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
@@ -130,9 +130,9 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, float* adve
 					float new_y = cell_velocity_advect[y_identifier_];
 					float new_z = cell_velocity_advect[z_identifier_];
 					
-					new_x = new_x - (time_step * temp_x);
-					new_y = new_y - (time_step * temp_y);
-					new_z = new_z - (time_step * temp_z);
+					new_x = new_x - 0.5f*(time_step * temp_x);
+					new_y = new_y - 0.5f*(time_step * temp_y);
+					new_z = new_z - 0.5f*(time_step * temp_z);
 					
 					cell_velocity[x_identifier_] = new_x;
 					cell_velocity[y_identifier_] = new_y;

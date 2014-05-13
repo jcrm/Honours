@@ -9,23 +9,16 @@
 
 #include "../Source/CUDA/cuda_header.h"
 
-__global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pressure_index, int divergence_index){
+__global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
-	for(int i = 0; i < 40; i++){
-		if(i%2 == 0){
-			pressure_index = 0;
-			divergence_index = 1;
-		}else{
-			pressure_index = 1;
-			divergence_index = 0;
-		}
+	for(int i = 0; i < 16; i++){
 		for(z_iter = 0; z_iter < size.depth_; ++z_iter){
 			float sum = 0.f;
 			float* cellPressure = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
-			if(x_iter == 0 && y_iter == 0 && z_iter == 0){
+			/*if(x_iter == 0 && y_iter == 0 && z_iter == 0){
 				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
@@ -179,7 +172,7 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pTop[pressure_index];
-			}else if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
+			}else */if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 				if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 					if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 						float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
@@ -194,9 +187,9 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 			}
 			// Get the divergence at the current cell.  
 			float dCentre = cellPressure[divergence_index];
-			float value = (sum - (4*cellPressure[pressure_index]) - dCentre);
+			float value = sum + (-1 * dx * dx * dCentre);
 			// Compute the new pressure value for the center cell.
-			//cellPressure[pressure_index] = value/6.f;
+			cellPressure[pressure_index] = value/4.f;
 		}
 	}
 }
