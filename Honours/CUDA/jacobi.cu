@@ -22,57 +22,155 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 			divergence_index = 0;
 		}
 		for(z_iter = 0; z_iter < size.depth_; ++z_iter){
-		float* cellPressure = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-			if(x_iter == 0){
-				float* pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-				float fr = pRight[pressure_index];
+			float sum = 0.f;
+			float* cellPressure = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
-				// Compute the new pressure value for the center cell.
-				cellPressure[pressure_index] = -fr/6.f;
-			}else if(x_iter + 1 == size.width_){
-				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
-				float fl = pLeft[pressure_index];
-
-				// Compute the new pressure value for the center cell.
-				cellPressure[pressure_index] = -fl/6.f;
-			}else if(y_iter == 0){
+			if(x_iter == 0 && y_iter == 0 && z_iter == 0){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-				float fu = pUp[pressure_index];
-
-				// Compute the new pressure value for the center cell.
-				cellPressure[pressure_index] = -fu/6.f;
-			}else if(y_iter + 1 == size.height_){
-				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-				float fd = pDown[pressure_index];
-
-				// Compute the new pressure value for the center cell.
-				cellPressure[pressure_index] = -fd/6.f;
-			}else if(z_iter == 0){
 				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-				float fb = pBottom[pressure_index];
-
-				// Compute the new pressure value for the center cell.
-				cellPressure[pressure_index] = -fb/6.f;
-			}else if(z_iter + 1 == size.depth_){
+			}else if(x_iter == 0 && y_iter == 0 && z_iter + 1 == size.depth_){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-				float ft = pTop[pressure_index];
-
-				// Compute the new pressure value for the center cell.
-				cellPressure[pressure_index] = -ft/6.f;
-			}else if( (x_iter == 0 && ((y_iter == 0 || z_iter == 0) || (y_iter == size.height_ || z_iter == size.depth_)))){
-				cellPressure[pressure_index] = 0.f;
-			}else if( (x_iter  + 1 == size.width_ && ((y_iter == 0 || z_iter == 0) || (y_iter == size.height_ || z_iter == size.depth_)))){
-				cellPressure[pressure_index] = 0.f;
-			}else if( (y_iter == 0 && ((x_iter == 0 || z_iter == 0) || (x_iter == size.width_ || z_iter == size.depth_)))){
-				cellPressure[pressure_index] = 0.f;
-			}else if( (y_iter  + 1 == size.height_ && ((x_iter == 0 || z_iter == 0) || (x_iter == size.width_ || z_iter == size.depth_)))){
-				cellPressure[pressure_index] = 0.f;
-			}else if( (z_iter == 0 && ((y_iter == 0 || x_iter == 0) || (y_iter == size.height_ || x_iter == size.width_)))){
-				cellPressure[pressure_index] = 0.f;
-			}else if( (z_iter  + 1 == size.depth_ && ((y_iter == 0 || x_iter == 0) || (y_iter == size.height_ || x_iter == size.width_)))){
-				cellPressure[pressure_index] = 0.f;
-			}
-			if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
+			}else if(x_iter == 0 && y_iter + 1 == size.height_ && z_iter == 0){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter == 0 && y_iter + 1 == size.height_ && z_iter + 1 == size.depth_){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter + 1 == size.width_ && y_iter == 0 && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter + 1 == size.width_ && y_iter == 0 && z_iter + 1 == size.depth_){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter + 1 == size.width_ && y_iter + 1 == size.height_ && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter + 1 == size.width_ && y_iter + 1 == size.height_ && z_iter + 1 == size.depth_){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter == 0 && (y_iter > 0 && y_iter + 1 <size.height_) && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			}else if(x_iter == size.width_ && (y_iter > 0 && y_iter + 1 < size.height_) && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && y_iter == 0 && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && y_iter == size.height_ && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && (y_iter > 0 && y_iter +1 < size.height_) && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && (y_iter > 0 && y_iter + 1 < size.height_) && z_iter == size.depth_){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == 0 && y_iter == 0 && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == 0 && y_iter == size.height_ && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == 0 && (y_iter > 0 && y_iter +1 < size.height_) && z_iter == 0){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == 0 && (y_iter > 0 && y_iter +1 < size.height_) && z_iter == size.depth_){
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter + 1 == size.width_ && y_iter == 0 && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == size.width_ && y_iter == size.height_ && (z_iter > 0 && z_iter + 1 < size.depth_)){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == size.width_ && (y_iter > 0 && y_iter +1 < size.height_) && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter == size.width_ && (y_iter > 0 && y_iter +1 < size.height_) && z_iter == size.depth_){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && y_iter == 0 && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_)&& y_iter == size.height_ && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pDown = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pDown[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && y_iter == 0 && z_iter == 0){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if((x_iter > 0 && x_iter + 1 < size.width_) && y_iter == 0 && z_iter == size.depth_){
+				float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+				float*pRight = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+				float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+				float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+				sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
+			}else if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 				if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 					if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 						float*pLeft = pressuredivergence + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
@@ -81,26 +179,15 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 						float*pUp = pressuredivergence + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 						float*pTop = pressuredivergence + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 						float*pBottom = pressuredivergence + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-
-						// Get the divergence at the current cell.  
-						float dCentre = cellPressure[divergence_index];
-
-						float fl = pLeft[pressure_index];
-						float fr = pRight[pressure_index];
-						float fu = pUp[pressure_index];
-						float fd = pDown[pressure_index];
-						float ft = pTop[pressure_index];
-						float fb = pBottom[pressure_index];
-
-						float sum = fl + fr + fu + fd + ft + fb;
-						sum = sum - dCentre;
-						sum = sum / 6.f;
-
-						// Compute the new pressure value for the center cell.
-						cellPressure[pressure_index] = sum;
+						sum = pLeft[pressure_index] + pRight[pressure_index] + pUp[pressure_index] + pDown[pressure_index] + pTop[pressure_index] + pBottom[pressure_index];
 					}
 				}
 			}
+			// Get the divergence at the current cell.  
+			float dCentre = cellPressure[divergence_index];
+
+			// Compute the new pressure value for the center cell.
+			cellPressure[pressure_index] = (sum - (4*dCentre))/6.f;
 		}
 	}
 }
