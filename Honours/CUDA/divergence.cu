@@ -22,13 +22,16 @@ __global__ void cuda_kernel_divergence(float* output, float* input, Size size, i
 					float*fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 					float*fieldUp = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 					float*fieldTop = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					float*fieldLeft = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+					float*fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+					float*fieldBottom = input + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 					float *field= input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 					float*output_divergence = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					float temp_x = field[x_identifier_];
-					float temp_y = field[y_identifier_];
-					float temp_z = field[z_identifier_];
+					float temp_x = fieldLeft[x_identifier_];
+					float temp_y = fieldDown[y_identifier_];
+					float temp_z = fieldBottom[z_identifier_];
 
 					float temp_x_2 = fieldRight[x_identifier_];
 					float temp_y_2 = fieldUp[y_identifier_];
@@ -38,7 +41,7 @@ __global__ void cuda_kernel_divergence(float* output, float* input, Size size, i
 					float frl_y = temp_y_2 - temp_y;
 					float frl_z = temp_z_2 - temp_z;
 					float value = (frl_x+frl_y+frl_z);
-					value *= 0.1f;
+					value *= 0.5f;
 					output_divergence[divergence_index] = value;
 					value = output_divergence[divergence_index];
 					// Compute the velocity's divergence using central differences.  

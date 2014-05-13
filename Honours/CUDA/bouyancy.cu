@@ -40,7 +40,7 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 					//buoyancy
 					float delta = output_velocity[y_identifier_];
 					delta += temp;
-					output_velocity[y_identifier_] = delta;
+					//output_velocity[y_identifier_] = delta;
 				}
 			}
 		}

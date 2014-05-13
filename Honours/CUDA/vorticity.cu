@@ -59,9 +59,9 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 					v_y +=  (vect.y) * dx * scalar * time_step;
 					v_z +=  (vect.z) * dx * scalar * time_step;
 
-					output_velocity[x_identifier_] = v_x;
+					/*output_velocity[x_identifier_] = v_x;
 					output_velocity[y_identifier_] = v_y;
-					output_velocity[z_identifier_] = v_z;
+					output_velocity[z_identifier_] = v_z;*/
 				}
 			}
 		}/*

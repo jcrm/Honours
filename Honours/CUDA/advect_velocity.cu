@@ -16,7 +16,7 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
-		if((x_iter - 1 >= 0) && (y_iter - 1 >= 0) && (z_iter - 1 >= 0)){
+		if((x_iter - 1 >= 0 && x_iter + 1 < size.width_) && (y_iter - 1 >= 0 && y_iter + 1 < size.height_) && (z_iter - 1 >= 0 && z_iter + 1 < size.depth_)){
 			float *fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 			float *fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 			float*fieldRightCorner = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
@@ -55,7 +55,7 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 			output_velocity[x_identifier_] = temp_X_1 + ((temp_X_3-temp_X_1)*0.5f);
 			output_velocity[y_identifier_] = temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f);
 			output_velocity[z_identifier_] = temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f);
-		}else if(x_iter + 1 == size.width_){
+		}else if(x_iter + 1 == size.width_ && y_iter + 1 < size.height_ && z_iter + 1 < size.depth_){
 			float *fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 			float *field = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
@@ -90,7 +90,7 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 			output_velocity[x_identifier_] = temp_X_1 + ((temp_X_3-temp_X_1)*0.5f);
 			output_velocity[y_identifier_] = temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f);
 			output_velocity[z_identifier_] = temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f);
-		}else if(y_iter + 1 == size.height_){
+		}else if(y_iter + 1 == size.height_ && x_iter + 1 < size.width_ && z_iter + 1 < size.depth_){
 			float *fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 			float *field = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
@@ -125,7 +125,7 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 			output_velocity[x_identifier_] = temp_X_1 + ((temp_X_3-temp_X_1)*0.5f);
 			output_velocity[y_identifier_] = temp_Y_1 + ((temp_Y_3-temp_Y_1)*0.5f);
 			output_velocity[z_identifier_] = temp_Z_1 + ((temp_Z_3-temp_Z_1)*0.5f);
-		}else if(z_iter + 1 == size.depth_){
+		}else if(z_iter + 1 == size.depth_ && x_iter + 1 == size.width_ && y_iter + 1 < size.height_ && z_iter + 1 < size.depth_){
 			float *fieldRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 			float *fieldDown = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
 			float*fieldRightCorner = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
