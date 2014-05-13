@@ -866,7 +866,7 @@ void ApplicationClass::RunCloudKernals(){
 	getLastCudaError("cuda_fluid_advect failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect_thermo(thermo_cuda_->cuda_linear_memory_, size_two);
+	cuda_fluid_advect_thermo(thermo_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_two);
 	getLastCudaError("cuda_fluid_advect failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
@@ -892,7 +892,7 @@ void ApplicationClass::RunCloudKernals(){
 	pressure_index = 1;
 	divergence_index = 0;
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size, pressure_index);
+	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, pressure_index);
 	getLastCudaError("cuda_fluid_project failed");
 
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it

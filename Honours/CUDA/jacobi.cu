@@ -13,7 +13,7 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
-	for(int i = 0; i < 1; i++){
+	for(int i = 0; i < 40; i++){
 		if(i%2 == 0){
 			pressure_index = 0;
 			divergence_index = 1;
@@ -196,7 +196,7 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size, int pre
 			float dCentre = cellPressure[divergence_index];
 			float value = (sum - (4*cellPressure[pressure_index]) - dCentre);
 			// Compute the new pressure value for the center cell.
-			cellPressure[pressure_index] = value/6.f;
+			//cellPressure[pressure_index] = value/6.f;
 		}
 	}
 }

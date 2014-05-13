@@ -51,60 +51,12 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 						(norm_value.z * curl_value.x) - (norm_value.x * curl_value.z),
 						(norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)
 					};
-					float v_x =  output_velocity[x_identifier_];
-					float v_y =  output_velocity[y_identifier_];
-					float v_z =  output_velocity[z_identifier_];
-					
-					v_x +=  (vect.x) * dx * scalar * time_step;
-					v_y +=  (vect.y) * dx * scalar * time_step;
-					v_z +=  (vect.z) * dx * scalar * time_step;
-
-					/*output_velocity[x_identifier_] = v_x;
-					output_velocity[y_identifier_] = v_y;
-					output_velocity[z_identifier_] = v_z;*/
+					output_velocity[x_identifier_] += (vect.x * dx * scalar * time_step);
+					output_velocity[y_identifier_] += (vect.y * dx * scalar * time_step);
+					output_velocity[z_identifier_] += (vect.z * dx * scalar * time_step);
 				}
 			}
-		}/*
-		float*output_velocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-		if(x_iter +1 == size.width_ || x_iter - 1 < 0){
-			if(y_iter == 0 && z_iter == 0){
-				float x = output_velocity[x_identifier_] - 1;
-				float y = output_velocity[y_identifier_] - 1;
-				float z = output_velocity[z_identifier_] - 1;
-				x =  x < 0 ? 0 : x;
-				y =  y < 0 ? 0 : y;
-				z =  z < 0 ? 0 : z;
-				output_velocity[x_identifier_] = x;
-				output_velocity[y_identifier_] = y;
-				output_velocity[z_identifier_] = z;
-			}
 		}
-		if(y_iter + 1 == size.height_ || y_iter - 1 < 0){
-			if(x_iter == 0 && z_iter == 0){
-				float x = output_velocity[x_identifier_] - 1;
-				float y = output_velocity[y_identifier_] - 1;
-				float z = output_velocity[z_identifier_] - 1;
-				x =  x < 0 ? 0 : x;
-				y =  y < 0 ? 0 : y;
-				z =  z < 0 ? 0 : z;
-				output_velocity[x_identifier_] = x;
-				output_velocity[y_identifier_] = y;
-				output_velocity[z_identifier_] = z;
-			}
-		}
-		if(z_iter + 1 == size.depth_ || z_iter - 1 < 0){
-			if(y_iter == 0 && x_iter == 0){
-				float x = output_velocity[x_identifier_] - 1;
-				float y = output_velocity[y_identifier_] - 1;
-				float z = output_velocity[z_identifier_] - 1;
-				x =  x < 0 ? 0 : x;
-				y =  y < 0 ? 0 : y;
-				z =  z < 0 ? 0 : z;
-				output_velocity[x_identifier_] = x;
-				output_velocity[y_identifier_] = y;
-				output_velocity[z_identifier_] = z;
-			}
-		}*/
 	}
 }
 
