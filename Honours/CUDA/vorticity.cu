@@ -32,9 +32,9 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 					float *pBottom = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 					float3 curl_value = {
-						((pUp[z_identifier_] - pDown[z_identifier_]) - (pBottom[y_identifier_] - pTop[y_identifier_])) / (2*dx), 
-						((pBottom[x_identifier_] - pTop[x_identifier_]) - (pRight[z_identifier_] - pLeft[z_identifier_])) / (2*dx), 
-						((pRight[y_identifier_] - pLeft[y_identifier_]) - (pUp[x_identifier_] - pDown[x_identifier_])) / (2*dx)
+						((pUp[z_identifier_] - pDown[z_identifier_]) - (pBottom[y_identifier_] - pTop[y_identifier_])) * (2*dx), 
+						((pBottom[x_identifier_] - pTop[x_identifier_]) - (pRight[z_identifier_] - pLeft[z_identifier_])) * (2*dx), 
+						((pRight[y_identifier_] - pLeft[y_identifier_]) - (pUp[x_identifier_] - pDown[x_identifier_])) * (2*dx)
 					};
 					float temp = (curl_value.x * curl_value.x) + (curl_value.y * curl_value.y) + (curl_value.z * curl_value.z);
 					if(temp == 0){
@@ -51,10 +51,10 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 						(norm_value.y * curl_value.z) - (norm_value.z * curl_value.y),
 						(norm_value.z * curl_value.x) - (norm_value.x * curl_value.z),
 						(norm_value.x * curl_value.y) - (norm_value.y * curl_value.x)
-					};/*
+					};
 					output_velocity[x_identifier_] += (vect.x * dx * scalar * time_step);
 					output_velocity[y_identifier_] += (vect.y * dx * scalar * time_step);
-					output_velocity[z_identifier_] += (vect.z * dx * scalar * time_step);*/
+					output_velocity[z_identifier_] += (vect.z * dx * scalar * time_step);
 				}
 			}
 		}

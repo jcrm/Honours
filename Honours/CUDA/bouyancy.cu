@@ -35,7 +35,7 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 					temp = (pcap*temp);
 					temp = (temp / T0);
 					temp = temp - qh;
-					temp = temp * g;
+					temp = temp * g*10;
 					temp = temp * time_step;
 					//buoyancy
 					float delta = output_velocity[y_identifier_];

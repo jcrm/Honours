@@ -29,9 +29,9 @@ struct Size{
 #define divergence_identifier_ 1
 
 #define time_step 1.f
-#define dx 100.f
+#define dx 0.05f
 #define T0 295.f
-#define gamma 10.f/100.f
+#define gamma 10.f/1000.f
 #define p0 100000
 #define aT 5e-4
 #define alpha 1e-3
@@ -39,7 +39,7 @@ struct Size{
 #define b1 1000.f
 #define V 4.f
 #define W 8.f
-#define g 9.8f
+#define g 9.8f/1000.f
 #define R 287.f
 #define epsilon 18.02f/29.87f
 #define a 17.27f

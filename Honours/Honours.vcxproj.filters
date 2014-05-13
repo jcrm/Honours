@@ -112,6 +112,9 @@
     <Filter Include="Resource Files\CUDA Files\End Files\Rain Files">
       <UniqueIdentifier>{8f9e2861-fc89-4921-bbd3-ca68bbe31adb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\CUDA Files\Boundaries">
+      <UniqueIdentifier>{8dcbf5f5-3ee3-42db-a2a9-be6be9bc55f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="Data\ground.dds">
@@ -203,8 +206,11 @@
     <CudaCompile Include="CUDA\initial_float.cu">
       <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="CUDA\boundaries_thermo.cu">
+      <Filter>Resource Files\CUDA Files\Boundaries</Filter>
+    </CudaCompile>
     <CudaCompile Include="CUDA\boundaries.cu">
-      <Filter>Resource Files\CUDA Files</Filter>
+      <Filter>Resource Files\CUDA Files\Boundaries</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

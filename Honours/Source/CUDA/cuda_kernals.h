@@ -18,6 +18,7 @@ extern "C"
 	void cuda_fluid_project(void*, void*,void*, Size);
 	void cuda_fluid_rain(void*, void*, Size, Size);
 	void cuda_fluid_boundaries(void*, Size);
+	void cuda_fluid_boundaries_thermo(void*, Size, float, float);
 }
 
 #endif

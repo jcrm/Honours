@@ -33,6 +33,7 @@
     <CudaCompile Include="CUDA\advect_thermo.cu" />
     <CudaCompile Include="CUDA\advect_velocity.cu" />
     <CudaCompile Include="CUDA\boundaries.cu" />
+    <CudaCompile Include="CUDA\boundaries_thermo.cu" />
     <CudaCompile Include="CUDA\bouyancy.cu" />
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />

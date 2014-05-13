@@ -36,13 +36,12 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 					if(qc>aT){
 						A=alpha*(qc-aT);
 					}
-
-					float pressure = p0*pow((T/T0),(g/R/gamma));
+					float pressure = p0*pow((T/T0),(g/R/gamma*1000));
 					float temperature = theta * powf((p0/pressure),k);
 					float est = (es0/pressure)*exp(a*(temperature-273.f)/(temperature-b));
 					float pres_minus_est = pow((pressure-est),2);
 					float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
-
+					C *= 1000.f;
 					qv = (-C/W);
 					qc = ((-A-K+C)/W);
 					qr = ((A+K+F)/W);
@@ -51,7 +50,7 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 					pcap *= cp;
 					pcap = latent_heat / pcap;
 					pcap = (pcap * -C * time_step);
-					theta = theta_advect +pcap;
+					theta = theta_advect + (pcap*1000);
 
 					water[qv_identifier_] = qv;
 					water[qc_identifier_] = qc;

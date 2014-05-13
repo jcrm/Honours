@@ -88,10 +88,10 @@ private:
 	void ShutdownCudaResources();
 
 	bool InitCudaTextures();
-	void CudaCalculations();
-	void RunKernels();
+	void CudaCalculations(float frame_time);
+	void RunKernels(float frame_time);
 	void InitClouds();
-	void RunCloudKernals();
+	void RunCloudKernals(float frame_time);
 	void RunInitKernals();
 	void CudaMemoryCopy();
 	bool RenderClouds();

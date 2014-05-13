@@ -40,10 +40,6 @@ __global__ void cuda_kernel_divergence(float* output, float* input, Size size){
 					float frl_z = temp_z_2 - temp_z;
 					float value = (frl_x+frl_y+frl_z);
 					value *= 0.5f;
-					if(value >= 100.f){
-						value *= -1;
-						value *= -1;
-					}
 					output_divergence[divergence_identifier_] = value;
 					// Compute the velocity's divergence using central differences.  
 				}

@@ -538,7 +538,7 @@ bool ApplicationClass::Frame(){
 		// Run the frame processing for the particle system.
 		rain_systems_[i]->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
 	}
-	CudaCalculations();
+	CudaCalculations(timer_->GetTime());
 	// Render the graphics scene.
 	result = Render();
 	if(!result){
@@ -766,7 +766,7 @@ bool ApplicationClass::RenderClouds(){
 // Name: CudaRender()
 // Desc: Launches the CUDA kernels to fill in the texture data
 //-----------------------------------------------------------------------------
-void ApplicationClass::CudaCalculations(){
+void ApplicationClass::CudaCalculations(float frame_time){
 	static bool is_done_once = false;
 	//map the resources we've registered so we can access them in Cuda
 	//it is most efficient to map and unmap all resources in a single call,
@@ -791,7 +791,7 @@ void ApplicationClass::CudaCalculations(){
 		is_done_once = true;
 	}
 	// run kernels which will populate the contents of those textures
-	RunCloudKernals();
+	RunCloudKernals(frame_time);
 	CudaMemoryCopy();
 
 	// unmap the resources
@@ -817,7 +817,7 @@ void ApplicationClass::RunInitKernals(){
 	size_three.depth_ = 0;
 	size_three.pitch_slice_ = 0;
 
-	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 10.f);
+	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 0.0f);
 	getLastCudaError("cuda_fluid_initial failed");
 
 	cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size, 0.f);
@@ -838,7 +838,7 @@ void ApplicationClass::RunInitKernals(){
 	cuda_fluid_initial_float_2d(rain_cuda_->cuda_linear_memory_, size_three, 0.f);
 	getLastCudaError("cuda_fluid_initial failed");
 }
-void ApplicationClass::RunCloudKernals(){
+void ApplicationClass::RunCloudKernals(float frame_time){
 	Size size;
 	size.width_ = velocity_cuda_->width_;
 	size.height_ = velocity_cuda_->height_;
@@ -890,7 +890,11 @@ void ApplicationClass::RunCloudKernals(){
 	getLastCudaError("cuda_fluid_project failed");
 
 	cuda_fluid_boundaries(velocity_cuda_->cuda_linear_memory_,size);
-
+	static float timer = 0.f;
+	timer += frame_time;
+	if(timer >5.0f){
+		cuda_fluid_boundaries_thermo(water_continuity_cuda_->cuda_linear_memory_, size_two, rand()%30+290, rand()%30+290);
+	}
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
 	getLastCudaError("cuda_texture_2d failed");

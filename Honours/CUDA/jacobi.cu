@@ -62,9 +62,10 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size){
 			}
 			// Get the divergence at the current cell.  
 			float dCentre = cellPressure[divergence_identifier_];
-			float value = sum + (dCentre/(dx * dx* dx));
+			float value = (sum + (dx * dx) ) * dCentre;
+			value /= 4.f;
 			// Compute the new pressure value for the center cell.
-			cellPressure[write_identifier] = value/4.f;
+			cellPressure[write_identifier] = value;
 		}
 	}
 }
