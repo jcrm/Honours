@@ -24,8 +24,12 @@ struct Size{
 #define theta_identifier_ 0
 #define theta_advect_identifier_ 1
 
+#define pressure_identifier_ 0
+#define pressure_identifier_two_ 2
+#define divergence_identifier_ 1
+
 #define time_step 1.f
-#define dx 1.f
+#define dx 100.f
 #define T0 295.f
 #define gamma 10.f/100.f
 #define p0 100000

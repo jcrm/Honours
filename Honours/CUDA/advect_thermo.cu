@@ -14,7 +14,7 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 
-	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
+	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
 		if((x_iter - 1 >= 0 && x_iter + 1 < size.width_) && (y_iter - 1 >= 0 && y_iter + 1 < size.height_) && (z_iter - 1 >= 0 && z_iter + 1 < size.depth_)){
 			float *cellVelo = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 			float3 pos = {x_iter, y_iter, z_iter};

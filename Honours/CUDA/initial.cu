@@ -14,7 +14,7 @@ __global__ void cuda_kernel_initial(float *input, Size size, float value){
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 
-	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
+	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
 		//location is z slide + y position + variable size time x position
 		float*cell_value = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 		cell_value[0] = 0.f;
@@ -42,9 +42,9 @@ __global__ void cuda_kernel_initial(float *input, Size size, float value){
 				}
 			}
 		}*/
-		if(y_iter >= 5){
+		if(y_iter <= 5){
 			
-				cell_value[0] = 0.5f;
+				cell_value[0] = value;
 				cell_value[1] = 0.f;
 				cell_value[2] = 0.f;
 				cell_value[3] = 0.f;

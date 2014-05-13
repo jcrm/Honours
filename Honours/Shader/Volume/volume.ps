@@ -47,7 +47,7 @@ float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
 			value.a = 0;
 		}
 
-		src = (float4)(value.a/10);
+		src = (float4)(value.a/100);
 
 		src.a *= .1f;
 		//reduce the alpha to have a more transparent result

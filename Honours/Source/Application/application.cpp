@@ -839,10 +839,6 @@ void ApplicationClass::RunInitKernals(){
 	getLastCudaError("cuda_fluid_initial failed");
 }
 void ApplicationClass::RunCloudKernals(){
-	// populate the volume texture
-	int pressure_index = 0;
-	int divergence_index = 1;
-
 	Size size;
 	size.width_ = velocity_cuda_->width_;
 	size.height_ = velocity_cuda_->height_;
@@ -882,16 +878,18 @@ void ApplicationClass::RunCloudKernals(){
 	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, divergence_index);
+	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_divergence failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_jacobi(pressure_divergence_cuda_->cuda_linear_memory_, size, pressure_index, divergence_index);
+	cuda_fluid_jacobi(pressure_divergence_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_jacobi failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, pressure_index);
+	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_project failed");
+
+	cuda_fluid_boundaries(velocity_cuda_->cuda_linear_memory_,size);
 
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);

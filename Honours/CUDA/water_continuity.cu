@@ -15,7 +15,7 @@ __global__ void cuda_kernel_water_thermo(float *input, float *input_two, float *
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 
-	for(z_iter = 0; z_iter < size.depth_; ++z_iter){
+	for(z_iter = 0; z_iter < size.depth_; z_iter++){
 		if(x_iter + 1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){

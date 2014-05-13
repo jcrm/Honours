@@ -14,7 +14,7 @@ __global__ void cuda_kernel_rain(float *output, float *input, Size size, Size si
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 	float rain_sum = 0.f;
-	for(z_iter = 0; z_iter < size_two.depth_; ++z_iter){
+	for(z_iter = 0; z_iter < size_two.depth_; z_iter++){
 		if(x_iter +1 < size_two.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size_two.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size_two.depth_ && z_iter - 1 >= 0){

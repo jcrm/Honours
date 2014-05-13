@@ -15,7 +15,7 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
 
-	for(z_iter = 0; z_iter < size.depth_; ++z_iter){ 
+	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
 		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
@@ -40,7 +40,7 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 					//buoyancy
 					float delta = output_velocity[y_identifier_];
 					delta += temp;
-					//output_velocity[y_identifier_] = delta;
+					output_velocity[y_identifier_] = delta;
 				}
 			}
 		}

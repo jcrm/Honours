@@ -203,6 +203,9 @@
     <CudaCompile Include="CUDA\initial_float.cu">
       <Filter>Resource Files\CUDA Files\Initialise Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="CUDA\boundaries.cu">
+      <Filter>Resource Files\CUDA Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CUDA\cuda_kernals.h">
