@@ -1,3 +1,7 @@
+/*
+Volume rendering written from tutorial found here
+http://graphicsrunner.blogspot.co.uk/2009/01/volume-rendering-101.html
+*/
 cbuffer CameraData
 {
 	float4 CameraPosition;
@@ -16,7 +20,7 @@ Texture2D back_;
 Texture3D volume_;
 SamplerState sample_type_;
 
-float4 RayCastSimplePS(PixelShaderInput input) : SV_TARGET
+float4 VolumePS(PixelShaderInput input) : SV_TARGET
 { 
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube

@@ -1,3 +1,7 @@
+/*
+Volume rendering written from tutorial found here
+http://graphicsrunner.blogspot.co.uk/2009/01/volume-rendering-101.html
+*/
 /////////////
 // GLOBALS //
 /////////////

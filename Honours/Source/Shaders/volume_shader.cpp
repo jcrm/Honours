@@ -47,7 +47,7 @@ bool VolumeShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vs_f
 		return false;
 	}
 	// Compile the pixel shader code.
-	result = D3DX11CompileFromFile(ps_filename, NULL, NULL, "RayCastSimplePS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
+	result = D3DX11CompileFromFile(ps_filename, NULL, NULL, "VolumePS", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, NULL, 
 		&pixel_shader_buffer, &error_message, NULL);
 	if(FAILED(result)){
 		// If the shader failed to compile it should have writen something to the error message.
