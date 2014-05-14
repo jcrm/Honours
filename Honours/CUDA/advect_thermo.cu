@@ -9,7 +9,7 @@
 
 #include "../Source/CUDA/cuda_header.h"
 
-__global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size size){ 
+__global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size size, float ambient_temp){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -53,17 +53,36 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 			
 		float*output_thermo = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
 		output_thermo[theta_advect_identifier_] = (temp_1 + temp_2)/2.f;
+		/*
+		if(x_iter == 0){
+			output_thermo[theta_identifier_] = T0;
+		}else if(x_iter + 1 == size.width_){
+			output_thermo[theta_identifier_] = T0;
+		}else if (y_iter == 0){
+			if((x_iter >= size.width_/4.f  && x_iter <= 3*(size.width_/4.f)) && (z_iter <= size.width_/4.f  || x_iter >= 3*(size.width_/4.f))){
+				output_thermo[theta_identifier_] = 310.f;
+			}else{
+				output_thermo[theta_identifier_] = 270.f;
+
+			}
+		}else if (y_iter + 1 == size.height_){
+			output_thermo[theta_identifier_] = T0;
+		}else if (z_iter == 0){
+			output_thermo[theta_identifier_] = T0;
+		}else if (z_iter + 1 == size.depth_){
+			output_thermo[theta_identifier_] = T0;
+		}*/
 	}
 }
 
 extern "C"
-void cuda_fluid_advect_thermo(void *input, void* velocity, Size size){
+void cuda_fluid_advect_thermo(void *input, void* velocity, Size size, float ambient_temp){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_advect_thermo<<<Dg,Db>>>((float*)input, (float*)velocity, size);
+	cuda_kernel_advect_thermo<<<Dg,Db>>>((float*)input, (float*)velocity, size, ambient_temp);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

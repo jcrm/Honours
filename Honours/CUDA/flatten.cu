@@ -37,9 +37,9 @@ __global__ void cuda_kernel_rain(float *output, float *input, Size size, Size si
 	xIter /= 2;
 	yIter /= 2;
 	float* rain = output + (yIter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * xIter);
-	if(rain_sum!= 0){
-		rain_sum *= -1;
-		rain_sum *= -1;
+	if(rain_sum < 0){
+		rain_sum *= -100000.f;
+		rain_sum *= 100000.f;
 	}
 	rain[0] = rain_sum;
 }

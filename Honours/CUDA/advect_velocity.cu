@@ -10,7 +10,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_advect_velocity(float *output, float*input, Size size){ 
+__global__ void cuda_kernel_advect_velocity(float *output, float*input, Size size, float3 x_left, float3 x_right,  float3 z_front, float3 z_back){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -77,19 +77,35 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 			output_velocity[x_identifier_] = -down[x_identifier_];
 			output_velocity[y_identifier_] = -down[y_identifier_];
 			output_velocity[z_identifier_] = -down[z_identifier_];
+		}else if (x_iter == 0){
+			cellVelocity[x_identifier_] += x_left.x;
+			cellVelocity[y_identifier_] += x_left.y;
+			cellVelocity[z_identifier_] += x_left.z;
+		}else if (x_iter + 1 == size.width_){
+			cellVelocity[x_identifier_] += x_right.x;
+			cellVelocity[y_identifier_] += x_right.y;
+			cellVelocity[z_identifier_] += x_right.z;
+		}else if (z_iter == 0){
+			cellVelocity[x_identifier_] += z_front.x;
+			cellVelocity[y_identifier_] += z_front.y;
+			cellVelocity[z_identifier_] += z_front.z;
+		}else if (z_iter + 1 == size.depth_){
+			cellVelocity[x_identifier_] += z_back.x;
+			cellVelocity[y_identifier_] += z_back.y;
+			cellVelocity[z_identifier_] += z_back.z;
 		}
 	}
 	
 }
 
 extern "C"
-void cuda_fluid_advect_velocity(void *output, void *input, Size size){
+void cuda_fluid_advect_velocity(void *output, void *input, Size size, float3 x_left, float3 x_right,  float3 z_front, float3 z_back){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_advect_velocity<<<Dg,Db>>>((float *)output, (float *)input, size);
+	cuda_kernel_advect_velocity<<<Dg,Db>>>((float *)output, (float *)input, size, x_left, x_right, z_front, z_back);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){
