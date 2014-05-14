@@ -19,19 +19,11 @@ __global__ void cuda_kernel_boundaries_thermo(float*input, Size size, float left
 	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
 		float*cell = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
 		if(y_iter == 0){
-			cell[theta_identifier_] = left;
-		}else if(y_iter + 1 == size.height_){
-			cell[theta_identifier_] = right;
-		}
-		if(x_iter == 0){
-			cell[theta_identifier_] = left;
-		}else if(x_iter + 1 == size.width_){
-			cell[theta_identifier_] = right;
-		}
-		if(z_iter == 0){
-			cell[theta_identifier_] = left;
-		}else if(z_iter + 1 == size.depth_){
-			cell[theta_identifier_] = right;
+			if(x_iter < 3*(size.width_/4.f) && x_iter > (size.width_/4.f)){
+				cell[0] = left;
+			}else{
+				cell[0] = right;
+			}
 		}
 	}
 }

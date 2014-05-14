@@ -16,34 +16,16 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
-		if(x_iter +1 < size.width_ && x_iter - 1 >= 0){
-			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
-				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
-					float* output_velocity = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					float* input_thermo = input + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
-					float* input_water = input_two + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
-					float theta = input_thermo[theta_identifier_];
-					float qv = input_water[qv_identifier_];
-					float qh = input_water[qc_identifier_];
-					float pressure = p0*pow((T/T0),(g/R/gamma));
-					float pcap = pressure/p0;
-					pcap = powf(pcap,k);
-					pcap *= theta;
+		float* output_velocity = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+		float* input_thermo = input + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
+		float* input_water = input_two + (z_iter*size_two.pitch_slice_) + (y_iter*size_two.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
+		float theta = input_thermo[theta_identifier_];
+		float qv = input_water[qv_identifier_];
+		float qh = input_water[qc_identifier_];
+		float pcap = theta * powf(pressure/p0,k);
 
-					float temp = (0.61f*qv);
-					temp = 1.f+temp;
-					temp = (pcap*temp);
-					temp = (temp / T0);
-					temp = temp - qh;
-					temp = temp * g*10.f;
-					temp = temp * time_step;
-					//buoyancy
-					float delta = output_velocity[y_identifier_];
-					delta += temp;
-					output_velocity[y_identifier_] = delta;
-				}
-			}
-		}
+		//buoyancy
+		output_velocity[y_identifier_] += (((pcap*(1.f+(0.61f*qv)))/T0)-qh) * g*10.f* time_step;
 	}
 }
 

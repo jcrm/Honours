@@ -11,7 +11,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_project(float*pressure, float* velocity, float* advect, Size size){
+__global__ void cuda_kernel_project(float*pressureInput, float* velocity, float* advect, Size size){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -24,12 +24,12 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, float* adve
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 					// Get pressure values from neighboring cells. 
-					float*pLeft = pressure + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
-					float*pRight = pressure + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-					float*pDown = pressure + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-					float*pUp = pressure + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-					float*pTop = pressure + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-					float*pBottom = pressure + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					float*pLeft = pressureInput + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
+					float*pRight = pressureInput + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
+					float*pDown = pressureInput + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+					float*pUp = pressureInput + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
+					float*pTop = pressureInput + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+					float*pBottom = pressureInput + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 					float fr = pRight[pressure_identifier_];
 					float fl = pLeft[pressure_identifier_];
@@ -67,13 +67,13 @@ __global__ void cuda_kernel_project(float*pressure, float* velocity, float* adve
 }
 
 extern "C"
-void cuda_fluid_project(void *pressure, void *velocityInput, void* advect, Size size){
+void cuda_fluid_project(void *pressureInput, void *velocityInput, void* advect, Size size){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_project<<<Dg,Db>>>((float *)pressure, (float *)velocityInput, (float*)advect, size);
+	cuda_kernel_project<<<Dg,Db>>>((float *)pressureInput, (float *)velocityInput, (float*)advect, size);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

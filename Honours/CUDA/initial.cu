@@ -25,28 +25,17 @@ __global__ void cuda_kernel_initial(float *input, Size size, float value){
 			if(y_iter + 1 < size.height_ && y_iter - 1 >= 0){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 					cell_value[0] = 0.f;
-					cell_value[1] = 0.f;
+					cell_value[1] = value;
 					cell_value[2] = 0.f;
 					cell_value[3] = 0.f;
 				}
 			}
-		}/*
-		if(x_iter +1 < 3*(size.width_/4) && x_iter - 1 >= (size.depth_/4)){
-			if(y_iter + 1 < 3*(size.height_/4) && y_iter - 1 >= (size.depth_/4)){
-				if(z_iter + 1 < 3*(size.depth_/4) && z_iter - 1 >= (size.depth_/4)){
-					cell_value[0] = signed int(value);
-					cell_value[1] = signed int(value);
-					cell_value[2] = signed int(value);
-					cell_value[3] = signed int(0);
-
-				}
-			}
-		}*/
+		}
 		if(y_iter <= 5){
 			
 				cell_value[0] = value;
-				cell_value[1] = 0.f;
-				cell_value[2] = 0.f;
+				cell_value[1] = value*2.f;
+				cell_value[2] = -value;
 				cell_value[3] = 0.f;
 		}
 	}

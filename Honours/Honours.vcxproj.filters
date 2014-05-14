@@ -212,6 +212,12 @@
     <CudaCompile Include="CUDA\boundaries.cu">
       <Filter>Resource Files\CUDA Files\Boundaries</Filter>
     </CudaCompile>
+    <CudaCompile Include="CUDA\forces.cu">
+      <Filter>Resource Files\CUDA Files\Force Files</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CUDA\thermo.cu">
+      <Filter>Resource Files\CUDA Files\Force Files</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CUDA\cuda_kernals.h">

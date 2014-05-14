@@ -38,10 +38,12 @@
     <CudaCompile Include="CUDA\cloud.cu" />
     <CudaCompile Include="CUDA\divergence.cu" />
     <CudaCompile Include="CUDA\flatten.cu" />
+    <CudaCompile Include="CUDA\forces.cu" />
     <CudaCompile Include="CUDA\initial_float.cu" />
     <CudaCompile Include="CUDA\initial _float_2d.cu" />
     <CudaCompile Include="CUDA\initial.cu" />
     <CudaCompile Include="CUDA\jacobi.cu" />
+    <CudaCompile Include="CUDA\thermo.cu" />
     <CudaCompile Include="CUDA\vorticity.cu" />
     <CudaCompile Include="CUDA\water_continuity.cu" />
   </ItemGroup>

@@ -5,9 +5,9 @@
 #include <time.h>
 ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), player_position_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
-	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), 	face_shader_(0), 
+	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), full_screen_window_(0)
 {
 	srand((int)time(NULL));
 }
@@ -15,7 +15,7 @@ ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0),
 	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), full_screen_window_(0)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), full_screen_window_(0)
 {
 	srand((int)time(NULL));
 }
@@ -106,6 +106,15 @@ void ApplicationClass::InitClouds(){
 	velocity_cuda_->pitch_ = velocity_cuda_->width_ * PIXEL_FMT_SIZE_RGBA;
 	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
 	cudaMemset(velocity_cuda_->cuda_linear_memory_, 1, velocity_cuda_->pitch_ * velocity_cuda_->height_* sizeof(float) * velocity_cuda_->depth_);
+	getLastCudaError("cudaMemset (g_texture_cloud) failed");
+
+	cudaGraphicsD3D11RegisterResource(&vorticity_cuda_->cuda_resource_, vorticity_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
+	getLastCudaError("cudaGraphicsD3D11RegisterResource (g_texture_cloud) failed");
+	// create the buffer. pixel fmt is DXGI_FORMAT_R8G8B8A8_SNORM
+	cudaMalloc(&vorticity_cuda_->cuda_linear_memory_, vorticity_cuda_->width_ * PIXEL_FMT_SIZE_RGBA* sizeof(float) * vorticity_cuda_->height_ * vorticity_cuda_->depth_);
+	vorticity_cuda_->pitch_ = vorticity_cuda_->width_ * PIXEL_FMT_SIZE_RGBA;
+	getLastCudaError("cudaMallocPitch (g_texture_cloud) failed");
+	cudaMemset(vorticity_cuda_->cuda_linear_memory_, 1, vorticity_cuda_->pitch_ * vorticity_cuda_->height_* sizeof(float) * vorticity_cuda_->depth_);
 	getLastCudaError("cudaMemset (g_texture_cloud) failed");
 	
 	cudaGraphicsD3D11RegisterResource(&velocity_derivative_cuda_->cuda_resource_, velocity_derivative_cuda_->texture_, cudaGraphicsRegisterFlagsNone);
@@ -338,6 +347,10 @@ bool ApplicationClass::InitCudaTextures(){
 	if (!pressure_divergence_cuda_){
 		return false;
 	}
+	vorticity_cuda_= new fluid_texture;
+	if (!vorticity_cuda_){
+		return false;
+	}
 	//set the width and height for the texture description
 	velocity_cuda_->width_  = size_WHD.x;
 	velocity_cuda_->height_ = size_WHD.y;
@@ -379,6 +392,24 @@ bool ApplicationClass::InitCudaTextures(){
 	}
 	//set shader resource
 	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &velocity_derivative_cuda_->sr_view_);
+	//do the same as above for the velocity derivative texture and pressure and divergence texture
+	vorticity_cuda_->width_  = size_WHD.x;
+	vorticity_cuda_->height_ = size_WHD.y;
+	vorticity_cuda_->depth_  = size_WHD.z;
+	//set width, height and depth
+	desc.Width = vorticity_cuda_->width_;
+	desc.Height = vorticity_cuda_->height_;
+	desc.Depth = vorticity_cuda_->depth_;
+	//create 3d texture
+	if (FAILED(d3d_device->CreateTexture3D(&desc, NULL, &vorticity_cuda_->texture_))){
+		return false;
+	}
+	//create shader resource
+	if (FAILED(d3d_device->CreateShaderResourceView(vorticity_cuda_->texture_, NULL, &vorticity_cuda_->sr_view_))){
+		return false;
+	}
+	//set shader resource
+	d3d_device_context->PSSetShaderResources(offset_shader++, 1, &vorticity_cuda_->sr_view_);
 	//set texture variables for pressure and divergence texture
 	pressure_divergence_cuda_->width_  = size_WHD.x;
 	pressure_divergence_cuda_->height_ = size_WHD.y;
@@ -773,7 +804,7 @@ void ApplicationClass::CudaCalculations(float frame_time){
 	//and to have the map/unmap calls be the boundary between using the GPU
 	//for Direct3D and Cuda
 	cudaStream_t stream = 0;
-	const int num_resources = 7;
+	const int num_resources = 8;
 	cudaGraphicsResource *resources[num_resources] ={
 		velocity_cuda_->cuda_resource_,
 		velocity_derivative_cuda_->cuda_resource_,
@@ -781,7 +812,8 @@ void ApplicationClass::CudaCalculations(float frame_time){
 		water_continuity_cuda_->cuda_resource_,
 		water_continuity_rain_cuda_->cuda_resource_,
 		thermo_cuda_->cuda_resource_,
-		rain_cuda_->cuda_resource_
+		rain_cuda_->cuda_resource_,
+		vorticity_cuda_->cuda_resource_
 	};
 	cudaGraphicsMapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
@@ -817,7 +849,7 @@ void ApplicationClass::RunInitKernals(){
 	size_three.depth_ = 0;
 	size_three.pitch_slice_ = 0;
 
-	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 0.f);
+	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 0.1f);
 	getLastCudaError("cuda_fluid_initial failed");
 
 	cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size, 0.f);
@@ -832,7 +864,7 @@ void ApplicationClass::RunInitKernals(){
 	cuda_fluid_initial_float(water_continuity_rain_cuda_->cuda_linear_memory_, size_two, 0.f);
 	getLastCudaError("cuda_fluid_initial failed");
 
-	cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 290.f);
+	cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 230.f);
 	getLastCudaError("cuda_fluid_initial failed");
 
 	cuda_fluid_initial_float_2d(rain_cuda_->cuda_linear_memory_, size_three, 0.f);
@@ -866,15 +898,20 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	getLastCudaError("cuda_fluid_advect failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_vorticity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
+	cuda_fluid_vorticity(vorticity_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
+	cuda_fluid_force(velocity_derivative_cuda_->cuda_linear_memory_, vorticity_cuda_->cuda_linear_memory_, size);
+	getLastCudaError("cuda_fluid_vorticity failed");
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_bouyancy(velocity_derivative_cuda_->cuda_linear_memory_, thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size, size_two);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_water_thermo(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_two);
+	cuda_fluid_water(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_two);
+	getLastCudaError("cuda_fluid_vorticity failed");
+
+	cuda_fluid_thermo(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size_two);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
@@ -895,8 +932,10 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	timer += frame_time;
 	
 	if(timer/1000 >5.0f){
-		float left = rand()%40+270;
-		float right = rand()%40+270;
+		/*float left = rand()%40+270;
+		float right = rand()%40+270;*/
+		float left = rand()%250+100;
+		float right = rand()%250+100;
 		timer = 0.f;
 		cuda_fluid_boundaries_thermo(thermo_cuda_->cuda_linear_memory_, size_two, left, right);
 	}
@@ -1015,6 +1054,10 @@ void ApplicationClass::ShutdownCudaResources(){
 	if (velocity_cuda_){
 		delete velocity_cuda_;
 		velocity_cuda_ = NULL;
+	}
+	if (vorticity_cuda_){
+		delete vorticity_cuda_;
+		vorticity_cuda_ = NULL;
 	}
 	if (velocity_derivative_cuda_){
 		delete velocity_derivative_cuda_;

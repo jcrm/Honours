@@ -1,5 +1,5 @@
-#ifndef _VORTICITY_CUDA_
-#define _VORTICITY_CUDA_
+#ifndef _FORCES_CUDA_
+#define _FORCES_CUDA_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +11,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_vorticity(float *output, float *input, Size size){ 
+__global__ void cuda_kernel_force(float *output, float *input, Size size){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -22,6 +22,8 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 				if(z_iter + 1 < size.depth_ && z_iter - 1 >= 0){
 					float*output_velocity = output + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 					//vorticity confinement
+					float scalar = 1.f;
+					float*p = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 					float*pLeft = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
 					float*pRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
 					float *pDown = input + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
@@ -30,29 +32,32 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 					float *pBottom = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 
 					float3 curl_value = {
-						((pUp[z_identifier_] - pDown[z_identifier_]) - (pBottom[y_identifier_] - pTop[y_identifier_])) * (2*dx), 
-						((pBottom[x_identifier_] - pTop[x_identifier_]) - (pRight[z_identifier_] - pLeft[z_identifier_])) * (2*dx), 
-						((pRight[y_identifier_] - pLeft[y_identifier_]) - (pUp[x_identifier_] - pDown[x_identifier_])) * (2*dx)
+						p[x_identifier_],
+						p[y_identifier_],
+						p[z_identifier_]
 					};
-					float invLen = (curl_value.x * curl_value.x) + (curl_value.y * curl_value.y) + (curl_value.z * curl_value.z);
+
+					float3 N_value = {
+						pRight[3]-pLeft[3], 
+						pUp[3] - pDown[3], 
+						pBottom[3] - pTop[3]
+					};
+
+					float invLen = (N_value.x * N_value.x) + (N_value.y * N_value.y) + (N_value.z * N_value.z);
 					invLen =  invLen == 0 ?  1 : invLen;
 					invLen = sqrtf(invLen);
-					float3 norm_value = {
-						curl_value.x / invLen,
-						curl_value.y / invLen,
-						curl_value.z / invLen
+					N_value.x /= invLen;
+					N_value.y /= invLen;
+					N_value.z /= invLen;
+
+					float3 vorticity = {
+						(N_value.y *curl_value.z ) - (N_value.z * curl_value.y),
+						(N_value.z * curl_value.x) - (N_value.x * curl_value.z),
+						(N_value.x * curl_value.y) - (N_value.y * curl_value.x)
 					};
-					output_velocity[x_identifier_] = (norm_value.y * curl_value.z) - (norm_value.z * curl_value.y);
-					if(output_velocity[x_identifier_] != 0){
-						output_velocity[x_identifier_] *= -1;
-						output_velocity[x_identifier_] *= -1;
-					}
-					output_velocity[y_identifier_] = (norm_value.z * curl_value.x) - (norm_value.x * curl_value.z);
-					output_velocity[z_identifier_] = (norm_value.x * curl_value.y) - (norm_value.y * curl_value.x);
-					
-					invLen = (output_velocity[x_identifier_] * output_velocity[x_identifier_]) + (output_velocity[y_identifier_] * output_velocity[y_identifier_]) + (output_velocity[z_identifier_]* output_velocity[z_identifier_]);
-					invLen =  invLen == 0 ?  1 : invLen;
-					output_velocity[3] = sqrtf(invLen);
+					output_velocity[x_identifier_] += (vorticity.x * dx * scalar * time_step);
+					output_velocity[y_identifier_] += (vorticity.y * dx * scalar * time_step);
+					output_velocity[z_identifier_] += (vorticity.z * dx * scalar * time_step);
 				}
 			}
 		}
@@ -60,13 +65,13 @@ __global__ void cuda_kernel_vorticity(float *output, float *input, Size size){
 }
 
 extern "C"
-void cuda_fluid_vorticity(void *output, void *input, Size size){
+void cuda_fluid_force(void *output, void *input, Size size){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_vorticity<<<Dg,Db>>>((float*)output, (float*)input, size);
+	cuda_kernel_force<<<Dg,Db>>>((float*)output, (float*)input, size);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

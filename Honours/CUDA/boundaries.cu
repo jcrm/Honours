@@ -21,36 +21,36 @@ __global__ void cuda_kernel_boundaries(float*input, Size size){
 
 		if(x_iter == 0){
 			float*pRight = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter+1));
-			cell[x_identifier_] = -pRight[x_identifier_];
-			cell[y_identifier_] = -pRight[y_identifier_];
-			cell[z_identifier_] = -pRight[z_identifier_];
+			cell[x_identifier_] = pRight[x_identifier_]/2.f;
+			cell[y_identifier_] = pRight[y_identifier_]/2.f;
+			cell[z_identifier_] = pRight[z_identifier_]/2.f;
 		}else if(x_iter + 1 == size.width_){
 			float*pLeft = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * (x_iter-1));
-			cell[x_identifier_] = -pLeft[x_identifier_];
-			cell[y_identifier_] = -pLeft[y_identifier_];
-			cell[z_identifier_] = -pLeft[z_identifier_];
+			cell[x_identifier_] = pLeft[x_identifier_]/2.f;
+			cell[y_identifier_] = pLeft[y_identifier_]/2.f;
+			cell[z_identifier_] = pLeft[z_identifier_]/2.f;
 		}
 		if(y_iter == 0){
 			float*pUp = input + (z_iter*size.pitch_slice_) + ((y_iter+1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-			cell[x_identifier_] = -pUp[x_identifier_];
-			cell[y_identifier_] = -pUp[y_identifier_];
-			cell[z_identifier_] = -pUp[z_identifier_];
+			cell[x_identifier_] = pUp[x_identifier_]/2.f;
+			cell[y_identifier_] = pUp[y_identifier_]/2.f;
+			cell[z_identifier_] = pUp[z_identifier_]/2.f;
 		}else if(y_iter + 1 == size.height_){
 			float*pDown = input + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter); 
-			cell[x_identifier_] = -pDown[x_identifier_];
-			cell[y_identifier_] = -pDown[y_identifier_];
-			cell[z_identifier_] = -pDown[z_identifier_];
+			cell[x_identifier_] = pDown[x_identifier_]/2.f;
+			cell[y_identifier_] = pDown[y_identifier_]/2.f;
+			cell[z_identifier_] = pDown[z_identifier_]/2.f;
 		}
 		if(z_iter == 0){
 			float*pBottom = input + ((z_iter+1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-			cell[x_identifier_] = -pBottom[x_identifier_];
-			cell[y_identifier_] = -pBottom[y_identifier_];
-			cell[z_identifier_] = -pBottom[z_identifier_];
+			cell[x_identifier_] = pBottom[x_identifier_]/2.f;
+			cell[y_identifier_] = pBottom[y_identifier_]/2.f;
+			cell[z_identifier_] = pBottom[z_identifier_]/2.f;
 		}else if(z_iter + 1 == size.depth_){
 			float*pTop = input + ((z_iter-1)*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-			cell[x_identifier_] = -pTop[x_identifier_];
-			cell[y_identifier_] = -pTop[y_identifier_];
-			cell[z_identifier_] = -pTop[z_identifier_];
+			cell[x_identifier_] = pTop[x_identifier_]/2.f;
+			cell[y_identifier_] = pTop[y_identifier_]/2.f;
+			cell[z_identifier_] = pTop[z_identifier_]/2.f;
 		}
 	}
 }

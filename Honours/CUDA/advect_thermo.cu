@@ -15,63 +15,44 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 	int z_iter = 0;
 
 	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
-		if((x_iter - 1 >= 0 && x_iter + 1 < size.width_) && (y_iter - 1 >= 0 && y_iter + 1 < size.height_) && (z_iter - 1 >= 0 && z_iter + 1 < size.depth_)){
-			float *cellVelo = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
-			float3 pos = {x_iter, y_iter, z_iter};
-			float3 cell_velo = {cellVelo[x_identifier_], cellVelo[y_identifier_], cellVelo[z_identifier_]};
-			pos.x = pos.x - (time_step * cell_velo.x);
-			pos.y = pos.y - (time_step * cell_velo.y);
-			pos.z = pos.z - (time_step * cell_velo.z);
+		float *cellVelo = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+		float3 pos = {x_iter, y_iter, z_iter};
+		float3 cell_velo = {cellVelo[x_identifier_], cellVelo[y_identifier_], cellVelo[z_identifier_]};
+		pos.x = pos.x - (time_step * cell_velo.x);
+		pos.y = pos.y - (time_step * cell_velo.y);
+		pos.z = pos.z - (time_step * cell_velo.z);
 			
-			int3 location = {pos.x,pos.y, pos.z};
-			if(location.x < 0){
-				location.x = 0;
-			}
-			if(location.y <0){
-				location.y = 0;
-			}
-			if(location.z < 0){
-				location.z = 0;
-			}
-			if(location.x >= size.width_){
-				location.x = size.width_ - 1;
-			}
-			if(location.y >= size.height_){
-				location.y = size.height_ - 1;
-			}
-			if(location.z >= size.depth_){
-				location.z = size.depth_ - 1;
-			}
+		int3 location = {pos.x,pos.y, pos.z};
+		location.x = location.x < 0 ? 0 : location.x;
+		location.y = location.y < 0 ? 0 : location.y;
+		location.z = location.z < 0 ? 0 : location.z;
+		location.x = location.x >= size.width_ ? location.x = size.width_ - 1 : location.x;
+		location.y = location.y >= size.height_ ? location.y = size.height_ - 1 : location.y;
+		location.z = location.z >= size.depth_ ? location.z = size.depth_ - 1 : location.z;
 
-			int3 location_two = {location.x+1,location.y+1, location.z+1};
-			if(location_two.x >= size.width_){
-				location_two.x = size.width_ - 1;
-			}
-			if(location_two.y >= size.height_){
-				location_two.y = size.height_ - 1;
-			}
-			if(location_two.z >= size.depth_){
-				location_two.z = size.depth_ - 1;
-			}
-			float *field_left_up = input + (location.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
-			float *field_left_down = input + (location.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
-			float *field_right_up = input + (location.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
-			float *field_right_down = input + (location.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
+		int3 location_two = {location.x+1,location.y+1, location.z+1};
+		location_two.x = location_two.x >= size.width_ ? location_two.x = size.width_ - 1 : location_two.x;
+		location_two.y = location_two.y >= size.height_ ? location_two.y = size.height_ - 1 : location_two.y;
+		location_two.z = location_two.z >= size.depth_ ? location_two.z = size.depth_ - 1 : location_two.z;
 
-			float *field_left_up_back = input + (location_two.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
-			float *field_left_down_back = input + (location_two.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
-			float *field_right_up_back = input + (location_two.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
-			float *field_right_down_back = input + (location_two.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
+		float *field_left_up = input + (location.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
+		float *field_left_down = input + (location.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
+		float *field_right_up = input + (location.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
+		float *field_right_down = input + (location.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
 
-			float temp_1 = field_left_up[theta_identifier_] + field_left_down[theta_identifier_] +  field_right_up[theta_identifier_] + field_right_down[theta_identifier_];
-			float temp_2 = field_left_up_back[theta_identifier_] + field_left_down_back[theta_identifier_] + field_right_down_back[theta_identifier_] + field_right_up_back[theta_identifier_];
+		float *field_left_up_back = input + (location_two.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
+		float *field_left_down_back = input + (location_two.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location.x);
+		float *field_right_up_back = input + (location_two.z*size.pitch_slice_) + (location.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
+		float *field_right_down_back = input + (location_two.z*size.pitch_slice_) + (location_two.y*size.pitch_) + (PIXEL_FMT_SIZE_RG * location_two.x);
 
-			temp_1 /=4.f;
-			temp_2 /=4.f;
+		float temp_1 = field_left_up[theta_identifier_] + field_left_down[theta_identifier_] +  field_right_up[theta_identifier_] + field_right_down[theta_identifier_];
+		float temp_2 = field_left_up_back[theta_identifier_] + field_left_down_back[theta_identifier_] + field_right_down_back[theta_identifier_] + field_right_up_back[theta_identifier_];
+
+		temp_1 /=4.f;
+		temp_2 /=4.f;
 			
-			float*output_thermo = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
-			output_thermo[theta_advect_identifier_] = (temp_1 + temp_2)/2.f;
-		}
+		float*output_thermo = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
+		output_thermo[theta_advect_identifier_] = (temp_1 + temp_2)/2.f;
 	}
 }
 
