@@ -38,7 +38,7 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 		float temperature = theta * powf((p0/pressure),k);
 		float est = (es0/pressure)*expf(a*(temperature-273.f)/(temperature-b));
 		float pres_minus_est = powf((pressure-est),2.f);
-		float C = (-est*W*epsilon*z_alt) * ((g*1000.f*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
+		float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/powf((temperature-b),2.f))*((1.f/pressure)+(est/pres_minus_est)));
 		C *= 1000.f;
 		qv = (-C/W);
 		qc = ((-A-K+C)/W);
@@ -57,7 +57,7 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 			water[qv_identifier_] = vapor.y;
 		}else if (y_iter == 0){
 			water[qc_identifier_] = 0.f;
-			water[qv_identifier_] = 0.0000009f;
+			water[qv_identifier_] = 0.00000009f;
 		}else if (y_iter + 1 == size.height_){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = 0.f;

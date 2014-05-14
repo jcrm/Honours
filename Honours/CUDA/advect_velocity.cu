@@ -78,21 +78,21 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 			output_velocity[y_identifier_] = -down[y_identifier_];
 			output_velocity[z_identifier_] = -down[z_identifier_];
 		}else if (x_iter == 0){
-			cellVelocity[x_identifier_] += x_left.x;
-			cellVelocity[y_identifier_] += x_left.y;
-			cellVelocity[z_identifier_] += x_left.z;
+			cellVelocity[x_identifier_] = x_left.x;
+			cellVelocity[y_identifier_] = x_left.y;
+			cellVelocity[z_identifier_] = x_left.z;
 		}else if (x_iter + 1 == size.width_){
-			cellVelocity[x_identifier_] += x_right.x;
-			cellVelocity[y_identifier_] += x_right.y;
-			cellVelocity[z_identifier_] += x_right.z;
+			cellVelocity[x_identifier_] = x_right.x;
+			cellVelocity[y_identifier_] = x_right.y;
+			cellVelocity[z_identifier_] = x_right.z;
 		}else if (z_iter == 0){
-			cellVelocity[x_identifier_] += z_front.x;
-			cellVelocity[y_identifier_] += z_front.y;
-			cellVelocity[z_identifier_] += z_front.z;
+			cellVelocity[x_identifier_] = z_front.x;
+			cellVelocity[y_identifier_] = z_front.y;
+			cellVelocity[z_identifier_] = z_front.z;
 		}else if (z_iter + 1 == size.depth_){
-			cellVelocity[x_identifier_] += z_back.x;
-			cellVelocity[y_identifier_] += z_back.y;
-			cellVelocity[z_identifier_] += z_back.z;
+			cellVelocity[x_identifier_] = z_back.x;
+			cellVelocity[y_identifier_] = z_back.y;
+			cellVelocity[z_identifier_] = z_back.z;
 		}
 	}
 	

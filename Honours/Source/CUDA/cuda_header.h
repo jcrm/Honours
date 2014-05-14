@@ -33,8 +33,8 @@ struct Size{
 #define T0 295.f
 #define gamma 3.2f/1000.f
 #define p0 100000.f
-#define aT 5e-7
-#define alpha 1e-4
+#define aT 5e-6
+#define alpha 1e-3
 #define beta 2.f
 #define b1 1000.f
 #define V 4.f

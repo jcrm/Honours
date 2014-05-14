@@ -897,25 +897,25 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	float3 z_back = {0.f,0.f,0.f};
 	float4 vapor = {0.f,0.f,0.f,0.f};
 	float temperature = 0.f;
-	if(timer > 10000.f){
-		x_left.x = (rand()%20-10.f)/10.f;
-		x_left.z = (rand()%20-10.f)/10.f;
+	if(timer > 1000.f){
+		x_left.x = (rand()%100)/100.f;
+		x_left.z = (rand()%100)/100.f;
 
-		x_right.x = (rand()%20-10.f)/10.f;
-		x_right.z = (rand()%20-10.f)/10.f;
+		x_right.x = (rand()%100)/100.f;
+		x_right.z = (rand()%100)/100.f;
 
-		x_right.x = (rand()%20-10.f)/10.f;
-		x_right.z = (rand()%20-10.f)/10.f;
+		x_right.x = (rand()%100)/100.f;
+		x_right.z = (rand()%100)/100.f;
 
-		z_back.x = (rand()%20-10.f)/10.f;
-		z_back.z = (rand()%20-10.f)/10.f;
+		z_back.x = (rand()%100)/100.f;
+		z_back.z = (rand()%100)/100.f;
 
 		vapor.x = (rand()%10)/10000.f;
 		vapor.y = (rand()%10)/10000.f;
 		vapor.z = (rand()%10)/10000.f;
 		vapor.w = (rand()%10)/10000.f;
 
-		temperature = rand()%170+190;
+		temperature = (rand()%2000)/10.f+190;
 		timer = 0.f;
 	}
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
@@ -936,7 +936,6 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	cuda_fluid_bouyancy(velocity_derivative_cuda_->cuda_linear_memory_, thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size, size_two);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
-	
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_water(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_two,vapor);
 	getLastCudaError("cuda_fluid_vorticity failed");
