@@ -23,6 +23,16 @@ __global__ void cuda_kernel_boundaries_thermo(float*input, Size size, float left
 		}else if(y_iter + 1 == size.height_){
 			cell[theta_identifier_] = right;
 		}
+		if(x_iter == 0){
+			cell[theta_identifier_] = left;
+		}else if(x_iter + 1 == size.width_){
+			cell[theta_identifier_] = right;
+		}
+		if(z_iter == 0){
+			cell[theta_identifier_] = left;
+		}else if(z_iter + 1 == size.depth_){
+			cell[theta_identifier_] = right;
+		}
 	}
 }
 

@@ -817,7 +817,7 @@ void ApplicationClass::RunInitKernals(){
 	size_three.depth_ = 0;
 	size_three.pitch_slice_ = 0;
 
-	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 0.0f);
+	cuda_fluid_initial(velocity_cuda_->cuda_linear_memory_, size, 0.f);
 	getLastCudaError("cuda_fluid_initial failed");
 
 	cuda_fluid_initial(velocity_derivative_cuda_->cuda_linear_memory_, size, 0.f);
@@ -832,7 +832,7 @@ void ApplicationClass::RunInitKernals(){
 	cuda_fluid_initial_float(water_continuity_rain_cuda_->cuda_linear_memory_, size_two, 0.f);
 	getLastCudaError("cuda_fluid_initial failed");
 
-	cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 310.f);
+	cuda_fluid_initial_float(thermo_cuda_->cuda_linear_memory_, size_two, 290.f);
 	getLastCudaError("cuda_fluid_initial failed");
 
 	cuda_fluid_initial_float_2d(rain_cuda_->cuda_linear_memory_, size_three, 0.f);
@@ -888,12 +888,17 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_project failed");
+	cuda_fluid_initial(pressure_divergence_cuda_->cuda_linear_memory_, size, 0.f);
 
 	cuda_fluid_boundaries(velocity_cuda_->cuda_linear_memory_,size);
 	static float timer = 0.f;
 	timer += frame_time;
-	if(timer >5.0f){
-		cuda_fluid_boundaries_thermo(water_continuity_cuda_->cuda_linear_memory_, size_two, rand()%30+290, rand()%30+290);
+	
+	if(timer/1000 >5.0f){
+		float left = rand()%40+270;
+		float right = rand()%40+270;
+		timer = 0.f;
+		cuda_fluid_boundaries_thermo(thermo_cuda_->cuda_linear_memory_, size_two, left, right);
 	}
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);
