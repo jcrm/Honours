@@ -31,12 +31,12 @@ struct Size{
 #define time_step 1.f
 #define dx 0.05f
 #define T0 295.f
-#define gamma 3.2f/1000.f
+#define gamma 3.2f
 #define p0 100000.f
 #define aT 5e-6
 #define alpha 1e-3
 #define beta 2.f
-#define b1 1000.f
+#define b1 1.f
 #define V 4.f
 #define W 8.f
 #define g 9.8f/1000.f
@@ -45,11 +45,11 @@ struct Size{
 #define a 17.27f
 #define b 35.86f
 #define es0 100.f*3.8f
-#define z_alt 1000.f
+#define z_alt 1.f
 #define latent_heat 2.501f
 #define cp 1005.f
 #define cp_lh latent_heat*cp
 #define k 0.286f
-#define pressure p0*powf((T/T0),(g*1000.f/R/gamma))
+#define pressure p0*powf((T/T0),(g/R/gamma))
 #define T T0-gamma*z_alt
 #endif

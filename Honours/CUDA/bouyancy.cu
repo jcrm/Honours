@@ -25,7 +25,7 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 		float pcap = theta * powf(pressure/p0,k);
 
 		//buoyancy
-		output_velocity[y_identifier_] += (((pcap*(1.f+(0.61f*qv)))/T0)-qh) * g*10.f* time_step;
+		output_velocity[y_identifier_] += (((pcap*(1.f+(0.61f*qv)))/T0)-qh) * g* time_step;
 	}
 }
 

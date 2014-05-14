@@ -39,7 +39,6 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 		float est = (es0/pressure)*expf(a*(temperature-273.f)/(temperature-b));
 		float pres_minus_est = powf((pressure-est),2.f);
 		float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/powf((temperature-b),2.f))*((1.f/pressure)+(est/pres_minus_est)));
-		C *= 1000.f;
 		qv = (-C/W);
 		qc = ((-A-K+C)/W);
 		qr = ((A+K+F)/W);
@@ -48,7 +47,10 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 		water[qc_identifier_] = qc;
 		rain[qr_identifier_] = qr;
 		rain[F_identifier_] = F;
-
+		vapor.x = vapor.x == 0 ? water[qv_identifier_] : vapor.x;
+		vapor.y = vapor.x == 0 ? water[qv_identifier_] : vapor.y;
+		vapor.z = vapor.x == 0 ? water[qv_identifier_] : vapor.z;
+		vapor.w = vapor.x == 0 ? water[qv_identifier_] : vapor.w;
 		if(x_iter == 0){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = vapor.x;
@@ -57,7 +59,7 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 			water[qv_identifier_] = vapor.y;
 		}else if (y_iter == 0){
 			water[qc_identifier_] = 0.f;
-			water[qv_identifier_] = 0.00000009f;
+			water[qv_identifier_] = 0.00009f;
 		}else if (y_iter + 1 == size.height_){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = 0.f;

@@ -898,22 +898,22 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	float4 vapor = {0.f,0.f,0.f,0.f};
 	float temperature = 0.f;
 	if(timer > 1000.f){
-		x_left.x = (rand()%100)/100.f;
-		x_left.z = (rand()%100)/100.f;
+		x_left.x = (rand()%200-100)/100.f;
+		x_left.z = (rand()%200-100)/100.f;
 
-		x_right.x = (rand()%100)/100.f;
-		x_right.z = (rand()%100)/100.f;
+		x_right.x = (rand()%200-100)/100.f;
+		x_right.z = (rand()%200-100)/100.f;
 
-		x_right.x = (rand()%100)/100.f;
-		x_right.z = (rand()%100)/100.f;
+		x_right.x = (rand()%200-100)/100.f;
+		x_right.z = (rand()%200-100)/100.f;
 
-		z_back.x = (rand()%100)/100.f;
-		z_back.z = (rand()%100)/100.f;
+		z_back.x = (rand()%200-100)/100.f;
+		z_back.z = (rand()%200-100)/100.f;
 
-		vapor.x = (rand()%10)/10000.f;
-		vapor.y = (rand()%10)/10000.f;
-		vapor.z = (rand()%10)/10000.f;
-		vapor.w = (rand()%10)/10000.f;
+		vapor.x = (rand()%100)/1000.f;
+		vapor.y = (rand()%100)/1000.f;
+		vapor.z = (rand()%100)/1000.f;
+		vapor.w = (rand()%100)/1000.f;
 
 		temperature = (rand()%2000)/10.f+190;
 		timer = 0.f;
