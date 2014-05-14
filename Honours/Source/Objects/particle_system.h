@@ -57,6 +57,7 @@ public:
 	inline ID3D11ShaderResourceView* GetTexture(){return texture_->GetTexture();}
 	inline int GetKillCount(){return kill_count_;}
 	inline D3DXMATRIX GetTranslation() {return translation_;}
+	inline void SetTranslation(D3DXMATRIX t) {translation_ = t;}
 	inline void RandomizeTranslation() {D3DXMatrixTranslation(&translation_, float(rand()%129), float(rand()%10), float(rand()%129));}
 	inline void SetKillCount(int count){kill_count_ = count;}
 	inline void SetClear(bool c){is_clear_ = c;}

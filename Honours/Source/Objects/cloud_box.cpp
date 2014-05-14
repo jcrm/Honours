@@ -6,8 +6,9 @@
 #include <math.h>
 CloudClass::CloudClass(): vertex_buffer_(0), index_buffer_(0)
 {
-	//size_ = D3DXVECTOR3(256.f,64.f,256.f);
-	size_ = D3DXVECTOR3(1.f,1.f,1.f);
+	size_ = D3DXVECTOR3(64.f,256.f,256.f);
+	size_ = D3DXVECTOR3(10.f,10.f,10.f);
+	size_ = D3DXVECTOR3(5.f,15.f,15.f);
 	// Rotate the world matrix by the rotation value so that the cube will spin.
 	D3DXMATRIX rot;
 	D3DXMATRIX trans;
@@ -17,12 +18,12 @@ CloudClass::CloudClass(): vertex_buffer_(0), index_buffer_(0)
 	D3DXMatrixTranslation(&trans, -size_.x/2.f, -size_.y/2.f, -size_.z/2.f);
 	D3DXMatrixMultiply(&transform_,&transform_,&trans);
 
-	//D3DXMatrixRotationZ(&rot, -1.57f);
-	//D3DXMatrixMultiply(&transform_,&transform_,&rot);
+	D3DXMatrixRotationZ(&rot, -1.57f);
+	D3DXMatrixMultiply(&transform_,&transform_,&rot);
 
 	D3DXMatrixTranslation(&trans, size_.y/2.f, size_.x/2.f, size_.z/2.f);
 	D3DXMatrixMultiply(&transform_,&transform_,&trans);
-	D3DXMatrixTranslation(&trans, 0.0f, 2.f, 0.0f);
+	D3DXMatrixTranslation(&trans, 0.0f, 10.f, 0.0f);
 	D3DXMatrixMultiply(&transform_,&transform_,&trans);
 }
 CloudClass::CloudClass(const CloudClass& other): vertex_buffer_(0), index_buffer_(0)

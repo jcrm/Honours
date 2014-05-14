@@ -898,17 +898,17 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	float4 vapor = {0.f,0.f,0.f,0.f};
 	float temperature = 0.f;
 	if(timer > 1000.f){
-		x_left.x = (rand()%200-100)/100.f;
-		x_left.z = (rand()%200-100)/100.f;
+		x_left.x = (rand()%400-200)/100.f;
+		x_left.z = (rand()%400-200)/100.f;
 
-		x_right.x = (rand()%200-100)/100.f;
-		x_right.z = (rand()%200-100)/100.f;
+		x_right.x = (rand()%400-200)/100.f;
+		x_right.z = (rand()%400-200)/100.f;
 
-		x_right.x = (rand()%200-100)/100.f;
-		x_right.z = (rand()%200-100)/100.f;
+		x_right.x = (rand()%400-200)/100.f;
+		x_right.z = (rand()%400-200)/100.f;
 
-		z_back.x = (rand()%200-100)/100.f;
-		z_back.z = (rand()%200-100)/100.f;
+		z_back.x = (rand()%400-200)/100.f;
+		z_back.z = (rand()%400-200)/100.f;
 
 		vapor.x = (rand()%100)/1000.f;
 		vapor.y = (rand()%100)/1000.f;
@@ -996,7 +996,14 @@ void ApplicationClass::CudaMemoryCopy(){
 		}else if(output[i*4] >=1.f){
 			if(rain_systems_[i]->GetClear() == true){
 				rain_systems_[i]->SetClear(false);
-				rain_systems_[i]->UpdateParticleSystem();
+				D3DXVECTOR3 scale = cloud_object_->GetScale();
+				D3DXMATRIX translation;
+				int position_x = i%32;
+				int position_z = i/32;
+				float distance_scale = 15.f / 32.f;
+				D3DXMatrixTranslation(&translation,position_x*distance_scale, 10.f, position_z*distance_scale);
+				rain_systems_[i]->SetTranslation(translation);
+				rain_systems_[i]->UpdateParticleSystem(D3DXVECTOR3(distance_scale,distance_scale,0.2f), D3DXVECTOR2(20.0f,0.2f), D3DXVECTOR3(0.01f,150.0f,MAX_NUM_PARTICLES));
 			}
 		}
 	}

@@ -66,11 +66,11 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 
 			}
 		}else if (y_iter + 1 == size.height_){
-			output_thermo[theta_identifier_] = 310.f;
+			output_thermo[theta_identifier_] = T0;
 		}else if (z_iter == 0){
 			output_thermo[theta_identifier_] = T0;
 		}else if (z_iter + 1 == size.depth_){
-			output_thermo[theta_identifier_] = 210.f;
+			output_thermo[theta_identifier_] = T0;
 		}
 	}
 }

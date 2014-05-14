@@ -154,7 +154,7 @@ bool ParticleSystemClass::InitializeParticleSystem(){
 	particle_velocity_variation_ = 0.0f;
 
 	// Set the physical size of the particles.
-	particle_size_ =0.08f;
+	particle_size_ =0.04f;
 
 	// Set the number of particles to emit per second.
 	particles_per_second_ = 50.0f;

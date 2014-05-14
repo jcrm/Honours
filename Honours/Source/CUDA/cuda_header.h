@@ -29,7 +29,7 @@ struct Size{
 #define divergence_identifier_ 1
 
 #define time_step 1.f
-#define dx 0.05f
+#define dx 0.1f
 #define T0 295.f
 #define gamma 3.2f
 #define p0 100000.f
