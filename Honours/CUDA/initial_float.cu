@@ -23,6 +23,9 @@ __global__ void cuda_kernel_initial_float(float *input, Size size, float value){
 		if(x_iter < 3*(size.width_/4.f) && x_iter > (size.width_/4.f)){
 			cell_value[0] = value;
 		}else{
+			if(value == 0){
+				value += 40;
+			}
 			cell_value[0] = value-40.f;
 		}
 	}

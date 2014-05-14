@@ -35,7 +35,7 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 		float est = (es0/pressure)*expf(a*(temperature-273.f)/(temperature-b));
 		float pres_minus_est = powf((pressure-est),2);
 		float C = (-est*W*epsilon*z_alt) * ((g*pressure/(R*T*pres_minus_est)) + (-a*gamma)*((273.f-b)/pow((temperature-b),2))*((1.f/pressure)+(est/pres_minus_est)));
-		C *= 5000.f;
+		C *= 1000.f;
 		qv = (-C/W);
 		qc = ((-A-K+C)/W);
 		qr = ((A+K+F)/W);

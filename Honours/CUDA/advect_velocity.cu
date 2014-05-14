@@ -17,6 +17,7 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 
 	for(z_iter = 0; z_iter < size.depth_; z_iter++){ 
 		float *cellVelocity = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+		
 		float3 pos = {x_iter, y_iter, z_iter};
 		float3 cell_velocity = {cellVelocity[x_identifier_], cellVelocity[y_identifier_], cellVelocity[z_identifier_]};
 		pos.x = pos.x - (time_step * cell_velocity.x);
@@ -66,6 +67,17 @@ __global__ void cuda_kernel_advect_velocity(float *output, float*input, Size siz
 		output_velocity[x_identifier_] = (temp_X_1 + temp_X_2)/2.f;
 		output_velocity[y_identifier_] = (temp_Y_1 + temp_Y_2)/2.f;
 		output_velocity[z_identifier_] = (temp_Z_1 + temp_Z_2)/2.f;
+
+		if(y_iter == 0){
+			cellVelocity[x_identifier_] = 0.f;
+			cellVelocity[y_identifier_] = 0.f;
+			cellVelocity[z_identifier_] = 0.f;
+		}else if (y_iter + 1 == size.height_){
+			float*down = output + (z_iter*size.pitch_slice_) + ((y_iter-1)*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
+			output_velocity[x_identifier_] = -down[x_identifier_];
+			output_velocity[y_identifier_] = -down[y_identifier_];
+			output_velocity[z_identifier_] = -down[z_identifier_];
+		}
 	}
 	
 }
