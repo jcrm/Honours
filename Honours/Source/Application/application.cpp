@@ -660,8 +660,8 @@ bool ApplicationClass::RenderScene(){
 	D3DXVECTOR4 camera_pos;
 	bool result;
 
-	//direct_3d_->BeginScene(0.4f, 0.6f, 0.8f, 1.0f);
-	direct_3d_->BeginScene(0.f, 0.f, 0.f, 1.0f);
+	direct_3d_->BeginScene(0.4f, 0.6f, 0.8f, 1.0f);
+	//direct_3d_->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
