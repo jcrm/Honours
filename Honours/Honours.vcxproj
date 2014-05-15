@@ -173,6 +173,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);common/inc;$(DXSDK_DIR)/include</AdditionalIncludeDirectories>
+      <XMLDocumentationFileName />
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
