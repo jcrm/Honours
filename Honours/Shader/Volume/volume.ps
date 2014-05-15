@@ -27,7 +27,6 @@ float4 VolumePS(PixelShaderInput input) : SV_TARGET
 	float2 tex = input.pos_.xy /= input.pos_.w;
 	tex.x =  0.5f*tex.x + 0.5f;
 	tex.y = -0.5f*tex.y + 0.5f;
-	float4 CameraPositionTS =  mul(CameraPosition, inverse);
 	float3 front = front_.Sample(sample_type_, tex).rgb;
 	float3 back = back_.Sample(sample_type_, tex).rgb;
 
@@ -45,9 +44,8 @@ float4 VolumePS(PixelShaderInput input) : SV_TARGET
 
 		pos.w = 0;
 		value = volume_.SampleLevel(sample_type_, pos,0).a;
-		//value = volume_.SampleGrad(sample_type_, pos, 1.f , 1.f );
 
-		if(value.a < 0){
+		if(value.a <= 0.125f){
 			value.a = 0;
 		}
 
@@ -76,9 +74,6 @@ float4 VolumePS(PixelShaderInput input) : SV_TARGET
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f){
 			break;
 		}
-	}/*
-	if(dst.b >= 1.f  && dst.r < 0.4f && dst.g < 0.4f){
-		dst.b -= 0.1f;
-	}*/
+	}
 	return dst;
 }

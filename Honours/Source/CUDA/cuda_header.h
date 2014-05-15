@@ -52,4 +52,6 @@ struct Size{
 #define k 0.286f
 #define pressure p0*powf((T/T0),(g/R/gamma))
 #define T T0-gamma*z_alt
+#define exner powf(pressure/p0,k)
+#define exner_cp_lh cp_lh/exner
 #endif

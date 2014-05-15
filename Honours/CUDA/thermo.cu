@@ -19,7 +19,7 @@ __global__ void cuda_kernel_thermo(float *input, float *input_two, Size size){
 		float* water = input_two + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
 		float* thermo = input + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RG * x_iter);
 
-		thermo[theta_identifier_] = thermo[theta_advect_identifier_] + ((cp_lh /powf(pressure/p0,k)) * water[qv_identifier_] * W * time_step);
+		thermo[theta_identifier_] = thermo[theta_advect_identifier_] + (exner_cp_lh * water[qv_identifier_] * W * time_step);
 
 	}
 }
