@@ -254,14 +254,14 @@ bool ApplicationClass::InitCamera(){
 	camera_->SetPosition(0.0f, 0.0f, -1.0f);
 	camera_->Render();
 	// Set the initial position of the camera.
-	camera_->SetPosition(0.0f, 2.0f, -7.0f);
+	camera_->SetPosition(-3.f, 12.f, -14.0f);
 	// Create the position object.
 	player_position_ = new PositionClass;
 	if(!player_position_){
 		return false;
 	}
 	// Set the initial position of the viewer to the same as the initial camera position.
-	player_position_->SetPosition(0.0f, 2.0f, -7.0f);
+	player_position_->SetPosition(-3.f, 12.f, -14.0f);
 	return true;
 }
 bool ApplicationClass::InitShaders(HWND hwnd){
@@ -533,6 +533,8 @@ bool ApplicationClass::InitCudaTextures(){
 
 bool ApplicationClass::Frame(){
 	bool result;
+	static int time_count = 0;
+	time_count++;
 	if(input_){
 		// Read the user input.
 		result = input_->Frame();
@@ -555,6 +557,10 @@ bool ApplicationClass::Frame(){
 	}
 	// Update the CPU usage value in the text object.
 	result = text_->SetCpu(CPU_->GetCpuPercentage(), direct_3d_->GetDeviceContext());
+	if(!result){
+		return false;
+	}
+	result = text_->SetTime(time_count*time_step,direct_3d_->GetDeviceContext());
 	if(!result){
 		return false;
 	}
@@ -654,7 +660,7 @@ bool ApplicationClass::RenderScene(){
 	D3DXVECTOR4 camera_pos;
 	bool result;
 
-	direct_3d_->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+	direct_3d_->BeginScene(0.4f, 0.6f, 0.8f, 1.0f);
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);

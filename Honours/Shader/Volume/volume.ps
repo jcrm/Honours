@@ -48,8 +48,8 @@ float4 VolumePS(PixelShaderInput input) : SV_TARGET
 		if(value.a <= 0.125f){
 			value.a = 0;
 		}
-
-		src = (float4)(value.a);
+		value.rgb += 0.2f;
+		src = (float4)value;
 
 		src.a *= .5f;
 		//reduce the alpha to have a more transparent result

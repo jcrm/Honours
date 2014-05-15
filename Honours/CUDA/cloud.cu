@@ -52,16 +52,17 @@ __global__ void cuda_kernel_project(float*pressureInput, float* velocity, float*
 					
 					cell_velocity[x_identifier_] = new_x;
 					cell_velocity[y_identifier_] = new_y;
-					cell_velocity[z_identifier_] = new_z; 
-
+					cell_velocity[z_identifier_] = new_z;
 					float density = (cell_velocity[x_identifier_] * cell_velocity[x_identifier_]) + 
 						(cell_velocity[y_identifier_] * cell_velocity[y_identifier_]) + 
 						(cell_velocity[z_identifier_] * cell_velocity[z_identifier_]);
 					density = sqrt(density);
-					//density =0.5f;
 					cell_velocity[3] = density;
 				}
 			}
+		}
+		if(x_iter == 0 || x_iter +1 == size.width_ || y_iter == 0 || y_iter + 1 == size.height_ || z_iter == 0 || z_iter + 1 == size.depth_){
+			cell_velocity[3] = 0.f;
 		}
 	}
 }

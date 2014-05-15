@@ -28,7 +28,7 @@ struct Size{
 #define pressure_identifier_two_ 2
 #define divergence_identifier_ 1
 
-#define time_step 1.f
+#define time_step 1.0f
 #define dx 0.1f
 #define T0 295.f
 #define gamma 3.2f

@@ -14,6 +14,7 @@ TextClass::TextClass(){
 	sentence_eight_ = 0;
 	sentence_nine_ = 0;
 	sentence_tem_ = 0;
+	timer_sentence_ = 0;
 }
 TextClass::TextClass(const TextClass& other){
 }
@@ -87,6 +88,11 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* device_con
 	if(!result){
 		return false;
 	}
+	// Initialize the tenth sentence.
+	result = InitializeSentence(&timer_sentence_, 32, device);
+	if(!result){
+		return false;
+	}
 	return true;
 }
 void TextClass::Shutdown(){
@@ -107,6 +113,7 @@ void TextClass::Shutdown(){
 	ReleaseSentence(&sentence_eight_);
 	ReleaseSentence(&sentence_nine_);
 	ReleaseSentence(&sentence_tem_);
+	ReleaseSentence(&timer_sentence_);
 	return;
 }
 bool TextClass::Render(ID3D11DeviceContext* device_context, FontShaderClass* font_shader, D3DXMATRIX world_matrix, D3DXMATRIX ortho_matrix){
@@ -150,6 +157,10 @@ bool TextClass::Render(ID3D11DeviceContext* device_context, FontShaderClass* fon
 		return false;
 	}
 	result = RenderSentence(sentence_tem_, device_context, font_shader, world_matrix, ortho_matrix);
+	if(!result){
+		return false;
+	}
+	result = RenderSentence(timer_sentence_, device_context, font_shader, world_matrix, ortho_matrix);
 	if(!result){
 		return false;
 	}
@@ -456,6 +467,19 @@ bool TextClass::SetCameraRotation(float rotX, float rotY, float rotZ, ID3D11Devi
 	strcpy_s(data_string, "rZ: ");
 	strcat_s(data_string, temp_string);
 	result = UpdateSentence(sentence_tem_, data_string, 10, 250, 0.0f, 1.0f, 0.0f, device_context);
+	if(!result){
+		return false;
+	}
+	return true;
+}
+bool TextClass::SetTime(float time, ID3D11DeviceContext* device_context){
+	char temp_string[32];
+	char data_string[32];
+	bool result;
+	sprintf(temp_string, "%3.2f", time);
+	strcpy_s(data_string, "time: ");
+	strcat_s(data_string, temp_string);
+	result = UpdateSentence(timer_sentence_, data_string, 10, 280, 0.0f, 1.0f, 0.0f, device_context);
 	if(!result){
 		return false;
 	}

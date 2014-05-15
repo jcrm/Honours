@@ -37,6 +37,7 @@ public:
 	bool SetCpu(int, ID3D11DeviceContext*);
 	bool SetCameraPosition(float, float, float, ID3D11DeviceContext*);
 	bool SetCameraRotation(float, float, float, ID3D11DeviceContext*);
+	bool SetTime(float, ID3D11DeviceContext*);
 private:
 	bool InitializeSentence(SentenceType**, int, ID3D11Device*);
 	bool UpdateSentence(SentenceType*, char*, int, int, float, float, float, ID3D11DeviceContext*);
@@ -48,5 +49,6 @@ private:
 	FontClass* font_;
 	SentenceType *sentence_one_, *sentence_two_, *sentence_three_, *sentence_four_, *sentence_five_;
 	SentenceType *sentence_six_, *sentence_seven_, *sentence_eight_, *sentence_nine_, *sentence_tem_;
+	SentenceType *timer_sentence_;
 };
 #endif
