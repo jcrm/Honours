@@ -9,7 +9,7 @@ ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), play
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
 	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), rain_cuda_(0),
-	full_screen_window_(0)
+	full_screen_window_(0), is_done_once_(false), time_count_(0)
 {
 	srand((int)time(NULL));
 	for(int i = 0; i < RAIN_ARRAY_SIZE; i++){
@@ -21,7 +21,7 @@ ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0),
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
 	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), rain_cuda_(0),
-	full_screen_window_(0)
+	full_screen_window_(0), is_done_once_(false), time_count_(0)
 {
 	srand((int)time(NULL));
 	for(int i = 0; i < RAIN_ARRAY_SIZE; i++){
@@ -543,8 +543,7 @@ bool ApplicationClass::InitCudaTextures(){
 
 bool ApplicationClass::Frame(){
 	bool result = true;
-	static int time_count = 0;
-	time_count++;
+	time_count_++;
 	if(input_){
 		// Read the user input.
 		result = input_->Frame();
@@ -570,7 +569,7 @@ bool ApplicationClass::Frame(){
 	if(!result){
 		return false;
 	}
-	result = text_->SetTime(time_count*time_step,direct_3d_->GetDeviceContext());
+	result = text_->SetTime(time_count_*time_step,direct_3d_->GetDeviceContext());
 	if(!result){
 		return false;
 	}
@@ -625,13 +624,9 @@ bool ApplicationClass::HandleInput(float frame_time){
 	//if page down or x was pressed look down
 	key_down = (input_->IsPgDownPressed() || input_->IsXPressed());
 	player_position_->LookDownward(key_down);
-	key_down = (input_->IsHPressed());
-	if(key_down){
-		direct_3d_->CreateBackFaceRaster();
-	}
 	key_down = (input_->IsRPressed());
 	if(key_down){
-		direct_3d_->CreateRaster();
+		Reset();
 	}
 	// Get the view point position/rotation.
 	player_position_->GetPosition(pos_X, pos_Y, pos_Z);
@@ -824,7 +819,6 @@ bool ApplicationClass::RenderClouds(){
 // Desc: Launches the CUDA kernels to fill in the texture data
 //-----------------------------------------------------------------------------
 void ApplicationClass::CudaCalculations(float frame_time){
-	static bool is_done_once = false;
 	//map the resources we've registered so we can access them in Cuda
 	//it is most efficient to map and unmap all resources in a single call,
 	//and to have the map/unmap calls be the boundary between using the GPU
@@ -844,9 +838,9 @@ void ApplicationClass::CudaCalculations(float frame_time){
 	cudaGraphicsMapResources(num_resources, resources, stream);
 	getLastCudaError("cudaGraphicsMapResources(3) failed");
 
-	if(is_done_once == false){
+	if(is_done_once_ == false){
 		RunInitKernals();
-		is_done_once = true;
+		is_done_once_ = true;
 	}
 	// run kernels which will populate the contents of those textures
 	RunCloudKernals(frame_time);
@@ -1162,4 +1156,9 @@ void ApplicationClass::ShutdownShaders(){
 		delete particle_shader_;
 		particle_shader_ = 0;
 	}
+}
+void ApplicationClass::Reset(){
+	InitCamera();
+	is_done_once_ = false;
+	time_count_ = 0;
 }

@@ -95,7 +95,7 @@ private:
 	void RunInitKernals();
 	void CudaMemoryCopy();
 	bool RenderClouds();
-
+	void Reset();
 private:
 	InputClass* input_;
 	CUDAD3D* direct_3d_;
@@ -128,5 +128,7 @@ private:
 	fluid_texture *water_continuity_rain_cuda_;
 	rain_texture *rain_cuda_;
 	float output[RAIN_ARRAY_SIZE];
+	bool is_done_once_;
+	int time_count_;
 };
 #endif
