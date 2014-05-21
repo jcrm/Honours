@@ -2,40 +2,33 @@
 // Filename: d3dclass.cpp
 ////////////////////////////////////////////////////////////////////////////////
 #include "d3dclass.h"
-D3DClass::D3DClass():swap_chain_(0), device_(0), device_context_(0),
+D3DClass::D3DClass():vsync_enabled_ (0), video_card_memory_(0), swap_chain_(0), device_(0), device_context_(0),
 	render_target_view_(0), depth_stencil_buffer_(0), depth_stencil_state_(0),
 	depth_stencil_view_(0), raster_state_(0), depth_disabled_stencil_state_(0),
 	alpha_enable_blending_state_(0), alpha_disable_blending_state_(0)
 {
+	D3DXMatrixIdentity(&projection_matrix_);
+	D3DXMatrixIdentity(&world_matrix_);
+	D3DXMatrixIdentity(&ortho_matrix_);
 }
 D3DClass::D3DClass(const D3DClass& other):swap_chain_(0), device_(0), device_context_(0),
 	render_target_view_(0), depth_stencil_buffer_(0), depth_stencil_state_(0),
 	depth_stencil_view_(0), raster_state_(0), depth_disabled_stencil_state_(0),
 	alpha_enable_blending_state_(0), alpha_disable_blending_state_(0)
 {
+	D3DXMatrixIdentity(&projection_matrix_);
+	D3DXMatrixIdentity(&world_matrix_);
+	D3DXMatrixIdentity(&ortho_matrix_);
 }
 D3DClass::~D3DClass(){
 }
 bool D3DClass::Initialize(int screen_width, int screen_height, bool vsync, HWND hwnd, bool fullscreen, float screen_depth, float screen_near){
 	HRESULT result;
-	IDXGIFactory* factory;
-	IDXGIAdapter* adapter;
-	IDXGIOutput* adapter_output;
-	unsigned int num_modes, i, numerator, denominator, string_length;
-	DXGI_MODE_DESC* display_mode_list;
-	DXGI_ADAPTER_DESC adapter_desc;
-	int error;
-	DXGI_SWAP_CHAIN_DESC swap_chain_desc;
-	D3D_FEATURE_LEVEL feature_level;
+	unsigned int numerator, denominator;
 	ID3D11Texture2D* back_buffer_ptr;
-	D3D11_TEXTURE2D_DESC depth_buffer_desc;
-	D3D11_DEPTH_STENCIL_DESC depth_stencil_desc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
-	D3D11_RASTERIZER_DESC raster_desc;
 	D3D11_VIEWPORT viewport;
 	float field_of_view, screen_aspect;
-	D3D11_DEPTH_STENCIL_DESC depth_disabled_stencil_desc;
-	D3D11_BLEND_DESC blend_state_desc;
 	// Store the vsync setting.
 	vsync_enabled_ = vsync;
 	
@@ -260,15 +253,19 @@ void D3DClass::ResetViewport(){
 bool D3DClass::InitDisplayMode(int screen_width, int screen_height, unsigned int &numerator, unsigned int &denominator){
 	HRESULT result;
 	IDXGIOutput* adapter_output;
-	unsigned int num_modes, string_length;
+	unsigned int num_modes;
 	DXGI_MODE_DESC* display_mode_list;
-	DXGI_ADAPTER_DESC adapter_desc;
 	IDXGIFactory* factory;
 	IDXGIAdapter* adapter;
 	// Create a DirectX graphics interface factory.
 	result = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
 	if(FAILED(result)){
 		MessageBox(NULL,L"error1",NULL,NULL);
+		return false;
+	}
+	result = factory->EnumAdapters(0, &adapter);
+	if(FAILED(result))	{
+		MessageBox(NULL,L"error2",NULL,NULL);
 		return false;
 	}
 	// Enumerate the primary adapter output (monitor).
@@ -293,7 +290,8 @@ bool D3DClass::InitDisplayMode(int screen_width, int screen_height, unsigned int
 	}
 	// Now go through all the display modes and find the one that matches the screen width and height.
 	// When a match is found store the numerator and denominator of the refresh rate for that monitor.
-	for(int i=0; i<num_modes; i++){
+	int n_m = int(num_modes);
+	for(int i=0; i<n_m; i++){
 		if(display_mode_list[i].Width == (unsigned int)screen_width){
 			if(display_mode_list[i].Height == (unsigned int)screen_height){
 				numerator = display_mode_list[i].RefreshRate.Numerator;
@@ -527,7 +525,7 @@ bool D3DClass::CreateRaster(){
 	raster_desc.ScissorEnable = false;
 	raster_desc.SlopeScaledDepthBias = 0.0f;
 	// Create the rasterizer state from the description we just filled out.
-	bool result = device_->CreateRasterizerState(&raster_desc, &raster_state_);
+	HRESULT result = device_->CreateRasterizerState(&raster_desc, &raster_state_);
 	if(FAILED(result)){
 		return false;
 	}
@@ -549,7 +547,7 @@ bool D3DClass::CreateBackFaceRaster(){
 	raster_desc.ScissorEnable = false;
 	raster_desc.SlopeScaledDepthBias = 0.0f;
 	// Create the rasterizer state from the description we just filled out.
-	bool result = device_->CreateRasterizerState(&raster_desc, &raster_state_);
+	HRESULT result = device_->CreateRasterizerState(&raster_desc, &raster_state_);
 	if(FAILED(result)){
 		return false;
 	}

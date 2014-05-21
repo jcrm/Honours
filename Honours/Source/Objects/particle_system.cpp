@@ -8,7 +8,7 @@ ParticleSystemClass::ParticleSystemClass(){
 	particle_list_ = 0;
 	vertex_buffer_ = 0;
 	instance_buffer_ = 0;
-	//D3DXMatrixIdentity(&translation_);
+	D3DXMatrixIdentity(&translation_);
 	system_position_ = D3DXVECTOR3(float(rand()%256), 20.f, float(rand()%256));
 	D3DXMatrixTranslation(&translation_, system_position_.x,system_position_.y,system_position_.z);
 }
@@ -129,7 +129,7 @@ void ParticleSystemClass::UpdateParticleSystem(D3DXVECTOR3 part_dev, D3DXVECTOR2
 	particles_per_second_ = part_feat.y;
 
 	// Set the maximum number of particles allowed in the particle system.
-	max_particles_ = part_feat.z;
+	max_particles_ = int(part_feat.z);
 
 	// Initialize the particle list.
 	for(int i=0; i<MAX_NUM_PARTICLES; i++){
@@ -201,7 +201,6 @@ void ParticleSystemClass::ShutdownParticleSystem(){
 }
 
 bool ParticleSystemClass::InitializeBuffers(ID3D11Device* device){
-	unsigned long* indices;
 	D3D11_BUFFER_DESC vertex_buffer_desc, instance_buffer_desc;
 	D3D11_SUBRESOURCE_DATA vertex_data, instance_data;
 	HRESULT result;

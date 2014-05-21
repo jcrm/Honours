@@ -3,27 +3,36 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "application.h"
 #include <time.h>
+
 ApplicationClass::ApplicationClass():direct_3d_(0), input_(0),  camera_(0), player_position_(0),
-	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
+	timer_(0), FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), full_screen_window_(0)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), rain_cuda_(0),
+	full_screen_window_(0)
 {
 	srand((int)time(NULL));
+	for(int i = 0; i < RAIN_ARRAY_SIZE; i++){
+		output[i] = 0.f;
+	}
 }
 ApplicationClass::ApplicationClass(const ApplicationClass& other):direct_3d_(0), input_(0),  camera_(0), player_position_(0),
-	timer_(0),  FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
+	timer_(0), FPS_(0), CPU_(0),  text_(0), light_object_(0), terrain_object_(0), cloud_object_(0), 
 	font_shader_(0), terrain_shader_(0), volume_shader_(0), particle_shader_(0), face_shader_(0), 
 	velocity_cuda_(0), velocity_derivative_cuda_(0), pressure_divergence_cuda_(0), thermo_cuda_(0),
-	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), full_screen_window_(0)
+	water_continuity_cuda_(0), water_continuity_rain_cuda_(0), vorticity_cuda_(0), rain_cuda_(0),
+	full_screen_window_(0)
 {
 	srand((int)time(NULL));
+	for(int i = 0; i < RAIN_ARRAY_SIZE; i++){
+		output[i] = 0.f;
+	}
 }
 ApplicationClass::~ApplicationClass(){
 }
 
 bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_width, int screen_height){
-	bool result;
+	bool result = true;
 	// Create the input object.  The input object will be used to handle reading the keyboard and mouse input from the user.
 	input_ = new InputClass;
 	if(!input_){
@@ -36,7 +45,6 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screen_wid
 		return false;
 	}
 	// Create the Direct3D object.
-	//direct_3d_ = new D3DClass;
 	direct_3d_ = new CUDAD3D;
 	if(!direct_3d_){
 		return false;
@@ -165,8 +173,10 @@ void ApplicationClass::InitClouds(){
 bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height){
 	D3DXMATRIX base_view_matrix;
 	char video_card[128];
-	int video_memory;
+	int video_memory = 0;
 	bool result = true;
+
+	D3DXMatrixIdentity(&base_view_matrix);
 	// Create the timer object.
 	timer_ = new TimerClass;
 	if(!timer_){
@@ -215,7 +225,7 @@ bool ApplicationClass::InitText(HWND hwnd, int screen_width , int screen_height)
 	return true;
 }
 bool ApplicationClass::InitObjects(HWND hwnd, int screen_width, int screen_height){
-	bool result;
+	bool result = true;
 	// Create the terrain object.
 	terrain_object_ = new TerrainClass;
 	if(!terrain_object_){
@@ -283,7 +293,7 @@ bool ApplicationClass::InitShaders(HWND hwnd){
 	return true;
 }
 bool ApplicationClass::InitObjectShaders(HWND hwnd){
-	bool result;
+	bool result = true;
 	// Create the terrain shader object.
 	terrain_shader_ = new TerrainShaderClass;
 	if(!terrain_shader_){
@@ -532,7 +542,7 @@ bool ApplicationClass::InitCudaTextures(){
 }
 
 bool ApplicationClass::Frame(){
-	bool result;
+	bool result = true;
 	static int time_count = 0;
 	time_count++;
 	if(input_){
@@ -584,8 +594,11 @@ bool ApplicationClass::Frame(){
 	return result;
 }
 bool ApplicationClass::HandleInput(float frame_time){
-	bool key_down, result;
+	bool key_down = false;
+	bool result = true;
 	float pos_X, pos_Y, pos_Z, rot_X, rot_Y, rot_Z;
+	pos_X = pos_Y = pos_Z = rot_X = rot_Y = rot_Z = 0.f;
+
 	// Set the frame time for calculating the updated position.
 	player_position_->SetFrameTime(frame_time);
 	//if left or a was pressed turn left
@@ -639,7 +652,7 @@ bool ApplicationClass::HandleInput(float frame_time){
 	return true;
 }
 bool ApplicationClass::Render(){
-	bool result;
+	bool result = true;
 	// Generate the view matrix based on the camera's position.
 	camera_->Render();
 
@@ -657,11 +670,17 @@ bool ApplicationClass::Render(){
 bool ApplicationClass::RenderScene(){
 	D3DXMATRIX world_matrix, view_matrix, projection_matrix, ortho_matrix, model_world_matrix;
 	D3DXMATRIX translation;
-	D3DXVECTOR4 camera_pos;
-	bool result;
+	D3DXVECTOR4 camera_pos(0.f,0.f,0.f,0.f);
+	bool result = true;
+
+	D3DXMatrixIdentity(&world_matrix);
+	D3DXMatrixIdentity(&view_matrix);
+	D3DXMatrixIdentity(&projection_matrix);
+	D3DXMatrixIdentity(&ortho_matrix);
+	D3DXMatrixIdentity(&translation);
+	D3DXMatrixIdentity(&model_world_matrix);
 
 	direct_3d_->BeginScene(0.4f, 0.6f, 0.8f, 1.0f);
-	//direct_3d_->BeginScene(0.f, 0.f, 0.f, 1.0f);
 
 	// Get the world, view, and projection matrices from the camera and d3d objects.
 	direct_3d_->GetWorldMatrix(world_matrix);
@@ -749,7 +768,7 @@ bool ApplicationClass::RenderScene(){
 bool ApplicationClass::RenderClouds(){
 	D3DXMATRIX world_matrix, model_world_matrix, view_matrix, projection_matrix;
 	D3DXMATRIX translation;
-	bool result;
+	bool result = true;
 
 	// Set the render target to be the render to texture.
 	cloud_object_->GetFrontTexture()->SetRenderTarget(direct_3d_->GetDeviceContext());

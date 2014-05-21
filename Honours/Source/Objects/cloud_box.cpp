@@ -13,6 +13,9 @@ CloudClass::CloudClass(): vertex_buffer_(0), index_buffer_(0)
 	D3DXMATRIX rot;
 	D3DXMATRIX trans;
 	D3DXMATRIX scale;
+	D3DXMatrixIdentity(&rot);
+	D3DXMatrixIdentity(&trans);
+	D3DXMatrixIdentity(&scale);
 	D3DXMatrixIdentity(&transform_);
 	
 	D3DXMatrixTranslation(&trans, -size_.x/2.f, -size_.y/2.f, -size_.z/2.f);

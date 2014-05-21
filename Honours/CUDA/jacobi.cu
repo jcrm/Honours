@@ -15,7 +15,7 @@ __global__ void cuda_kernel_jacobi(float *pressuredivergence, Size size){
 	int z_iter = 0;
 	int read_identifier = pressure_identifier_;
 	int write_identifier = pressure_identifier_two_;
-	for(int i = 0; i < 20; i++){
+	for(int i = 0; i < 16; i++){
 		if(i%2 == 0){
 			read_identifier = pressure_identifier_;
 			write_identifier = pressure_identifier_two_;

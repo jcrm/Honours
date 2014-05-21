@@ -476,7 +476,7 @@ bool TextClass::SetTime(float time, ID3D11DeviceContext* device_context){
 	char temp_string[32];
 	char data_string[32];
 	bool result;
-	sprintf(temp_string, "%3.2f", time);
+	sprintf_s(temp_string, sizeof(temp_string), "%3.2f", time);
 	strcpy_s(data_string, "time: ");
 	strcat_s(data_string, temp_string);
 	result = UpdateSentence(timer_sentence_, data_string, 10, 280, 0.0f, 1.0f, 0.0f, device_context);

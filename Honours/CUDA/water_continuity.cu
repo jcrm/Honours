@@ -27,11 +27,7 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 
 		float K=beta*qc*qr;
 		float F=-V*qr/b1;
-		if(F !=0 ){
-			F*=-1;
-			F*=-1;
-		}
-		float A = 0;
+		float A = 0.f;
 		if(qc>aT){
 			A=alpha*(qc-aT);
 		}
@@ -47,26 +43,26 @@ __global__ void cuda_kernel_water(float *input, float *input_two, float *input_t
 		water[qc_identifier_] = qc;
 		rain[qr_identifier_] = qr;
 		rain[F_identifier_] = F;
-		vapor.x = vapor.x == 0 ? water[qv_identifier_] : vapor.x;
-		vapor.y = vapor.x == 0 ? water[qv_identifier_] : vapor.y;
-		vapor.z = vapor.x == 0 ? water[qv_identifier_] : vapor.z;
-		vapor.w = vapor.x == 0 ? water[qv_identifier_] : vapor.w;
-		if(x_iter == 0){
+		vapor.x = vapor.x == 0.f ? water[qv_identifier_] : vapor.x;
+		vapor.y = vapor.y == 0.f ? water[qv_identifier_] : vapor.y;
+		vapor.z = vapor.z == 0.f ? water[qv_identifier_] : vapor.z;
+		vapor.w = vapor.w == 0.f ? water[qv_identifier_] : vapor.w;
+		if(x_iter == 0.f){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = vapor.x;
-		}else if(x_iter + 1 == size.width_){
+		}else if(x_iter + 1.f == size.width_){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = vapor.y;
-		}else if (y_iter == 0){
+		}else if (y_iter == 0.f){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = 0.00009f;
-		}else if (y_iter + 1 == size.height_){
+		}else if (y_iter + 1.f == size.height_){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = 0.f;
-		}else if (z_iter == 0){
+		}else if (z_iter == 0.f){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = vapor.z;
-		}else if (z_iter + 1 == size.depth_){
+		}else if (z_iter + 1.f == size.depth_){
 			water[qc_identifier_] = 0.f;
 			water[qv_identifier_] = vapor.w;
 		}

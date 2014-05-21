@@ -214,7 +214,7 @@ bool CUDAD3D::findCUDADevice(){
 	int num_graphics_GPU = 0;
 	int device_count = 0;
 	bool is_graphics_found = false;
-	char first_graphics_name[NAME_LEN], dev_name[NAME_LEN];
+	char dev_name[NAME_LEN];
 	// This function call returns 0 if there are no CUDA capable devices.
 	cudaError_t error_id = cudaGetDeviceCount(&device_count);
 	if(error_id != cudaSuccess){
