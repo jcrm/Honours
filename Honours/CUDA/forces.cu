@@ -11,7 +11,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_force(float *output, float *input, Size size){ 
+__global__ void cuda_kernel_force(float *output, float *input, Size size, float delta_time){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -55,9 +55,9 @@ __global__ void cuda_kernel_force(float *output, float *input, Size size){
 						(N_value.z * curl_value.x) - (N_value.x * curl_value.z),
 						(N_value.x * curl_value.y) - (N_value.y * curl_value.x)
 					};
-					output_velocity[x_identifier_] += (vorticity.x * dx * scalar * time_step);
-					output_velocity[y_identifier_] += (vorticity.y * dx * scalar * time_step);
-					output_velocity[z_identifier_] += (vorticity.z * dx * scalar * time_step);
+					output_velocity[x_identifier_] += (vorticity.x * dx * scalar * time_step * delta_time);
+					output_velocity[y_identifier_] += (vorticity.y * dx * scalar * time_step * delta_time);
+					output_velocity[z_identifier_] += (vorticity.z * dx * scalar * time_step * delta_time);
 				}
 			}
 		}
@@ -65,13 +65,13 @@ __global__ void cuda_kernel_force(float *output, float *input, Size size){
 }
 
 extern "C"
-void cuda_fluid_force(void *output, void *input, Size size){
+void cuda_fluid_force(void *output, void *input, Size size, float delta_time){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_force<<<Dg,Db>>>((float*)output, (float*)input, size);
+	cuda_kernel_force<<<Dg,Db>>>((float*)output, (float*)input, size, delta_time);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

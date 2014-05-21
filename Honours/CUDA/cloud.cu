@@ -11,7 +11,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_project(float*pressureInput, float* velocity, float* advect, Size size){
+__global__ void cuda_kernel_project(float*pressureInput, float* velocity, float* advect, Size size, float delta_time){
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -46,9 +46,9 @@ __global__ void cuda_kernel_project(float*pressureInput, float* velocity, float*
 					float new_y = cell_velocity_advect[y_identifier_];
 					float new_z = cell_velocity_advect[z_identifier_];
 					
-					new_x = new_x - 0.5f*(time_step * temp_x);
-					new_y = new_y - 0.5f*(time_step * temp_y);
-					new_z = new_z - 0.5f*(time_step * temp_z);
+					new_x = new_x - 0.5f*(time_step * delta_time * temp_x);
+					new_y = new_y - 0.5f*(time_step * delta_time * temp_y);
+					new_z = new_z - 0.5f*(time_step * delta_time * temp_z);
 					
 					cell_velocity[x_identifier_] = new_x;
 					cell_velocity[y_identifier_] = new_y;
@@ -68,13 +68,13 @@ __global__ void cuda_kernel_project(float*pressureInput, float* velocity, float*
 }
 
 extern "C"
-void cuda_fluid_project(void *pressureInput, void *velocityInput, void* advect, Size size){
+void cuda_fluid_project(void *pressureInput, void *velocityInput, void* advect, Size size, float delta_time){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_project<<<Dg,Db>>>((float *)pressureInput, (float *)velocityInput, (float*)advect, size);
+	cuda_kernel_project<<<Dg,Db>>>((float *)pressureInput, (float *)velocityInput, (float*)advect, size, delta_time);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

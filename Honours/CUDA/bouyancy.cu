@@ -10,7 +10,7 @@
 #include "../Source/CUDA/cuda_header.h"
 
 //output velocity derrivitive teture //input velcoity texutre
-__global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_two, Size size, Size size_two){ 
+__global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_two, Size size, Size size_two, float delta_time){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -25,18 +25,18 @@ __global__ void cuda_kernel_bouyancy(float *output, float *input, float *input_t
 		float pcap = theta * powf(pressure/p0,k);
 
 		//buoyancy
-		output_velocity[y_identifier_] += (((pcap*(1.f+(0.61f*qv)))/T0)-qh) * g* time_step;
+		output_velocity[y_identifier_] += (((pcap*(1.f+(0.61f*qv)))/T0)-qh) * g* time_step * delta_time;
 	}
 }
 
 extern "C"
-void cuda_fluid_bouyancy(void *output, void *input, void *input_two, Size size, Size size_two){
+void cuda_fluid_bouyancy(void *output, void *input, void *input_two, Size size, Size size_two, float delta_time){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_bouyancy<<<Dg,Db>>>((float *)output, (float *)input, (float *)input_two, size, size_two);
+	cuda_kernel_bouyancy<<<Dg,Db>>>((float *)output, (float *)input, (float *)input_two, size, size_two, delta_time);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

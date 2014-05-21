@@ -584,7 +584,7 @@ bool ApplicationClass::Frame(){
 		// Run the frame processing for the particle system.
 		rain_systems_[i]->Frame(timer_->GetTime(), direct_3d_->GetDeviceContext());
 	}
-	CudaCalculations(timer_->GetTime());
+	CudaCalculations(timer_->GetTime()/100.f);
 	// Render the graphics scene.
 	result = Render();
 	if(!result){
@@ -939,32 +939,32 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 		timer = 0.f;
 	}
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect_velocity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size,x_left,x_right,z_front,z_back);
+	cuda_fluid_advect_velocity(velocity_derivative_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size,x_left,x_right,z_front,z_back, frame_time);
 	getLastCudaError("cuda_fluid_advect failed");
 	
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_advect_thermo(thermo_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_two,temperature);
+	cuda_fluid_advect_thermo(thermo_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size_two,temperature, frame_time);
 	getLastCudaError("cuda_fluid_advect failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_vorticity(vorticity_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, size);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
-	cuda_fluid_force(velocity_derivative_cuda_->cuda_linear_memory_, vorticity_cuda_->cuda_linear_memory_, size);
+	cuda_fluid_force(velocity_derivative_cuda_->cuda_linear_memory_, vorticity_cuda_->cuda_linear_memory_, size, frame_time);
 	getLastCudaError("cuda_fluid_vorticity failed");
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_bouyancy(velocity_derivative_cuda_->cuda_linear_memory_, thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size, size_two);
+	cuda_fluid_bouyancy(velocity_derivative_cuda_->cuda_linear_memory_, thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size, size_two, frame_time);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
 	cuda_fluid_water(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_two,vapor);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
-	cuda_fluid_thermo(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size_two);
+	cuda_fluid_thermo(thermo_cuda_->cuda_linear_memory_, water_continuity_cuda_->cuda_linear_memory_, size_two, frame_time);
 	getLastCudaError("cuda_fluid_vorticity failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size);
+	cuda_fluid_divergence(pressure_divergence_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, frame_time);
 	getLastCudaError("cuda_fluid_divergence failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
@@ -972,11 +972,11 @@ void ApplicationClass::RunCloudKernals(float frame_time){
 	getLastCudaError("cuda_fluid_jacobi failed");
 
 	// kick off the kernel and send the staging buffer cuda_linear_memory_ as an argument to allow the kernel to write to it
-	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size);
+	cuda_fluid_project(pressure_divergence_cuda_->cuda_linear_memory_, velocity_cuda_->cuda_linear_memory_, velocity_derivative_cuda_->cuda_linear_memory_, size, frame_time);
 	getLastCudaError("cuda_fluid_project failed");
 	cuda_fluid_initial(pressure_divergence_cuda_->cuda_linear_memory_, size, 0.f);
 
-	cuda_fluid_boundaries(velocity_cuda_->cuda_linear_memory_,size);
+	//cuda_fluid_boundaries(velocity_cuda_->cuda_linear_memory_,size);
 
 	// kick off the kernel and send the staging buffer cudaLinearMemory as an argument to allow the kernel to write to it
 	cuda_fluid_rain(rain_cuda_->cuda_linear_memory_, water_continuity_rain_cuda_->cuda_linear_memory_, size_three, size_two);

@@ -9,7 +9,7 @@
 
 #include "../Source/CUDA/cuda_header.h"
 
-__global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size size, float ambient_temp){ 
+__global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size size, float ambient_temp, float delta_time){ 
 	int x_iter = blockIdx.x*blockDim.x + threadIdx.x;
 	int y_iter = blockIdx.y*blockDim.y + threadIdx.y;
 	int z_iter = 0;
@@ -18,9 +18,9 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 		float *cellVelo = velocity + (z_iter*size.pitch_slice_) + (y_iter*size.pitch_) + (PIXEL_FMT_SIZE_RGBA * x_iter);
 		float3 pos = {x_iter, y_iter, z_iter};
 		float3 cell_velo = {cellVelo[x_identifier_], cellVelo[y_identifier_], cellVelo[z_identifier_]};
-		pos.x = pos.x - (time_step * cell_velo.x);
-		pos.y = pos.y - (time_step * cell_velo.y);
-		pos.z = pos.z - (time_step * cell_velo.z);
+		pos.x = pos.x - (time_step * delta_time * cell_velo.x);
+		pos.y = pos.y - (time_step * delta_time * cell_velo.y);
+		pos.z = pos.z - (time_step * delta_time * cell_velo.z);
 			
 		int3 location = {pos.x,pos.y, pos.z};
 		location.x = location.x < 0 ? 0 : location.x;
@@ -76,13 +76,13 @@ __global__ void cuda_kernel_advect_thermo(float *input, float *velocity, Size si
 }
 
 extern "C"
-void cuda_fluid_advect_thermo(void *input, void* velocity, Size size, float ambient_temp){
+void cuda_fluid_advect_thermo(void *input, void* velocity, Size size, float ambient_temp, float delta_time){
 	cudaError_t error = cudaSuccess;
 
 	dim3 Db = dim3(16, 16);   // block dimensions are fixed to be 256 threads
 	dim3 Dg = dim3((size.width_+Db.x-1)/Db.x, (size.height_+Db.y-1)/Db.y);
 
-	cuda_kernel_advect_thermo<<<Dg,Db>>>((float*)input, (float*)velocity, size, ambient_temp);
+	cuda_kernel_advect_thermo<<<Dg,Db>>>((float*)input, (float*)velocity, size, ambient_temp, delta_time);
 
 	error = cudaGetLastError();
 	if (error != cudaSuccess){

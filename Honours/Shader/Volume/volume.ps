@@ -44,10 +44,10 @@ float4 VolumePS(PixelShaderInput input) : SV_TARGET
 
 		pos.w = 0;
 		value = volume_.SampleLevel(sample_type_, pos,0).a;
-
+		/*
 		if(value.a <= 0.125f){
 			value.a = 0;
-		}
+		}*/
 		value.rgb += 0.2f;
 		src = (float4)value;
 
